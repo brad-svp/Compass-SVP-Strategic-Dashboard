@@ -11,6 +11,66 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /svp/session:
+    get:
+      operationId: getSession
+      responses:
+        "200":
+          description: Staff session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Staff"
+  /svp/foundation:
+    get:
+      operationId: getFoundation
+      responses:
+        "200":
+          description: Staff workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Foundation"
+  /svp/admin/{collection}:
+    post:
+      operationId: createFoundationItem
+      parameters:
+        - $ref: "#/components/parameters/Collection"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FoundationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MutationResult"
+  /svp/admin/{collection}/{id}:
+    patch:
+      operationId: updateFoundationItem
+      parameters:
+        - $ref: "#/components/parameters/Collection"
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FoundationInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MutationResult"
   /healthz:
     get:
       operationId: healthCheck
@@ -25,7 +85,114 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
 components:
+  parameters:
+    Collection:
+      name: collection
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [staff, areas, cycles]
   schemas:
+    MutationResult:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+    Staff:
+      type: object
+      required: [id, name, role, areaId, roleDescription, active]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: [string, "null"] }
+        avatarUrl: { type: [string, "null"] }
+        role: { type: string, enum: [admin, staff] }
+        areaId: { type: string }
+        roleDescription: { type: string }
+        active: { type: boolean }
+    Area:
+      type: object
+      required: [id, name, color, sortOrder]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        color: { type: string }
+        sortOrder: { type: integer }
+    Cycle:
+      type: object
+      required: [id, name, startDate, endDate, status]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        startDate: { type: string }
+        endDate: { type: string }
+        status: { type: string, enum: [planning, active, closed] }
+    Moment:
+      type: object
+      required: [id, title, position]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        position: { type: integer }
+        eventDate: { type: [string, "null"] }
+    Period:
+      type: object
+      required: [id, name, startDate, endDate, status, moments]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        startDate: { type: string }
+        endDate: { type: string }
+        meetingDate: { type: [string, "null"] }
+        status: { type: string }
+        moments:
+          type: array
+          items: { $ref: "#/components/schemas/Moment" }
+    AuditEntry:
+      type: object
+      required: [id, actorName, action, entityType, entityId, createdAt, via]
+      properties:
+        id: { type: string }
+        actorName: { type: string }
+        action: { type: string }
+        entityType: { type: string }
+        entityId: { type: string }
+        createdAt: { type: string }
+        via: { type: string }
+    Foundation:
+      type: object
+      required: [staff, areas, cycles, periods, activity]
+      properties:
+        staff:
+          type: array
+          items: { $ref: "#/components/schemas/Staff" }
+        areas:
+          type: array
+          items: { $ref: "#/components/schemas/Area" }
+        cycles:
+          type: array
+          items: { $ref: "#/components/schemas/Cycle" }
+        periods:
+          type: array
+          items: { $ref: "#/components/schemas/Period" }
+        activity:
+          type: array
+          items: { $ref: "#/components/schemas/AuditEntry" }
+    FoundationInput:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: [string, "null"] }
+        role: { type: string, enum: [admin, staff] }
+        areaId: { type: string }
+        roleDescription: { type: string }
+        active: { type: boolean }
+        color: { type: string }
+        sortOrder: { type: integer }
+        startDate: { type: string }
+        endDate: { type: string }
+        status: { type: string, enum: [planning, active, closed] }
     HealthStatus:
       type: object
       properties:

@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "SVP OS"
+description = "SVP Sacramento’s staff-only strategic operating system for annual OKRs, six-week planning, team ownership, and shared systems."
+version = "1.0.0"
+id = "artifacts/svp-os"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18473
+
+[services.development]
+run = "pnpm --filter @workspace/svp-os run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/svp-os", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/svp-os/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18473"
+BASE_PATH = "/"
