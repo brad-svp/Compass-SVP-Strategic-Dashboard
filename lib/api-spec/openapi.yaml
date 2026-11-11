@@ -11,6 +11,145 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /svp/okrs:
+    get:
+      operationId: getOkrWorkspace
+      responses:
+        "200":
+          description: All staff OKRs, progress history and comments
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkrWorkspace" }
+  /svp/objectives:
+    post:
+      operationId: createObjective
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ObjectiveInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/objectives/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    patch:
+      operationId: updateObjective
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ObjectiveUpdate" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+    delete:
+      operationId: deleteObjective
+      responses:
+        "200":
+          description: Removed from workspace; history retained
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/key-results:
+    post:
+      operationId: createKeyResult
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/KeyResultInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/key-results/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    patch:
+      operationId: updateKeyResult
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/KeyResultUpdate" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+    delete:
+      operationId: deleteKeyResult
+      responses:
+        "200":
+          description: Removed from workspace; history retained
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/key-results/{id}/check-ins:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    post:
+      operationId: createCheckIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CheckInInput" }
+      responses:
+        "201":
+          description: Append-only progress update recorded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/comments:
+    post:
+      operationId: createComment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CommentInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/comments/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    patch:
+      operationId: updateComment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CommentUpdate" }
+      responses:
+        "200":
+          description: Updated by author
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+    delete:
+      operationId: deleteComment
+      responses:
+        "200":
+          description: Deleted by author
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
   /svp/session:
     get:
       operationId: getSession
@@ -86,6 +225,11 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 components:
   parameters:
+    EntityId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, minLength: 1 }
     Collection:
       name: collection
       in: path
@@ -94,6 +238,146 @@ components:
         type: string
         enum: [staff, areas, cycles]
   schemas:
+    ObjectiveInput:
+      type: object
+      required: [cycleId, level, ownerId, areaId, title, timeScope]
+      properties:
+        cycleId: { type: string }
+        level: { type: string, enum: [company, individual] }
+        ownerId: { type: string }
+        areaId: { type: string }
+        parentObjectiveId: { type: [string, "null"] }
+        title: { type: string, minLength: 1, maxLength: 300 }
+        description: { type: string, maxLength: 12000 }
+        timeScope: { type: string, enum: [annual, Q1, Q2, Q3, Q4] }
+        status: { type: string, enum: [draft, active, closed] }
+        sortOrder: { type: integer, minimum: 0 }
+    ObjectiveUpdate:
+      type: object
+      properties:
+        ownerId: { type: string }
+        areaId: { type: string }
+        parentObjectiveId: { type: [string, "null"] }
+        title: { type: string, minLength: 1, maxLength: 300 }
+        description: { type: string, maxLength: 12000 }
+        timeScope: { type: string, enum: [annual, Q1, Q2, Q3, Q4] }
+        status: { type: string, enum: [draft, active, closed] }
+        sortOrder: { type: integer, minimum: 0 }
+    KeyResultInput:
+      type: object
+      required: [objectiveId, ownerId, title, measurementType]
+      properties:
+        objectiveId: { type: string }
+        ownerId: { type: string }
+        title: { type: string, minLength: 1, maxLength: 300 }
+        measurementType: { type: string, enum: [metric, confidence] }
+        unit: { type: string, maxLength: 80 }
+        startValue: { type: number }
+        targetValue: { type: number }
+        sortOrder: { type: integer, minimum: 0 }
+    KeyResultUpdate:
+      type: object
+      properties:
+        ownerId: { type: string }
+        title: { type: string, minLength: 1, maxLength: 300 }
+        measurementType: { type: string, enum: [metric, confidence] }
+        unit: { type: string, maxLength: 80 }
+        startValue: { type: number }
+        targetValue: { type: number }
+        sortOrder: { type: integer, minimum: 0 }
+    CheckInInput:
+      type: object
+      required: [measurementType, note]
+      properties:
+        measurementType: { type: string, enum: [metric, confidence] }
+        value: { type: number }
+        confidence: { type: number, minimum: 0, maximum: 100 }
+        note: { type: string, minLength: 1, maxLength: 4000 }
+    CommentUpdate:
+      type: object
+      required: [body]
+      properties:
+        body: { type: string, minLength: 1, maxLength: 8000 }
+    CommentInput:
+      type: object
+      required: [entityType, entityId, body]
+      properties:
+        entityType: { type: string, enum: [objective, key_result] }
+        entityId: { type: string }
+        body: { type: string, minLength: 1, maxLength: 8000 }
+    Objective:
+      allOf:
+        - $ref: "#/components/schemas/ObjectiveInput"
+        - type: object
+          required: [id, description, status, sortOrder, aiDrafted, progress, health, expectedProgress, canEdit]
+          properties:
+            id: { type: string }
+            description: { type: string }
+            status: { type: string, enum: [draft, active, closed] }
+            sortOrder: { type: integer }
+            aiDrafted: { type: boolean }
+            progress: { type: number }
+            expectedProgress: { type: number }
+            health: { type: string, enum: [green, yellow, red, none] }
+            canEdit: { type: boolean }
+    KeyResult:
+      allOf:
+        - $ref: "#/components/schemas/KeyResultInput"
+        - type: object
+          required: [id, unit, startValue, targetValue, currentValue, confidence, sortOrder, progress, health, canEdit, lastCheckInAt]
+          properties:
+            id: { type: string }
+            unit: { type: string }
+            startValue: { type: number }
+            targetValue: { type: number }
+            currentValue: { type: [number, "null"] }
+            confidence: { type: [number, "null"] }
+            sortOrder: { type: integer }
+            progress: { type: number }
+            health: { type: string, enum: [green, yellow, red, none] }
+            lastCheckInAt: { type: [string, "null"] }
+            canEdit: { type: boolean }
+    CheckIn:
+      type: object
+      required: [id, keyResultId, authorId, measurementType, value, confidence, note, progress, createdAt]
+      properties:
+        id: { type: string }
+        keyResultId: { type: string }
+        authorId: { type: string }
+        measurementType: { type: string, enum: [metric, confidence] }
+        value: { type: [number, "null"] }
+        confidence: { type: [number, "null"] }
+        note: { type: string }
+        progress: { type: number }
+        createdAt: { type: string }
+    Comment:
+      type: object
+      required: [id, entityType, entityId, authorId, body, createdAt, editedAt, canEdit]
+      properties:
+        id: { type: string }
+        entityType: { type: string, enum: [objective, key_result] }
+        entityId: { type: string }
+        authorId: { type: string }
+        body: { type: string }
+        createdAt: { type: string }
+        editedAt: { type: [string, "null"] }
+        canEdit: { type: boolean }
+    OkrWorkspace:
+      type: object
+      required: [objectives, keyResults, checkIns, comments]
+      properties:
+        objectives:
+          type: array
+          items: { $ref: "#/components/schemas/Objective" }
+        keyResults:
+          type: array
+          items: { $ref: "#/components/schemas/KeyResult" }
+        checkIns:
+          type: array
+          items: { $ref: "#/components/schemas/CheckIn" }
+        comments:
+          type: array
+          items: { $ref: "#/components/schemas/Comment" }
     MutationResult:
       type: object
       required: [id]

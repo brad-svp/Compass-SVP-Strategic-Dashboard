@@ -14,7 +14,7 @@ const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/okrs', label: 'OKRs', icon: Target, soon: true },
+  { href: '/okrs', label: 'OKRs', icon: Target },
   { href: '/six-by-six', label: '6x6', icon: Grid3x3 },
   { href: '/team', label: 'Team & Ownership', icon: Users },
   { href: '/systems', label: 'Systems', icon: Workflow, soon: true },

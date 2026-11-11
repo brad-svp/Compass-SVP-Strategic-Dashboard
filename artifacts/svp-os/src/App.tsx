@@ -4,7 +4,7 @@ import { ClerkProvider, Show, useClerk } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { Redirect, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
-import { Target, Workflow, GraduationCap } from 'lucide-react';
+import { Workflow, GraduationCap } from 'lucide-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -19,6 +19,8 @@ import Team from '@/pages/team';
 import Settings from '@/pages/settings';
 import Admin from '@/pages/admin';
 import { PhasePreview } from '@/pages/phase-preview';
+import Okrs from '@/pages/okrs';
+import OkrDetail from '@/pages/okr-detail';
 
 const queryClient = new QueryClient();
 
@@ -124,16 +126,6 @@ function Protected({ children }: { children: ReactNode }) {
 
 const page = (C: ComponentType) => () => <Protected><C /></Protected>;
 
-const OkrsPreview = () => (
-  <PhasePreview eyebrow="OKRs" title="Objectives, owned out loud." icon={Target} color="#1D8BC4"
-    intro="Company and personal objectives with measurable key results, tied to the active cycle."
-    items={[
-      { title: 'Company objectives', body: 'Three to five shared objectives per cycle.' },
-      { title: 'Key results', body: 'Measurable outcomes with a named owner.' },
-      { title: 'Weekly check-ins', body: 'Short confidence updates, visible to the team.' },
-      { title: 'Cycle review', body: 'A closing reflection before the next cycle begins.' },
-    ]} />
-);
 const SystemsPreview = () => (
   <PhasePreview eyebrow="Systems" title="How the work gets done." icon={Workflow} color="#49B949"
     intro="The recurring processes the team relies on, documented with owners."
@@ -160,7 +152,8 @@ function Routes() {
         <Route path="/sign-in/*?" component={SignInPage} />
         <Route path="/sign-up/*?" component={SignUpPage} />
         <Route path="/dashboard" component={page(Dashboard)} />
-        <Route path="/okrs" component={page(OkrsPreview)} />
+        <Route path="/okrs" component={page(Okrs)} />
+        <Route path="/okrs/:id" component={page(OkrDetail)} />
         <Route path="/six-by-six" component={page(SixBySix)} />
         <Route path="/team" component={page(Team)} />
         <Route path="/systems" component={page(SystemsPreview)} />

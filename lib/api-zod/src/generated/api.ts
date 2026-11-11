@@ -8,6 +8,297 @@
 import * as zod from 'zod';
 
 
+export const getOkrWorkspaceResponseObjectivesItemOneTitleMax = 300;
+
+export const getOkrWorkspaceResponseObjectivesItemOneDescriptionMax = 12000;
+
+export const getOkrWorkspaceResponseObjectivesItemOneSortOrderMin = 0;
+
+export const getOkrWorkspaceResponseKeyResultsItemOneTitleMax = 300;
+
+export const getOkrWorkspaceResponseKeyResultsItemOneUnitMax = 80;
+
+export const getOkrWorkspaceResponseKeyResultsItemOneSortOrderMin = 0;
+
+
+
+export const GetOkrWorkspaceResponse = zod.object({
+  "objectives": zod.array(zod.object({
+  "cycleId": zod.string(),
+  "level": zod.enum(['company', 'individual']),
+  "ownerId": zod.string(),
+  "areaId": zod.string(),
+  "parentObjectiveId": zod.string().nullish(),
+  "title": zod.string().min(1).max(getOkrWorkspaceResponseObjectivesItemOneTitleMax),
+  "description": zod.string().max(getOkrWorkspaceResponseObjectivesItemOneDescriptionMax),
+  "timeScope": zod.enum(['annual', 'Q1', 'Q2', 'Q3', 'Q4']),
+  "status": zod.enum(['draft', 'active', 'closed']),
+  "sortOrder": zod.number().int().min(getOkrWorkspaceResponseObjectivesItemOneSortOrderMin)
+}).and(zod.object({
+  "id": zod.string(),
+  "description": zod.string(),
+  "status": zod.enum(['draft', 'active', 'closed']),
+  "sortOrder": zod.number().int(),
+  "aiDrafted": zod.boolean(),
+  "progress": zod.number(),
+  "expectedProgress": zod.number(),
+  "health": zod.enum(['green', 'yellow', 'red', 'none']),
+  "canEdit": zod.boolean()
+}))),
+  "keyResults": zod.array(zod.object({
+  "objectiveId": zod.string(),
+  "ownerId": zod.string(),
+  "title": zod.string().min(1).max(getOkrWorkspaceResponseKeyResultsItemOneTitleMax),
+  "measurementType": zod.enum(['metric', 'confidence']),
+  "unit": zod.string().max(getOkrWorkspaceResponseKeyResultsItemOneUnitMax),
+  "startValue": zod.number(),
+  "targetValue": zod.number(),
+  "sortOrder": zod.number().int().min(getOkrWorkspaceResponseKeyResultsItemOneSortOrderMin)
+}).and(zod.object({
+  "id": zod.string(),
+  "unit": zod.string(),
+  "startValue": zod.number(),
+  "targetValue": zod.number(),
+  "currentValue": zod.number().nullable(),
+  "confidence": zod.number().nullable(),
+  "sortOrder": zod.number().int(),
+  "progress": zod.number(),
+  "health": zod.enum(['green', 'yellow', 'red', 'none']),
+  "lastCheckInAt": zod.string().nullable(),
+  "canEdit": zod.boolean()
+}))),
+  "checkIns": zod.array(zod.object({
+  "id": zod.string(),
+  "keyResultId": zod.string(),
+  "authorId": zod.string(),
+  "measurementType": zod.enum(['metric', 'confidence']),
+  "value": zod.number().nullable(),
+  "confidence": zod.number().nullable(),
+  "note": zod.string(),
+  "progress": zod.number(),
+  "createdAt": zod.string()
+})),
+  "comments": zod.array(zod.object({
+  "id": zod.string(),
+  "entityType": zod.enum(['objective', 'key_result']),
+  "entityId": zod.string(),
+  "authorId": zod.string(),
+  "body": zod.string(),
+  "createdAt": zod.string(),
+  "editedAt": zod.string().nullable(),
+  "canEdit": zod.boolean()
+}))
+})
+
+
+export const createObjectiveBodyTitleMax = 300;
+
+export const createObjectiveBodyDescriptionMax = 12000;
+
+export const createObjectiveBodySortOrderMin = 0;
+
+
+
+export const CreateObjectiveBody = zod.object({
+  "cycleId": zod.string(),
+  "level": zod.enum(['company', 'individual']),
+  "ownerId": zod.string(),
+  "areaId": zod.string(),
+  "parentObjectiveId": zod.string().nullish(),
+  "title": zod.string().min(1).max(createObjectiveBodyTitleMax),
+  "description": zod.string().max(createObjectiveBodyDescriptionMax).optional(),
+  "timeScope": zod.enum(['annual', 'Q1', 'Q2', 'Q3', 'Q4']),
+  "status": zod.enum(['draft', 'active', 'closed']).optional(),
+  "sortOrder": zod.number().int().min(createObjectiveBodySortOrderMin).optional()
+})
+
+export const CreateObjectiveResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const UpdateObjectiveParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateObjectiveBodyTitleMax = 300;
+
+export const updateObjectiveBodyDescriptionMax = 12000;
+
+export const updateObjectiveBodySortOrderMin = 0;
+
+
+
+export const UpdateObjectiveBody = zod.object({
+  "ownerId": zod.string().optional(),
+  "areaId": zod.string().optional(),
+  "parentObjectiveId": zod.string().nullish(),
+  "title": zod.string().min(1).max(updateObjectiveBodyTitleMax).optional(),
+  "description": zod.string().max(updateObjectiveBodyDescriptionMax).optional(),
+  "timeScope": zod.enum(['annual', 'Q1', 'Q2', 'Q3', 'Q4']).optional(),
+  "status": zod.enum(['draft', 'active', 'closed']).optional(),
+  "sortOrder": zod.number().int().min(updateObjectiveBodySortOrderMin).optional()
+})
+
+export const UpdateObjectiveResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const DeleteObjectiveParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const DeleteObjectiveResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const createKeyResultBodyTitleMax = 300;
+
+export const createKeyResultBodyUnitMax = 80;
+
+export const createKeyResultBodySortOrderMin = 0;
+
+
+
+export const CreateKeyResultBody = zod.object({
+  "objectiveId": zod.string(),
+  "ownerId": zod.string(),
+  "title": zod.string().min(1).max(createKeyResultBodyTitleMax),
+  "measurementType": zod.enum(['metric', 'confidence']),
+  "unit": zod.string().max(createKeyResultBodyUnitMax).optional(),
+  "startValue": zod.number().optional(),
+  "targetValue": zod.number().optional(),
+  "sortOrder": zod.number().int().min(createKeyResultBodySortOrderMin).optional()
+})
+
+export const CreateKeyResultResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const UpdateKeyResultParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateKeyResultBodyTitleMax = 300;
+
+export const updateKeyResultBodyUnitMax = 80;
+
+export const updateKeyResultBodySortOrderMin = 0;
+
+
+
+export const UpdateKeyResultBody = zod.object({
+  "ownerId": zod.string().optional(),
+  "title": zod.string().min(1).max(updateKeyResultBodyTitleMax).optional(),
+  "measurementType": zod.enum(['metric', 'confidence']).optional(),
+  "unit": zod.string().max(updateKeyResultBodyUnitMax).optional(),
+  "startValue": zod.number().optional(),
+  "targetValue": zod.number().optional(),
+  "sortOrder": zod.number().int().min(updateKeyResultBodySortOrderMin).optional()
+})
+
+export const UpdateKeyResultResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const DeleteKeyResultParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const DeleteKeyResultResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const CreateCheckInParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const createCheckInBodyConfidenceMin = 0;
+export const createCheckInBodyConfidenceMax = 100;
+
+export const createCheckInBodyNoteMax = 4000;
+
+
+
+export const CreateCheckInBody = zod.object({
+  "measurementType": zod.enum(['metric', 'confidence']),
+  "value": zod.number().optional(),
+  "confidence": zod.number().min(createCheckInBodyConfidenceMin).max(createCheckInBodyConfidenceMax).optional(),
+  "note": zod.string().min(1).max(createCheckInBodyNoteMax)
+})
+
+export const CreateCheckInResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const createCommentBodyBodyMax = 8000;
+
+
+
+export const CreateCommentBody = zod.object({
+  "entityType": zod.enum(['objective', 'key_result']),
+  "entityId": zod.string(),
+  "body": zod.string().min(1).max(createCommentBodyBodyMax)
+})
+
+export const CreateCommentResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const UpdateCommentParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateCommentBodyBodyMax = 8000;
+
+
+
+export const UpdateCommentBody = zod.object({
+  "body": zod.string().min(1).max(updateCommentBodyBodyMax)
+})
+
+export const UpdateCommentResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const DeleteCommentParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const DeleteCommentResponse = zod.object({
+  "id": zod.string()
+})
+
+
 export const GetSessionResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),

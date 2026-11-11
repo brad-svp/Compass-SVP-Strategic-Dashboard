@@ -1,0 +1,1 @@
+- [Safe OKR testing](testing-isolation.md) — isolate fixtures from real planning cycles; match the app’s frontend transform without bypassing auth.

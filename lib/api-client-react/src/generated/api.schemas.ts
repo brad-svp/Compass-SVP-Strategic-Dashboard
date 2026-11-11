@@ -5,6 +5,297 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type ObjectiveInputLevel = typeof ObjectiveInputLevel[keyof typeof ObjectiveInputLevel];
+
+
+export const ObjectiveInputLevel = {
+  company: 'company',
+  individual: 'individual',
+} as const;
+
+export type ObjectiveInputTimeScope = typeof ObjectiveInputTimeScope[keyof typeof ObjectiveInputTimeScope];
+
+
+export const ObjectiveInputTimeScope = {
+  annual: 'annual',
+  Q1: 'Q1',
+  Q2: 'Q2',
+  Q3: 'Q3',
+  Q4: 'Q4',
+} as const;
+
+export type ObjectiveInputStatus = typeof ObjectiveInputStatus[keyof typeof ObjectiveInputStatus];
+
+
+export const ObjectiveInputStatus = {
+  draft: 'draft',
+  active: 'active',
+  closed: 'closed',
+} as const;
+
+export interface ObjectiveInput {
+  cycleId: string;
+  level: ObjectiveInputLevel;
+  ownerId: string;
+  areaId: string;
+  /** @nullable */
+  parentObjectiveId?: string | null;
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  title: string;
+  /** @maxLength 12000 */
+  description?: string;
+  timeScope: ObjectiveInputTimeScope;
+  status?: ObjectiveInputStatus;
+  /** @minimum 0 */
+  sortOrder?: number;
+}
+
+export type ObjectiveUpdateTimeScope = typeof ObjectiveUpdateTimeScope[keyof typeof ObjectiveUpdateTimeScope];
+
+
+export const ObjectiveUpdateTimeScope = {
+  annual: 'annual',
+  Q1: 'Q1',
+  Q2: 'Q2',
+  Q3: 'Q3',
+  Q4: 'Q4',
+} as const;
+
+export type ObjectiveUpdateStatus = typeof ObjectiveUpdateStatus[keyof typeof ObjectiveUpdateStatus];
+
+
+export const ObjectiveUpdateStatus = {
+  draft: 'draft',
+  active: 'active',
+  closed: 'closed',
+} as const;
+
+export interface ObjectiveUpdate {
+  ownerId?: string;
+  areaId?: string;
+  /** @nullable */
+  parentObjectiveId?: string | null;
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  title?: string;
+  /** @maxLength 12000 */
+  description?: string;
+  timeScope?: ObjectiveUpdateTimeScope;
+  status?: ObjectiveUpdateStatus;
+  /** @minimum 0 */
+  sortOrder?: number;
+}
+
+export type KeyResultInputMeasurementType = typeof KeyResultInputMeasurementType[keyof typeof KeyResultInputMeasurementType];
+
+
+export const KeyResultInputMeasurementType = {
+  metric: 'metric',
+  confidence: 'confidence',
+} as const;
+
+export interface KeyResultInput {
+  objectiveId: string;
+  ownerId: string;
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  title: string;
+  measurementType: KeyResultInputMeasurementType;
+  /** @maxLength 80 */
+  unit?: string;
+  startValue?: number;
+  targetValue?: number;
+  /** @minimum 0 */
+  sortOrder?: number;
+}
+
+export type KeyResultUpdateMeasurementType = typeof KeyResultUpdateMeasurementType[keyof typeof KeyResultUpdateMeasurementType];
+
+
+export const KeyResultUpdateMeasurementType = {
+  metric: 'metric',
+  confidence: 'confidence',
+} as const;
+
+export interface KeyResultUpdate {
+  ownerId?: string;
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  title?: string;
+  measurementType?: KeyResultUpdateMeasurementType;
+  /** @maxLength 80 */
+  unit?: string;
+  startValue?: number;
+  targetValue?: number;
+  /** @minimum 0 */
+  sortOrder?: number;
+}
+
+export type CheckInInputMeasurementType = typeof CheckInInputMeasurementType[keyof typeof CheckInInputMeasurementType];
+
+
+export const CheckInInputMeasurementType = {
+  metric: 'metric',
+  confidence: 'confidence',
+} as const;
+
+export interface CheckInInput {
+  measurementType: CheckInInputMeasurementType;
+  value?: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  confidence?: number;
+  /**
+     * @minLength 1
+     * @maxLength 4000
+     */
+  note: string;
+}
+
+export interface CommentUpdate {
+  /**
+     * @minLength 1
+     * @maxLength 8000
+     */
+  body: string;
+}
+
+export type CommentInputEntityType = typeof CommentInputEntityType[keyof typeof CommentInputEntityType];
+
+
+export const CommentInputEntityType = {
+  objective: 'objective',
+  key_result: 'key_result',
+} as const;
+
+export interface CommentInput {
+  entityType: CommentInputEntityType;
+  entityId: string;
+  /**
+     * @minLength 1
+     * @maxLength 8000
+     */
+  body: string;
+}
+
+export type ObjectiveStatus = typeof ObjectiveStatus[keyof typeof ObjectiveStatus];
+
+
+export const ObjectiveStatus = {
+  draft: 'draft',
+  active: 'active',
+  closed: 'closed',
+} as const;
+
+export type ObjectiveHealth = typeof ObjectiveHealth[keyof typeof ObjectiveHealth];
+
+
+export const ObjectiveHealth = {
+  green: 'green',
+  yellow: 'yellow',
+  red: 'red',
+  none: 'none',
+} as const;
+
+export type Objective = ObjectiveInput & {
+  id: string;
+  description: string;
+  status: ObjectiveStatus;
+  sortOrder: number;
+  aiDrafted: boolean;
+  progress: number;
+  expectedProgress: number;
+  health: ObjectiveHealth;
+  canEdit: boolean;
+};
+
+export type KeyResultHealth = typeof KeyResultHealth[keyof typeof KeyResultHealth];
+
+
+export const KeyResultHealth = {
+  green: 'green',
+  yellow: 'yellow',
+  red: 'red',
+  none: 'none',
+} as const;
+
+export type KeyResult = KeyResultInput & ({
+  id: string;
+  unit: string;
+  startValue: number;
+  targetValue: number;
+  /** @nullable */
+  currentValue: number | null;
+  /** @nullable */
+  confidence: number | null;
+  sortOrder: number;
+  progress: number;
+  health: KeyResultHealth;
+  /** @nullable */
+  lastCheckInAt: string | null;
+  canEdit: boolean;
+});
+
+export type CheckInMeasurementType = typeof CheckInMeasurementType[keyof typeof CheckInMeasurementType];
+
+
+export const CheckInMeasurementType = {
+  metric: 'metric',
+  confidence: 'confidence',
+} as const;
+
+export interface CheckIn {
+  id: string;
+  keyResultId: string;
+  authorId: string;
+  measurementType: CheckInMeasurementType;
+  /** @nullable */
+  value: number | null;
+  /** @nullable */
+  confidence: number | null;
+  note: string;
+  progress: number;
+  createdAt: string;
+}
+
+export type CommentEntityType = typeof CommentEntityType[keyof typeof CommentEntityType];
+
+
+export const CommentEntityType = {
+  objective: 'objective',
+  key_result: 'key_result',
+} as const;
+
+export interface Comment {
+  id: string;
+  entityType: CommentEntityType;
+  entityId: string;
+  authorId: string;
+  body: string;
+  createdAt: string;
+  /** @nullable */
+  editedAt: string | null;
+  canEdit: boolean;
+}
+
+export interface OkrWorkspace {
+  objectives: Objective[];
+  keyResults: KeyResult[];
+  checkIns: CheckIn[];
+  comments: Comment[];
+}
+
 export interface MutationResult {
   id: string;
 }
