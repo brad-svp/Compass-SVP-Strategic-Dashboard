@@ -1,0 +1,1340 @@
+{
+  "source": "https://shy-jaborosa-623.notion.site/svp-master-schedule?pvs=74",
+  "recordCount": 67,
+  "countsByYear": {
+    "2026": 39,
+    "2027": 28
+  },
+  "completeness": "PARTIAL. Past (Date: Past 6 months), All (Date: Next 6 months) and AI (Type=AI for Good, Date: After Tomorrow) are date-filtered. Jan-May 2026 rows of other types may be missing. Upcoming's filter state is unverified. No export. Use a database CSV export for completeness.",
+  "timezone": {
+    "rawDisplay": "Dates/times shown by Notion without a zone label, in the browser viewer timezone America/Los_Angeles (PT). Raw stored timezone/offset NOT exposed in UI.",
+    "verification": "Dec 1 2026 board meeting displays 5:30 PM-7:30 PM PT (17:30-19:30 America/Los_Angeles, PST -08:00). This matches the webFetch 20:30 EST value only if the stored value is 17:30 PT. Consistent, but the stored source timezone is UNCONFIRMED, so flag it.",
+    "offsetsUsed": "PST -08:00 before Mar 8 2026 and Nov 1 2026 onward (2026-11-09, 2026-12, 2027-01..02); PDT -07:00 Mar 8-Oct 31 2026 and Mar 14-Nov 7 2027; 2027-03-16 onward PDT."
+  },
+  "fieldNotes": "id: Notion row ids not exposed (null). audience and wix: column values not captured reliably (null). dateStatus/locationStatus mapped from cell order after Day; entries with 'unmapped' had an ambiguous trailing cell.",
+  "records": [
+    {
+      "n": 1,
+      "sourceViews": [
+        "Past",
+        "FP"
+      ],
+      "rawDisplay": "November 9, 2026 4:00 PM → 8:00 PM",
+      "rawDay": "Monday",
+      "rawTz": "PT-display",
+      "start": "2026-11-09T16:00:00-08:00",
+      "end": "2026-11-09T20:00:00-08:00",
+      "allDay": false,
+      "program": "Fast Pitch",
+      "title": "Fast Pitch Showcase",
+      "dateStatus": "Confirmed",
+      "location": "Crest Theater / Empress Tavern",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 2,
+      "sourceViews": [
+        "Past",
+        "FP"
+      ],
+      "rawDisplay": "October 28, 2026 4:00 PM → 7:00 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2026-10-28T16:00:00-07:00",
+      "end": "2026-10-28T19:00:00-07:00",
+      "allDay": false,
+      "program": "Fast Pitch",
+      "title": "Fast Pitch Workshop #4",
+      "dateStatus": "Confirmed",
+      "location": "Frequency Coworking",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 3,
+      "sourceViews": [
+        "Past",
+        "TT"
+      ],
+      "rawDisplay": "October 14, 2026 5:00 PM → 8:00 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2026-10-14T17:00:00-07:00",
+      "end": "2026-10-14T20:00:00-07:00",
+      "allDay": false,
+      "program": "Think Tank",
+      "title": "Oct Partner Dinner & Think Tank",
+      "dateStatus": "Confirmed",
+      "location": "North Ridge CC",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 4,
+      "sourceViews": [
+        "Past",
+        "FP"
+      ],
+      "rawDisplay": "October 7, 2026 4:00 PM → 7:00 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2026-10-07T16:00:00-07:00",
+      "end": "2026-10-07T19:00:00-07:00",
+      "allDay": false,
+      "program": "Fast Pitch",
+      "title": "Fast Pitch Workshop #3",
+      "dateStatus": "Confirmed",
+      "location": "Frequency Coworking",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 5,
+      "sourceViews": [
+        "Past",
+        "Board"
+      ],
+      "rawDisplay": "October 6, 2026 5:30 PM → 7:30 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2026-10-06T17:30:00-07:00",
+      "end": "2026-10-06T19:30:00-07:00",
+      "allDay": false,
+      "program": "Board Meeting",
+      "title": "SVP Board Meeting - Oct",
+      "dateStatus": "Confirmed",
+      "location": "Serrano",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 6,
+      "sourceViews": [
+        "Past",
+        "100x"
+      ],
+      "rawDisplay": "September 27, 2026",
+      "rawDay": "Weekend",
+      "rawTz": "PT-display",
+      "start": "2026-09-27",
+      "end": null,
+      "allDay": true,
+      "program": "100x",
+      "title": "100x",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 7,
+      "sourceViews": [
+        "Past",
+        "FP"
+      ],
+      "rawDisplay": "September 16, 2026 4:00 PM → 7:00 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2026-09-16T16:00:00-07:00",
+      "end": "2026-09-16T19:00:00-07:00",
+      "allDay": false,
+      "program": "Fast Pitch",
+      "title": "Fast Pitch Workshop #2",
+      "dateStatus": "Confirmed",
+      "location": "Frequency Coworking",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 8,
+      "sourceViews": [
+        "Past",
+        "Impact Tours"
+      ],
+      "rawDisplay": "September 16, 2026 11:00 AM → 1:00 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2026-09-16T11:00:00-07:00",
+      "end": "2026-09-16T13:00:00-07:00",
+      "allDay": false,
+      "program": "Impact Tour",
+      "title": "SVP Impact Tour & Luncheon (Sept)",
+      "dateStatus": "Confirmed",
+      "location": "Keatons / Alliance?",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 9,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "September 15, 2026 8:00 AM → 6:00 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2026-09-15T08:00:00-07:00",
+      "end": "2026-09-15T18:00:00-07:00",
+      "allDay": false,
+      "program": "Non SVP / Other",
+      "title": "Philanthropy Summit by SRCF",
+      "dateStatus": "Confirmed",
+      "location": "Cal Expo, 1600 Exposition Blvd, Sacramento, CA 95815",
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 10,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "September 8, 2026 9:00 AM → 4:00 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2026-09-08T09:00:00-07:00",
+      "end": "2026-09-08T16:00:00-07:00",
+      "allDay": false,
+      "program": "Non SVP / Other",
+      "title": "Philanthropy Summit (date TBD)",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 11,
+      "sourceViews": [
+        "Past",
+        "FP"
+      ],
+      "rawDisplay": "September 2, 2026 4:00 PM → 7:00 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2026-09-02T16:00:00-07:00",
+      "end": "2026-09-02T19:00:00-07:00",
+      "allDay": false,
+      "program": "Fast Pitch",
+      "title": "Fast Pitch Workshop #1",
+      "dateStatus": "Confirmed",
+      "location": "Frequency Coworking",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 12,
+      "sourceViews": [
+        "Past",
+        "FP"
+      ],
+      "rawDisplay": "August 26, 2026 5:30 PM → 7:30 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2026-08-26T17:30:00-07:00",
+      "end": "2026-08-26T19:30:00-07:00",
+      "allDay": false,
+      "program": "Fast Pitch",
+      "title": "Fast Pitch Kickoff Party",
+      "dateStatus": "Confirmed",
+      "location": "Empress Tavern",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 13,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "August 21, 2026 11:30 AM → 1:30 PM",
+      "rawDay": "Friday",
+      "rawTz": "PT-display",
+      "start": "2026-08-21T11:30:00-07:00",
+      "end": "2026-08-21T13:30:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI & Philanthropy Luncheon",
+      "dateStatus": "Confirmed",
+      "location": "Marriott Rancho Cordova",
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 14,
+      "sourceViews": [
+        "Past",
+        "TT"
+      ],
+      "rawDisplay": "August 20, 2026 5:00 PM → 8:00 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2026-08-20T17:00:00-07:00",
+      "end": "2026-08-20T20:00:00-07:00",
+      "allDay": false,
+      "program": "Think Tank",
+      "title": "Aug Partner Dinner & Think Tank",
+      "dateStatus": "Confirmed",
+      "location": "Granite Bay",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 15,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "August 17, 2026 → August 21, 2026",
+      "rawDay": "Monday",
+      "rawTz": "PT-display",
+      "start": "2026-08-17",
+      "end": "2026-08-21",
+      "allDay": true,
+      "program": "AI for Good",
+      "title": "AI for Good Hackathon",
+      "dateStatus": "Confirmed",
+      "location": "Frequency Corworking (as displayed)",
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 16,
+      "sourceViews": [
+        "Past",
+        "Board"
+      ],
+      "rawDisplay": "August 4, 2026 5:30 PM → 6:30 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2026-08-04T17:30:00-07:00",
+      "end": "2026-08-04T18:30:00-07:00",
+      "allDay": false,
+      "program": "Board Meeting",
+      "title": "SVP Board Meeting - Aug",
+      "dateStatus": "Confirmed",
+      "location": "Serrano",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 17,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "July 24, 2026 8:30 AM → 12:00 PM",
+      "rawDay": "Friday",
+      "rawTz": "PT-display",
+      "start": "2026-07-24T08:30:00-07:00",
+      "end": "2026-07-24T12:00:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI for Good - 301 Workshop",
+      "dateStatus": "Confirmed",
+      "location": "Frequency Coworking",
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 18,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "July 23, 2026 8:30 AM → 12:00 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2026-07-23T08:30:00-07:00",
+      "end": "2026-07-23T12:00:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI for Good - 301 Workshop",
+      "dateStatus": "Confirmed",
+      "location": "Frequency Coworking",
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 19,
+      "sourceViews": [
+        "Past",
+        "100x"
+      ],
+      "rawDisplay": "July 22, 2026 5:00 PM → 7:00 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2026-07-22T17:00:00-07:00",
+      "end": "2026-07-22T19:00:00-07:00",
+      "allDay": false,
+      "program": "100x",
+      "title": "100x - July",
+      "dateStatus": "Confirmed",
+      "location": "Empress Tavern",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 20,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "July 17, 2026 3:00 PM → 4:00 PM",
+      "rawDay": "Friday",
+      "rawTz": "PT-display",
+      "start": "2026-07-17T15:00:00-07:00",
+      "end": "2026-07-17T16:00:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI for Good Demo Day - July (Child Action)",
+      "dateStatus": "Confirmed",
+      "location": "Zoom",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 21,
+      "sourceViews": [
+        "Past",
+        "TT"
+      ],
+      "rawDisplay": "June 25, 2026 5:00 PM → 8:00 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2026-06-25T17:00:00-07:00",
+      "end": "2026-06-25T20:00:00-07:00",
+      "allDay": false,
+      "program": "Think Tank",
+      "title": "June Partner Dinner & Think Tank",
+      "dateStatus": "Confirmed",
+      "location": "Del Paso",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 22,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "June 19, 2026 3:00 PM → 3:45 PM",
+      "rawDay": "Friday",
+      "rawTz": "PT-display",
+      "start": "2026-06-19T15:00:00-07:00",
+      "end": "2026-06-19T15:45:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI for Good Demo Day - June",
+      "dateStatus": "Proposed",
+      "location": "Zoom",
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 23,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "June 18, 2026 8:30 AM → 12:00 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2026-06-18T08:30:00-07:00",
+      "end": "2026-06-18T12:00:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI for Good - 201 Workshop",
+      "dateStatus": "Confirmed",
+      "location": "Frequency Coworking",
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 24,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "June 17, 2026 8:30 AM → 12:00 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2026-06-17T08:30:00-07:00",
+      "end": "2026-06-17T12:00:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI for Good - 201 Workshop",
+      "dateStatus": "Confirmed",
+      "location": "Frequency Coworking",
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 25,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "June 15, 2026 8:00 AM → 9:00 AM",
+      "rawDay": "Monday",
+      "rawTz": "PT-display",
+      "start": "2026-06-15T08:00:00-07:00",
+      "end": "2026-06-15T09:00:00-07:00",
+      "allDay": false,
+      "program": "Non SVP / Other",
+      "title": "SVP Nonprofit Coffee Connect",
+      "dateStatus": "Confirmed",
+      "location": "Purple Tree Cafe",
+      "locationStatus": null,
+      "audience": null,
+      "wix": null,
+      "unmapped": "trailing cell 'Confirmed' (column unconfirmed)"
+    },
+    {
+      "n": 26,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "June 11, 2026 4:30 PM → 7:30 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2026-06-11T16:30:00-07:00",
+      "end": "2026-06-11T19:30:00-07:00",
+      "allDay": false,
+      "program": "Partner Social",
+      "title": "Partner Summer Social",
+      "dateStatus": "Confirmed",
+      "location": "Northridge Country Club, 7600 Madison Ave, Fair Oaks, CA 95628",
+      "locationStatus": null,
+      "audience": null,
+      "wix": null,
+      "unmapped": "trailing cell 'Confirmed' (column unconfirmed)"
+    },
+    {
+      "n": 27,
+      "sourceViews": [
+        "Past",
+        "Board"
+      ],
+      "rawDisplay": "June 2, 2026 5:30 PM → 7:30 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2026-06-02T17:30:00-07:00",
+      "end": "2026-06-02T19:30:00-07:00",
+      "allDay": false,
+      "program": "Board Meeting",
+      "title": "SVP Board Meeting - Jun",
+      "dateStatus": "Confirmed",
+      "location": "Serrano",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 28,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "May 29, 2026 8:30 AM → 12:00 PM",
+      "rawDay": "Friday",
+      "rawTz": "PT-display",
+      "start": "2026-05-29T08:30:00-07:00",
+      "end": "2026-05-29T12:00:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI for Good - 101 Workshop (1)",
+      "dateStatus": "Confirmed",
+      "location": "Frequency Coworking",
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 29,
+      "sourceViews": [
+        "Past"
+      ],
+      "rawDisplay": "May 28, 2026 8:30 AM → 12:00 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2026-05-28T08:30:00-07:00",
+      "end": "2026-05-28T12:00:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI for Good - 101 Workshop",
+      "dateStatus": "Confirmed",
+      "location": "Frequency Coworking",
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 30,
+      "sourceViews": [
+        "Past",
+        "Impact Tours"
+      ],
+      "rawDisplay": "May 19, 2026 11:00 AM → 1:00 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2026-05-19T11:00:00-07:00",
+      "end": "2026-05-19T13:00:00-07:00",
+      "allDay": false,
+      "program": "Impact Tour",
+      "title": "SVP Impact Tour & Luncheon (May)",
+      "dateStatus": "Confirmed",
+      "location": "Hearts Landing Ranch",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 31,
+      "sourceViews": [
+        "Board"
+      ],
+      "rawDisplay": "February 3, 2026 5:30 PM → 7:30 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2026-02-03T17:30:00-08:00",
+      "end": "2026-02-03T19:30:00-08:00",
+      "allDay": false,
+      "program": "Board Meeting",
+      "title": "SVP Board Meeting - Feb",
+      "dateStatus": "Confirmed",
+      "location": "Serrano",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 32,
+      "sourceViews": [
+        "Board"
+      ],
+      "rawDisplay": "April 7, 2026 5:30 PM → 7:30 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2026-04-07T17:30:00-07:00",
+      "end": "2026-04-07T19:30:00-07:00",
+      "allDay": false,
+      "program": "Board Meeting",
+      "title": "SVP Board Meeting - Apr (Mount Diablo Room)",
+      "dateStatus": "Confirmed",
+      "location": "Serrano",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 33,
+      "sourceViews": [
+        "TT"
+      ],
+      "rawDisplay": "February 18, 2026 5:00 PM → 8:00 PM",
+      "rawDay": null,
+      "rawTz": "PT-display",
+      "start": "2026-02-18T17:00:00-08:00",
+      "end": "2026-02-18T20:00:00-08:00",
+      "allDay": false,
+      "program": "Think Tank",
+      "title": "Feb Partner Dinner & Think Tank",
+      "dateStatus": "Confirmed",
+      "location": "Serrano CC",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 34,
+      "sourceViews": [
+        "TT"
+      ],
+      "rawDisplay": "April 22, 2026 5:00 PM → 8:00 PM",
+      "rawDay": null,
+      "rawTz": "PT-display",
+      "start": "2026-04-22T17:00:00-07:00",
+      "end": "2026-04-22T20:00:00-07:00",
+      "allDay": false,
+      "program": "Think Tank",
+      "title": "April Partner Dinner & Think Tank",
+      "dateStatus": "Confirmed",
+      "location": "El Macero",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 35,
+      "sourceViews": [
+        "100x"
+      ],
+      "rawDisplay": "January 27, 2026 5:30 PM → 7:30 PM",
+      "rawDay": null,
+      "rawTz": "PT-display",
+      "start": "2026-01-27T17:30:00-08:00",
+      "end": "2026-01-27T19:30:00-08:00",
+      "allDay": false,
+      "program": "100x",
+      "title": "100x - January",
+      "dateStatus": null,
+      "location": "TBD",
+      "locationStatus": null,
+      "audience": null,
+      "wix": null,
+      "unmapped": "'Drew Hayes' (column unconfirmed)"
+    },
+    {
+      "n": 36,
+      "sourceViews": [
+        "Impact Tours"
+      ],
+      "rawDisplay": "January 20, 2026 11:00 AM → 1:00 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2026-01-20T11:00:00-08:00",
+      "end": "2026-01-20T13:00:00-08:00",
+      "allDay": false,
+      "program": "Impact Tour",
+      "title": "SVP Impact Tour & Luncheon (Jan)",
+      "dateStatus": "Confirmed",
+      "location": "Saint Johns Program for Real Change",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 37,
+      "sourceViews": [
+        "Impact Tours"
+      ],
+      "rawDisplay": "March 16, 2026 11:00 AM → 1:00 PM",
+      "rawDay": "Monday",
+      "rawTz": "PT-display",
+      "start": "2026-03-16T11:00:00-07:00",
+      "end": "2026-03-16T13:00:00-07:00",
+      "allDay": false,
+      "program": "Impact Tour",
+      "title": "SVP Impact Tour & Luncheon (Mar)",
+      "dateStatus": "Confirmed",
+      "location": "MOSAC",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 38,
+      "sourceViews": [
+        "Upcoming",
+        "All",
+        "Board"
+      ],
+      "rawDisplay": "December 1, 2026 5:30 PM → 7:30 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2026-12-01T17:30:00-08:00",
+      "end": "2026-12-01T19:30:00-08:00",
+      "allDay": false,
+      "program": "Board Meeting",
+      "title": "SVP Board Meeting - Dec",
+      "dateStatus": "Confirmed",
+      "location": "Serrano - Mount Diablo Room",
+      "locationStatus": "Confirmed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 39,
+      "sourceViews": [
+        "Upcoming",
+        "All"
+      ],
+      "rawDisplay": "December 3, 2026 5:30 PM → 7:30 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2026-12-03T17:30:00-08:00",
+      "end": "2026-12-03T19:30:00-08:00",
+      "allDay": false,
+      "program": "Partner Social",
+      "title": "Partner Holiday Social",
+      "dateStatus": "Proposed",
+      "location": "Serrano or maybe other?",
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 40,
+      "sourceViews": [
+        "Upcoming",
+        "All",
+        "100x"
+      ],
+      "rawDisplay": "January 28, 2027 5:30 PM → 7:30 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2027-01-28T17:30:00-08:00",
+      "end": "2027-01-28T19:30:00-08:00",
+      "allDay": false,
+      "program": "100x",
+      "title": "100x - Networking + Philanthropy Event (TBD)",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 41,
+      "sourceViews": [
+        "Upcoming",
+        "All",
+        "TT"
+      ],
+      "rawDisplay": "February 10, 2027 5:00 PM → 8:30 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2027-02-10T17:00:00-08:00",
+      "end": "2027-02-10T20:30:00-08:00",
+      "allDay": false,
+      "program": "Think Tank",
+      "title": "Think Tank Q1",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 42,
+      "sourceViews": [
+        "Upcoming",
+        "All",
+        "Impact Tours"
+      ],
+      "rawDisplay": "February 23, 2027 11:00 AM → 1:00 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2027-02-23T11:00:00-08:00",
+      "end": "2027-02-23T13:00:00-08:00",
+      "allDay": false,
+      "program": "Impact Tour",
+      "title": "Impact Tour - Feb",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 43,
+      "sourceViews": [
+        "Upcoming",
+        "All"
+      ],
+      "rawDisplay": "March 16, 2027",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2027-03-16",
+      "end": null,
+      "allDay": true,
+      "program": "Non SVP / Other",
+      "title": "Impact 100 Big Reveal",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 44,
+      "sourceViews": [
+        "Upcoming",
+        "All"
+      ],
+      "rawDisplay": "March 16, 2027 8:30 AM → 12:00 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2027-03-16T08:30:00-07:00",
+      "end": "2027-03-16T12:00:00-07:00",
+      "allDay": false,
+      "program": "Non SVP / Other",
+      "title": "Alliance PRO Workshop - Spring",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 45,
+      "sourceViews": [
+        "Upcoming",
+        "All"
+      ],
+      "rawDisplay": "March 19, 2027",
+      "rawDay": "Friday",
+      "rawTz": "PT-display",
+      "start": "2027-03-19",
+      "end": null,
+      "allDay": true,
+      "program": "Non SVP / Other",
+      "title": "Entrepreneurs Club VC",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 46,
+      "sourceViews": [
+        "Upcoming",
+        "All",
+        "Impact Tours"
+      ],
+      "rawDisplay": "March 22, 2027 11:30 AM → 1:30 PM",
+      "rawDay": "Monday",
+      "rawTz": "PT-display",
+      "start": "2027-03-22T11:30:00-07:00",
+      "end": "2027-03-22T13:30:00-07:00",
+      "allDay": false,
+      "program": "Impact Tour",
+      "title": "Impact Tour - Mar",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 47,
+      "sourceViews": [
+        "Upcoming",
+        "All",
+        "AI"
+      ],
+      "rawDisplay": "April 5, 2027 9:00 AM → 4:00 PM",
+      "rawDay": "Monday",
+      "rawTz": "PT-display",
+      "start": "2027-04-05T09:00:00-07:00",
+      "end": "2027-04-05T16:00:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI for Good 101 Workshop",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 48,
+      "sourceViews": [
+        "Upcoming",
+        "All",
+        "AI"
+      ],
+      "rawDisplay": "April 7, 2027 9:00 AM → 4:00 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2027-04-07T09:00:00-07:00",
+      "end": "2027-04-07T16:00:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI for Good 201 Workshop",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 49,
+      "sourceViews": [
+        "Upcoming",
+        "All",
+        "AI"
+      ],
+      "rawDisplay": "April 23, 2027 11:30 AM → 1:30 PM",
+      "rawDay": "Friday",
+      "rawTz": "PT-display",
+      "start": "2027-04-23T11:30:00-07:00",
+      "end": "2027-04-23T13:30:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI & Philanthropy Luncheon",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 50,
+      "sourceViews": [
+        "Upcoming",
+        "All",
+        "TT"
+      ],
+      "rawDisplay": "April 28, 2027 5:00 PM → 8:30 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2027-04-28T17:00:00-07:00",
+      "end": "2027-04-28T20:30:00-07:00",
+      "allDay": false,
+      "program": "Think Tank",
+      "title": "Think Tank Q2",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 51,
+      "sourceViews": [
+        "Upcoming",
+        "All"
+      ],
+      "rawDisplay": "April 29, 2027 5:00 PM → 8:00 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2027-04-29T17:00:00-07:00",
+      "end": "2027-04-29T20:00:00-07:00",
+      "allDay": false,
+      "program": "Non SVP / Other",
+      "title": "GSIP Awards Event",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 52,
+      "sourceViews": [
+        "Upcoming",
+        "All"
+      ],
+      "rawDisplay": "May 6, 2027",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2027-05-06",
+      "end": null,
+      "allDay": true,
+      "program": "Non SVP / Other",
+      "title": "Big Day of Giving",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 53,
+      "sourceViews": [
+        "Upcoming",
+        "AI"
+      ],
+      "rawDisplay": "May 17, 2027 → May 21, 2027",
+      "rawDay": "Monday",
+      "rawTz": "PT-display",
+      "start": "2027-05-17",
+      "end": "2027-05-21",
+      "allDay": true,
+      "program": "AI for Good",
+      "title": "AI for Good Hackathon - Build Week",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 54,
+      "sourceViews": [
+        "Upcoming"
+      ],
+      "rawDisplay": "May 17, 2027 8:00 AM → 12:00 PM",
+      "rawDay": "Monday",
+      "rawTz": "PT-display",
+      "start": "2027-05-17T08:00:00-07:00",
+      "end": "2027-05-17T12:00:00-07:00",
+      "allDay": false,
+      "program": null,
+      "title": "AI for Good Build Sprint Training",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 55,
+      "sourceViews": [
+        "Upcoming"
+      ],
+      "rawDisplay": "May 18, 2027 8:00 AM → 12:00 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2027-05-18T08:00:00-07:00",
+      "end": "2027-05-18T12:00:00-07:00",
+      "allDay": false,
+      "program": null,
+      "title": "AI for Good Build Sprint Training",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 56,
+      "sourceViews": [
+        "Upcoming"
+      ],
+      "rawDisplay": "May 20, 2027 5:30 PM → 7:30 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2027-05-20T17:30:00-07:00",
+      "end": "2027-05-20T19:30:00-07:00",
+      "allDay": false,
+      "program": null,
+      "title": "Regional Nonprofit Celebration & Mixer",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 57,
+      "sourceViews": [
+        "Upcoming"
+      ],
+      "rawDisplay": "May 27, 2027 5:00 PM → 7:00 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2027-05-27T17:00:00-07:00",
+      "end": "2027-05-27T19:00:00-07:00",
+      "allDay": false,
+      "program": "Non SVP / Other",
+      "title": "Nonprofit Celebration & Mixer (date TBD)",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 58,
+      "sourceViews": [
+        "Upcoming",
+        "AI"
+      ],
+      "rawDisplay": "May 28, 2027 9:00 AM → 12:00 PM",
+      "rawDay": "Friday",
+      "rawTz": "PT-display",
+      "start": "2027-05-28T09:00:00-07:00",
+      "end": "2027-05-28T12:00:00-07:00",
+      "allDay": false,
+      "program": "AI for Good",
+      "title": "AI for Good Demo Day",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 59,
+      "sourceViews": [
+        "Upcoming",
+        "100x"
+      ],
+      "rawDisplay": "June 3, 2027 5:30 PM → 7:30 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2027-06-03T17:30:00-07:00",
+      "end": "2027-06-03T19:30:00-07:00",
+      "allDay": false,
+      "program": "100x",
+      "title": "100x - Networking + Philanthropy Event (TBD)",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 60,
+      "sourceViews": [
+        "Upcoming",
+        "Impact Tours"
+      ],
+      "rawDisplay": "June 15, 2027 11:30 AM → 1:30 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2027-06-15T11:30:00-07:00",
+      "end": "2027-06-15T13:30:00-07:00",
+      "allDay": false,
+      "program": "Impact Tour",
+      "title": "Impact Tour - June",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 61,
+      "sourceViews": [
+        "Upcoming"
+      ],
+      "rawDisplay": "June 17, 2027 12:00 PM → 2:00 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2027-06-17T12:00:00-07:00",
+      "end": "2027-06-17T14:00:00-07:00",
+      "allDay": false,
+      "program": null,
+      "title": "AI & Philanthropy Luncheon",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 62,
+      "sourceViews": [
+        "Upcoming"
+      ],
+      "rawDisplay": "July 15, 2027 6:00 PM → 8:00 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2027-07-15T18:00:00-07:00",
+      "end": "2027-07-15T20:00:00-07:00",
+      "allDay": false,
+      "program": "Partner Social",
+      "title": "Partner Summer Social",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 63,
+      "sourceViews": [
+        "Upcoming",
+        "Impact Tours"
+      ],
+      "rawDisplay": "August 3, 2027 11:30 AM → 1:30 PM",
+      "rawDay": "Tuesday",
+      "rawTz": "PT-display",
+      "start": "2027-08-03T11:30:00-07:00",
+      "end": "2027-08-03T13:30:00-07:00",
+      "allDay": false,
+      "program": "Impact Tour",
+      "title": "Impact Tour - August",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 64,
+      "sourceViews": [
+        "Upcoming",
+        "TT"
+      ],
+      "rawDisplay": "August 18, 2027 5:00 PM → 8:30 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2027-08-18T17:00:00-07:00",
+      "end": "2027-08-18T20:30:00-07:00",
+      "allDay": false,
+      "program": "Think Tank",
+      "title": "Think Tank Q3",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 65,
+      "sourceViews": [
+        "Upcoming"
+      ],
+      "rawDisplay": "August 19, 2027",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2027-08-19",
+      "end": null,
+      "allDay": true,
+      "program": "Non SVP / Other",
+      "title": "Impact 100 Annual Celebration",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 66,
+      "sourceViews": [
+        "Upcoming"
+      ],
+      "rawDisplay": "September 16, 2027 8:30 AM → 12:00 PM",
+      "rawDay": "Thursday",
+      "rawTz": "PT-display",
+      "start": "2027-09-16T08:30:00-07:00",
+      "end": "2027-09-16T12:00:00-07:00",
+      "allDay": false,
+      "program": "Non SVP / Other",
+      "title": "Alliance PRO Workshop - Fall",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    },
+    {
+      "n": 67,
+      "sourceViews": [
+        "Upcoming",
+        "TT"
+      ],
+      "rawDisplay": "October 13, 2027 5:00 PM → 8:30 PM",
+      "rawDay": "Wednesday",
+      "rawTz": "PT-display",
+      "start": "2027-10-13T17:00:00-07:00",
+      "end": "2027-10-13T20:30:00-07:00",
+      "allDay": false,
+      "program": "Think Tank",
+      "title": "Think Tank Q4",
+      "dateStatus": "Proposed",
+      "location": null,
+      "locationStatus": "Proposed",
+      "audience": null,
+      "wix": null
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import { pgTable, text, integer, boolean, timestamp, doublePrecision, check, ind
 import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { usersTable, areasTable, cyclesTable } from "./foundation";
+import { calendarEventsTable } from "./calendar";
 
 const timestamps = () => ({
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -30,6 +31,7 @@ export const objectivesTable = pgTable("objectives", {
 export const keyResultsTable = pgTable("key_results", {
   id: text("id").primaryKey(), objectiveId: text("objective_id").notNull().references(() => objectivesTable.id),
   ownerId: text("owner_id").notNull().references(() => usersTable.id), title: text("title").notNull(),
+  calendarEventId: text("calendar_event_id").references(() => calendarEventsTable.id),
   measurementType: text("measurement_type", { enum: ["metric", "confidence"] }).notNull(),
   unit: text("unit").notNull().default(""), startValue: doublePrecision("start_value").notNull().default(0),
   targetValue: doublePrecision("target_value").notNull().default(100),

@@ -1,6 +1,6 @@
 // Only for a bounded browser verification run. Never creates objectives in a
 // real planning cycle, and cleanup refuses to remove unrelated records.
-import { db, pool, cyclesTable, objectivesTable, keyResultsTable, checkInsTable, commentsTable, auditLogTable, scorecardMetricsTable, scorecardEntriesTable, scorecardRevisionsTable } from "@workspace/db";
+import { db, pool, cyclesTable, objectivesTable, keyResultsTable, checkInsTable, commentsTable, auditLogTable, scorecardMetricsTable, scorecardEntriesTable, scorecardRevisionsTable, calendarEventsTable } from "@workspace/db";
 import { eq, inArray, like } from "drizzle-orm";
 const [mode, cycleId] = process.argv.slice(2);
 try {
@@ -9,6 +9,7 @@ try {
   if (mode === "setup") {
     const name = `UI verification ${cycleId.slice(-8)}`;
     await db.insert(cyclesTable).values({ id: cycleId, name, startDate: "2026-01-01", endDate: "2026-12-31", status: "planning" });
+    await db.insert(calendarEventsTable).values({ id: `${cycleId}-event`, title: `${prefix} Event fixture`, planningYear: 2026, startDate: "2026-01-20", endDate: "2026-01-20", dateStatus: "confirmed", program: "UI verification" });
     console.log(JSON.stringify({ cycleId, cycleName: name, titlePrefix: prefix }));
   } else if (mode === "cleanup") {
     await db.transaction(async tx => {
@@ -39,6 +40,10 @@ try {
         await tx.delete(keyResultsTable).where(inArray(keyResultsTable.objectiveId, objectiveIds));
         await tx.delete(objectivesTable).where(inArray(objectivesTable.id, objectiveIds));
       }
+      const [calendarFixture] = await tx.select().from(calendarEventsTable).where(eq(calendarEventsTable.id, `${prefix}-event`));
+      if (calendarFixture && !calendarFixture.title.startsWith(prefix)) throw new Error("Unrelated calendar event; cleanup stopped.");
+      await tx.delete(auditLogTable).where(eq(auditLogTable.entityId, `${prefix}-event`));
+      await tx.delete(calendarEventsTable).where(eq(calendarEventsTable.id, `${prefix}-event`));
       await tx.delete(cyclesTable).where(eq(cyclesTable.id, cycleId));
       console.log(`Removed only fixture cycle and its ${objectives.length} objectives, ${metrics.length} metrics, and ${entries.length} weekly entries.`);
     });

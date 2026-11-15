@@ -4,7 +4,6 @@ import { ClerkProvider, Show, useClerk } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { Redirect, Route, Switch, useLocation, useParams, useSearch, Router as WouterRouter } from 'wouter';
-import { Workflow, GraduationCap } from 'lucide-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -15,10 +14,12 @@ import Landing from '@/pages/landing';
 import { SignInPage, SignUpPage } from '@/pages/auth-pages';
 import Dashboard from '@/pages/dashboard';
 import SixBySix from '@/pages/six-by-six';
+import CalendarPage from '@/pages/calendar';
+import { Workflow, GraduationCap } from 'lucide-react';
+import { PhasePreview } from '@/pages/phase-preview';
 import Team from '@/pages/team';
 import Settings from '@/pages/settings';
 import Admin from '@/pages/admin';
-import { PhasePreview } from '@/pages/phase-preview';
 import Qbos from '@/pages/qbos';
 import QboDetail from '@/pages/qbo-detail';
 import Scorecard from '@/pages/scorecard';
@@ -132,6 +133,18 @@ function Protected({ children }: { children: ReactNode }) {
   );
 }
 
+
+/** Old /okrs links keep working: same ids, same query string, same hash. */
+function LegacyOkrRedirect() {
+  const params = useParams<{ id?: string }>();
+  const search = useSearch();
+  const hash = typeof window !== 'undefined' ? window.location.hash : '';
+  const sp = new URLSearchParams(search);
+  if (!params.id && sp.get('owner') && !sp.get('view')) sp.set('view', 'legacy');
+  const qs = sp.toString();
+  return <Redirect to={`/qbos${params.id ? `/${encodeURIComponent(params.id)}` : ''}${qs ? `?${qs}` : ''}${hash}`} replace />;
+}
+
 const SystemsPreview = () => (
   <PhasePreview eyebrow="Systems" title="How the work gets done." icon={Workflow} color="#49B949"
     intro="The recurring processes the team relies on, documented with owners."
@@ -149,17 +162,6 @@ const LearnPreview = () => (
     ]} />
 );
 
-/** Old /okrs links keep working: same ids, same query string, same hash. */
-function LegacyOkrRedirect() {
-  const params = useParams<{ id?: string }>();
-  const search = useSearch();
-  const hash = typeof window !== 'undefined' ? window.location.hash : '';
-  const sp = new URLSearchParams(search);
-  if (!params.id && sp.get('owner') && !sp.get('view')) sp.set('view', 'legacy');
-  const qs = sp.toString();
-  return <Redirect to={`/qbos${params.id ? `/${encodeURIComponent(params.id)}` : ''}${qs ? `?${qs}` : ''}${hash}`} replace />;
-}
-
 function Routes() {
   const [location] = useLocation();
   return (
@@ -175,9 +177,10 @@ function Routes() {
         <Route path="/okrs" component={LegacyOkrRedirect} />
         <Route path="/okrs/:id" component={LegacyOkrRedirect} />
         <Route path="/six-by-six"><Protected><SixBySix /></Protected></Route>
-        <Route path="/team"><Protected><Team /></Protected></Route>
+        <Route path="/calendar"><Protected><CalendarPage /></Protected></Route>
         <Route path="/systems"><Protected><SystemsPreview /></Protected></Route>
         <Route path="/learn"><Protected><LearnPreview /></Protected></Route>
+        <Route path="/team"><Protected><Team /></Protected></Route>
         <Route path="/settings"><Protected><Settings /></Protected></Route>
         <Route path="/admin"><Protected><Admin /></Protected></Route>
         <Route component={NotFound} />

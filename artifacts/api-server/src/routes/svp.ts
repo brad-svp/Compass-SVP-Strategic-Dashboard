@@ -11,8 +11,13 @@ import { getClerkProxyHost } from "../middlewares/clerkProxyMiddleware";
 import okrsRouter from "./okrs";
 import accountabilityRouter from "./accountability";
 import scorecardRouter from "./scorecard";
+import sixBySixRouter from "./six-by-six";
+import calendarRouter, { calendarFeed } from "./calendar";
 
 const router: IRouter = Router();
+// Google Calendar cannot present a staff session. This exact read-only route
+// instead requires a revocable, high-entropy URL key tied to active staff.
+router.get("/svp/calendar/feed.ics", calendarFeed);
 router.use("/svp", staffAuth);
 router.use("/svp", (req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
@@ -31,6 +36,8 @@ router.get("/svp/session", (_req, res) => {
 router.use("/svp", okrsRouter);
 router.use("/svp", accountabilityRouter);
 router.use("/svp", scorecardRouter);
+router.use("/svp", sixBySixRouter);
+router.use("/svp", calendarRouter);
 router.get("/svp/foundation", async (_req, res): Promise<void> => {
   const [staff, areas, cycles, periods, moments] = await Promise.all([
     db.select().from(usersTable).orderBy(asc(usersTable.createdAt), asc(usersTable.name)),

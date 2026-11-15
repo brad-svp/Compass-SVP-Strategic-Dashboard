@@ -21,3 +21,5 @@ export * from "./foundation";
 export * from "./okrs";
 export * from "./accountability";
 export * from "./scorecard";
+export * from "./six-by-six";
+export * from "./calendar";

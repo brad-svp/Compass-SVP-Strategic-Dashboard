@@ -22,6 +22,27 @@
       "when": 1794781720130,
       "tag": "0002_qbos_scorecard",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794783694446,
+      "tag": "0003_editable_six_by_six",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794784324114,
+      "tag": "0004_master_calendar",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794784817547,
+      "tag": "0005_event_key_results",
+      "breakpoints": true
     }
   ]
 }

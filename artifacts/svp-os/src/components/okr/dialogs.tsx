@@ -1,10 +1,10 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import type { CheckIn, Foundation, KeyResult, Objective, ObjectiveInput, ObjectiveUpdate, KeyResultUpdate } from '@workspace/api-client-react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { DialogFooter } from '@/components/ui/dialog';
 import { NativeSelect } from '@/components/native-select';
+import type { CalendarEvent } from '@workspace/api-client-react';
+import { useMasterCalendar } from '@/lib/calendar-hooks';
+import { EVENT_PRESETS, isEligible, presetTitle, quarterRange, targetError, type EventPreset } from '@/lib/event-metric';
 import { BrowserDialog } from '@/components/browser-dialog';
 import { QUARTERS, isQbo, type Quarter } from '@/lib/qbo';
 import { Button } from '@/components/ui/button';
@@ -101,7 +101,7 @@ export function ObjectiveDialog({ open, onOpenChange, foundation, objectives, cy
   };
 
   return (
-    <BrowserDialog open={open} onOpenChange={onOpenChange}
+    <BrowserDialog open={open} onOpenChange={onOpenChange} testId="qbo-browser-dialog"
       title={editing ? (legacy ? 'Edit legacy objective' : 'Edit QBO') : 'New QBO'}
       description={legacy ? 'This objective predates QBOs. You can still edit it; it stays in the legacy view.' : 'An organization-wide objective for one quarter, with one accountable owner.'}>
         <div className="space-y-4">
@@ -161,8 +161,8 @@ export function ObjectiveDialog({ open, onOpenChange, foundation, objectives, cy
 
 /* ---------------- Key result ---------------- */
 
-export function KeyResultDialog({ open, onOpenChange, foundation, objective, existingCount, actions, editing }: {
-  open: boolean; onOpenChange: (o: boolean) => void; foundation: Foundation; objective: Objective; existingCount: number; actions: OkrActions; editing?: KeyResult | null;
+export function KeyResultDialog({ open, onOpenChange, foundation, objective, existingCount, actions, editing, startInEventMode }: {
+  open: boolean; onOpenChange: (o: boolean) => void; foundation: Foundation; objective: Objective; existingCount: number; actions: OkrActions; editing?: KeyResult | null; startInEventMode?: boolean;
 }) {
   const me = useStaffSession();
   const isAdmin = me.role === 'admin';
@@ -172,20 +172,50 @@ export function KeyResultDialog({ open, onOpenChange, foundation, objective, exi
   const [start, setStart] = useState('0');
   const [target, setTarget] = useState('');
   const [ownerId, setOwnerId] = useState(me.id);
+  const [eventMode, setEventMode] = useState(false);
+  const [eventId, setEventId] = useState<string | null>(null);
+  const [preset, setPreset] = useState<EventPreset>('registrations');
+  const cal = useMasterCalendar(open);
+  const cycle = foundation.cycles.find((c) => c.id === objective.cycleId);
 
   useEffect(() => {
     if (!open) return;
     if (editing) {
       setTitle(editing.title); setType(editing.measurementType); setUnit(editing.unit ?? ''); setStart(String(editing.startValue ?? 0));
       setTarget(String(editing.targetValue ?? '')); setOwnerId(editing.ownerId);
+      setEventId(editing.calendarEventId ?? null); setEventMode(!!editing.calendarEventId);
     } else {
-      setTitle(''); setType('metric'); setUnit(''); setStart('0'); setTarget(''); setOwnerId(isAdmin ? objective.ownerId : me.id);
+      setTitle(''); setType('metric'); setUnit(startInEventMode ? EVENT_PRESETS.registrations.unit : ''); setStart('0'); setTarget('');
+      setOwnerId(isAdmin ? objective.ownerId : me.id); setEventId(null); setEventMode(!!startInEventMode); setPreset('registrations');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, editing?.id]);
 
-  const metricOk = type === 'confidence' || (target.trim() !== '' && Number.isFinite(Number(target)) && Number.isFinite(Number(start)));
-  const valid = title.trim().length > 0 && metricOk;
+  const events = cal.data?.events ?? [];
+  const linked = eventId ? events.find((e) => e.id === eventId) : undefined;
+  const options = events.filter((e) => isEligible(e, cycle, objective.timeScope) || e.id === eventId)
+    .sort((a, b) => (a.startDate ?? '9999').localeCompare(b.startDate ?? '9999') || a.title.localeCompare(b.title));
+  const outside = linked && !isEligible(linked, cycle, objective.timeScope);
+  const range = quarterRange(cycle, objective.timeScope);
+
+  const applyPreset = (ev: CalendarEvent | undefined, p: EventPreset) => {
+    if (!ev) return;
+    setTitle(presetTitle(p, ev.title)); setUnit(EVENT_PRESETS[p].unit); setType('metric');
+  };
+  const chooseEvent = (id: string) => {
+    setEventId(id || null);
+    const ev = events.find((e) => e.id === id);
+    applyPreset(ev, preset);
+    if (ev && isAdmin && !editing) {
+      const owner = ev.ownerId ? foundation.staff.find((s) => s.id === ev.ownerId && s.active) : undefined;
+      setOwnerId(owner ? owner.id : objective.ownerId);
+    }
+  };
+  const switchType = (v: 'metric' | 'confidence') => { setType(v); if (v === 'confidence') { setEventMode(false); setEventId(null); } };
+
+  const tErr = type === 'metric' ? (eventMode || eventId ? targetError(target, start) : (target.trim() !== '' && Number.isFinite(Number(target)) && Number.isFinite(Number(start)) ? null : 'Set a numeric target.')) : null;
+  const valid = title.trim().length > 0 && !tErr && !(eventMode && !eventId);
+  const linkValue = type === 'metric' && eventMode ? eventId : null;
 
   const submit = async () => {
     if (!valid) return;
@@ -198,6 +228,7 @@ export function KeyResultDialog({ open, onOpenChange, foundation, objective, exi
         if (Number(start) !== editing.startValue) d.startValue = Number(start);
         if (Number(target) !== editing.targetValue) d.targetValue = Number(target);
       }
+      if (linkValue !== (editing.calendarEventId ?? null)) d.calendarEventId = linkValue;
       if (isAdmin && ownerId !== editing.ownerId) d.ownerId = ownerId;
       if (Object.keys(d).length === 0) { onOpenChange(false); return; }
       if (await actions.updateKeyResult(editing.id, d)) onOpenChange(false);
@@ -205,33 +236,58 @@ export function KeyResultDialog({ open, onOpenChange, foundation, objective, exi
       const r = await actions.createKeyResult({
         objectiveId: objective.id, ownerId: isAdmin ? ownerId : me.id, title: title.trim(), measurementType: type,
         ...(type === 'metric' ? { unit: unit.trim(), startValue: Number(start), targetValue: Number(target) } : {}),
-        sortOrder: existingCount,
+        calendarEventId: linkValue, sortOrder: existingCount,
       });
       if (r) onOpenChange(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto bg-[#FBFAF6] sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="font-display text-2xl text-[#0A2540]">{editing ? 'Edit key result' : 'New key result'}</DialogTitle>
-          <DialogDescription className="line-clamp-2">For: {objective.title}</DialogDescription>
-        </DialogHeader>
+    <BrowserDialog open={open} onOpenChange={onOpenChange} testId="kr-browser-dialog"
+      title={editing ? 'Edit key result' : eventMode ? 'New event metric' : 'New key result'} description={`For: ${objective.title}`}>
         <div className="space-y-4">
+          {type === 'metric' && (
+            <Field label="Kind">
+              <Seg value={eventMode ? 'event' : 'standard'} onChange={(v) => { setEventMode(v === 'event'); if (v === 'standard') setEventId(null); }} testId="seg-kr-kind"
+                options={[{ v: 'standard', label: 'Standard' }, { v: 'event', label: 'Event metric' }]} />
+            </Field>
+          )}
+          {eventMode && type === 'metric' && (
+            <div className="space-y-3 rounded-xl border border-[#1D8BC4]/25 bg-[#1D8BC4]/[0.04] p-3" data-testid="panel-event-metric">
+              <Field label="Calendar event" hint={range ? `Events in ${objective.timeScope} (${fmtDate(range.from, 'MMM d')} to ${fmtDate(range.to, 'MMM d, yyyy')}) or date TBD that year.` : 'Events in this QBO cycle.'}>
+                {cal.isLoading ? <div className="h-9 animate-pulse rounded-lg bg-[#0A2540]/8" /> : cal.isError ? (
+                  <p className="text-[13px] text-[#8E2D58]">Calendar could not load. Try reopening.</p>
+                ) : (
+                  <NativeSelect value={eventId ?? ''} onChange={(e) => chooseEvent(e.target.value)} data-testid="select-kr-event">
+                    <option value="">{options.length ? 'Choose an event' : 'No events in this quarter'}</option>
+                    {eventId && !linked && <option value={eventId}>Linked event unavailable</option>}
+                    {options.map((e) => <option key={e.id} value={e.id}>{e.title} · {e.startDate ? fmtDate(e.startDate, 'MMM d, yyyy') : `TBD ${e.planningYear}`}</option>)}
+                  </NativeSelect>
+                )}
+              </Field>
+              {eventId && !linked && !cal.isLoading && <p className="text-[12px] text-[#8E2D58]" data-testid="text-kr-event-missing">The linked event was deleted or is unavailable. The link is kept unless you choose another event or switch to Standard.</p>}
+              {outside && <p className="text-[12px] text-[#8A5A00]" data-testid="text-kr-event-outside">This event falls outside {objective.timeScope}. It stays linked, but check it belongs to this QBO.</p>}
+              <Field label="Measure">
+                <Seg value={preset} onChange={(p) => { setPreset(p); applyPreset(linked, p); }} testId="seg-kr-preset"
+                  options={(Object.keys(EVENT_PRESETS) as EventPreset[]).map((k) => ({ v: k, label: EVENT_PRESETS[k].label }))} />
+              </Field>
+              <p className="text-[12px] text-muted-foreground">Actuals are entered by hand through check-ins. Nothing is counted automatically.</p>
+            </div>
+          )}
           <Field label="Key result">
             <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={300} placeholder="Recruit 40 new partners across Sacramento County" data-testid="input-kr-title" autoFocus />
           </Field>
-          <Field label="Measured by" hint={editing && type !== editing.measurementType ? 'Switching type keeps every past check-in. Values change only through check-ins.' : undefined}>
-            <Seg value={type} onChange={(v) => setType(v as 'metric' | 'confidence')} testId="seg-kr-type" options={[{ v: 'metric', label: 'Metric' }, { v: 'confidence', label: 'Confidence' }]} />
+          <Field label="Measured by" hint={editing && type !== editing.measurementType ? 'Switching type keeps every past check-in. Values change only through check-ins.' : eventMode ? 'Event metrics are numeric.' : undefined}>
+            <Seg value={type} onChange={switchType} testId="seg-kr-type" options={eventMode ? [{ v: 'metric', label: 'Metric' }] : [{ v: 'metric', label: 'Metric' }, { v: 'confidence', label: 'Confidence' }]} />
           </Field>
           {type === 'metric' && (
             <div className="grid grid-cols-3 gap-3">
               <Field label="Start"><Input inputMode="decimal" value={start} onChange={(e) => setStart(e.target.value)} data-testid="input-kr-start" /></Field>
-              <Field label="Target"><Input inputMode="decimal" value={target} onChange={(e) => setTarget(e.target.value)} data-testid="input-kr-target" /></Field>
+              <Field label="Target"><Input inputMode="decimal" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="Required" data-testid="input-kr-target" /></Field>
               <Field label="Unit"><Input value={unit} maxLength={80} onChange={(e) => setUnit(e.target.value)} placeholder="partners" data-testid="input-kr-unit" /></Field>
             </div>
           )}
+          {tErr && target.trim() !== '' && <p className="text-[12px] text-[#8E2D58]" data-testid="text-kr-target-error">{tErr}</p>}
           {isAdmin && (
             <Field label="Owner">
               <NativeSelect value={ownerId} onChange={(e) => setOwnerId(e.target.value)} data-testid="select-kr-owner">
@@ -240,14 +296,13 @@ export function KeyResultDialog({ open, onOpenChange, foundation, objective, exi
             </Field>
           )}
         </div>
-        <DialogFooter className="gap-2">
+        <DialogFooter className="mt-4 gap-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)} data-testid="button-cancel-kr">Cancel</Button>
           <Button onClick={submit} disabled={!valid || actions.pending} className="bg-[#0A2540] text-white" data-testid="button-save-kr">
             {actions.pending ? 'Saving' : editing ? 'Save changes' : 'Add key result'}
           </Button>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    </BrowserDialog>
   );
 }
 
@@ -281,12 +336,7 @@ export function CheckInDialog({ open, onOpenChange, kr, lastCheckIn, actions }: 
   const confTone = conf >= 70 ? '#49B949' : conf >= 40 ? '#ECA519' : '#B03E71';
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto bg-[#FBFAF6] sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="font-display text-2xl text-[#0A2540]">Check in</DialogTitle>
-          <DialogDescription className="line-clamp-2">{kr.title}</DialogDescription>
-        </DialogHeader>
+    <BrowserDialog open={open} onOpenChange={onOpenChange} testId="checkin-browser-dialog" title="Check in" description={kr.title}>
         <div className="space-y-5">
           <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#1D8BC4]" data-testid="text-checkin-type">{type === 'metric' ? 'Metric check-in' : 'Confidence check-in'}{type === 'metric' && kr.currentValue == null ? ' · first value' : ''}</div>
           {type === 'metric' ? (
@@ -310,14 +360,13 @@ export function CheckInDialog({ open, onOpenChange, kr, lastCheckIn, actions }: 
             </p>
           )}
         </div>
-        <DialogFooter className="gap-2">
+        <DialogFooter className="mt-4 gap-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)} data-testid="button-cancel-checkin">Cancel</Button>
           <Button onClick={submit} disabled={!valid || actions.pending} className="bg-[#1D8BC4] text-white hover:bg-[#177AAE]" data-testid="button-save-checkin">
             {actions.pending ? 'Saving' : 'Record check-in'}
           </Button>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    </BrowserDialog>
   );
 }
 
@@ -327,22 +376,15 @@ export function ConfirmDelete({ open, onOpenChange, what, name, onConfirm }: {
   open: boolean; onOpenChange: (o: boolean) => void; what: string; name: string; onConfirm: () => Promise<unknown>;
 }) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-[#FBFAF6]">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="font-display text-xl text-[#0A2540]">Remove this {what}?</AlertDialogTitle>
-          <AlertDialogDescription>
-            "{name}" will be removed from the workspace. Its check-in history and audit trail are preserved.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel data-testid="button-cancel-delete">Keep it</AlertDialogCancel>
-          <AlertDialogAction className="bg-[#B03E71] text-white hover:bg-[#9A3563]" data-testid="button-confirm-delete"
-            onClick={async () => { await onConfirm(); }}>
-            Remove from workspace
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <BrowserDialog open={open} onOpenChange={onOpenChange} testId="confirm-browser-dialog" title={`Remove this ${what}?`}
+      description={`"${name}" will be removed from the workspace. Its check-in history and audit trail are preserved.`}>
+      <DialogFooter className="mt-2 gap-2">
+        <Button variant="ghost" onClick={() => onOpenChange(false)} data-testid="button-cancel-delete">Keep it</Button>
+        <Button className="bg-[#B03E71] text-white hover:bg-[#9A3563]" data-testid="button-confirm-delete"
+          onClick={async () => { await onConfirm(); onOpenChange(false); }}>
+          Remove from workspace
+        </Button>
+      </DialogFooter>
+    </BrowserDialog>
   );
 }

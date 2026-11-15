@@ -8,6 +8,8 @@
 import type { KeyResultUpdateMeasurementType } from './keyResultUpdateMeasurementType';
 
 export interface KeyResultUpdate {
+  /** @nullable */
+  calendarEventId?: string | null;
   ownerId?: string;
   /**
      * @minLength 1

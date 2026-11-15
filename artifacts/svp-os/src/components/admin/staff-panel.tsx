@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DialogFooter } from '@/components/ui/dialog';
+import { BrowserDialog } from '@/components/browser-dialog';
+import { NativeSelect } from '@/components/native-select';
 import { StaffAvatar } from '@/components/ui-bits';
 import { Field } from './field';
 import { useFoundationWrite } from './use-foundation-write';
@@ -62,9 +63,8 @@ export function StaffPanel({ staff, areas }: { staff: Staff[]; areas: Area[] }) 
         })}
       </div>
 
-      <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle className="font-display text-2xl">{editing === 'new' ? 'Add teammate' : 'Edit teammate'}</DialogTitle></DialogHeader>
+      <BrowserDialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}
+        title={editing === 'new' ? 'Add teammate' : 'Edit teammate'} description="Manage this teammate's details and access." testId="staff-browser-dialog">
           <div className="grid gap-4">
             <Field label="Name"><Input value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} data-testid="input-staff-name" /></Field>
             {!isSelf && (
@@ -74,17 +74,16 @@ export function StaffPanel({ staff, areas }: { staff: Staff[]; areas: Area[] }) 
             )}
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Area">
-                <Select value={d.areaId} onValueChange={(v) => setD({ ...d, areaId: v })}>
-                  <SelectTrigger data-testid="select-staff-area"><SelectValue placeholder="Choose area" /></SelectTrigger>
-                  <SelectContent>{areas.map((a) => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}</SelectContent>
-                </Select>
+                <NativeSelect value={d.areaId} onChange={(e) => setD({ ...d, areaId: e.target.value })} aria-label="Area" data-testid="select-staff-area">
+                  <option value="" disabled>Choose area</option>
+                  {areas.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+                </NativeSelect>
               </Field>
               {!isSelf && (
                 <Field label="Access">
-                  <Select value={d.role} onValueChange={(v) => setD({ ...d, role: v as Draft['role'] })}>
-                    <SelectTrigger data-testid="select-staff-role"><SelectValue /></SelectTrigger>
-                    <SelectContent><SelectItem value="staff">Staff</SelectItem><SelectItem value="admin">Admin</SelectItem></SelectContent>
-                  </Select>
+                  <NativeSelect value={d.role} onChange={(e) => setD({ ...d, role: e.target.value as Draft['role'] })} aria-label="Access" data-testid="select-staff-role">
+                    <option value="staff">Staff</option><option value="admin">Admin</option>
+                  </NativeSelect>
                 </Field>
               )}
             </div>
@@ -98,12 +97,11 @@ export function StaffPanel({ staff, areas }: { staff: Staff[]; areas: Area[] }) 
               </div>
             )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
             <Button onClick={submit} disabled={w.pending || !d.name.trim() || !d.areaId} className="bg-[#1D8BC4] text-white" data-testid="button-save-staff">{w.pending ? 'Saving...' : 'Save'}</Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      </BrowserDialog>
     </div>
   );
 }

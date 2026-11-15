@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
-import { ArrowDown, ArrowUp, ChevronRight, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
 import type { Foundation, Objective, OkrWorkspace } from '@workspace/api-client-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { StaffAvatar } from '@/components/ui-bits';
 import { HealthDot, ProgressTrack, ScopeChip, StatusChip } from '@/components/okr/bits';
 import { ConfirmDelete, KeyResultDialog, ObjectiveDialog } from '@/components/okr/dialogs';
@@ -75,18 +74,13 @@ export function ObjectiveRow({ o, ctx, siblings, index, showOwner = true }: {
             </div>
           )}
           {o.canEdit && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="rounded-lg p-1.5 text-[#3A4E63] hover:bg-[#0A2540]/6" aria-label="Objective actions" data-testid={`button-menu-${o.id}`}><MoreHorizontal className="h-4 w-4" /></button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setEditOpen(true)} data-testid={`menu-edit-${o.id}`}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setKrOpen(true)} data-testid={`menu-add-kr-${o.id}`}><Plus className="mr-2 h-4 w-4" />Add key result</DropdownMenuItem>
-                {prev?.canEdit && <DropdownMenuItem className="sm:hidden" onClick={() => move(-1)}><ArrowUp className="mr-2 h-4 w-4" />Move up</DropdownMenuItem>}
-                {next?.canEdit && <DropdownMenuItem className="sm:hidden" onClick={() => move(1)}><ArrowDown className="mr-2 h-4 w-4" />Move down</DropdownMenuItem>}
-                <DropdownMenuItem onClick={() => setDelOpen(true)} className="text-[#B03E71]" data-testid={`menu-delete-${o.id}`}><Trash2 className="mr-2 h-4 w-4" />Remove</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <span className="flex items-center">
+              <button type="button" onClick={() => setEditOpen(true)} aria-label="Edit objective" title="Edit" className="rounded-lg p-1.5 text-[#3A4E63] hover:bg-[#0A2540]/6" data-testid={`menu-edit-${o.id}`}><Pencil className="h-4 w-4" /></button>
+              <button type="button" onClick={() => setKrOpen(true)} aria-label="Add key result" title="Add key result" className="rounded-lg p-1.5 text-[#3A4E63] hover:bg-[#0A2540]/6" data-testid={`menu-add-kr-${o.id}`}><Plus className="h-4 w-4" /></button>
+              {prev?.canEdit && <button type="button" onClick={() => move(-1)} aria-label="Move up" className="rounded-lg p-1.5 text-[#3A4E63] hover:bg-[#0A2540]/6 sm:hidden"><ArrowUp className="h-4 w-4" /></button>}
+              {next?.canEdit && <button type="button" onClick={() => move(1)} aria-label="Move down" className="rounded-lg p-1.5 text-[#3A4E63] hover:bg-[#0A2540]/6 sm:hidden"><ArrowDown className="h-4 w-4" /></button>}
+              <button type="button" onClick={() => setDelOpen(true)} aria-label="Remove objective" title="Remove" className="rounded-lg p-1.5 text-[#B03E71] hover:bg-[#B03E71]/10" data-testid={`menu-delete-${o.id}`}><Trash2 className="h-4 w-4" /></button>
+            </span>
           )}
         </div>
       </div>

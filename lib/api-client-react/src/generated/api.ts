@@ -27,6 +27,8 @@ import type {
 import type {
   AccountabilitySeat,
   AccountabilitySeatInput,
+  CalendarEventInput,
+  CalendarSubscription,
   CheckInInput,
   CommentInput,
   CommentUpdate,
@@ -38,6 +40,7 @@ import type {
   HealthStatus,
   KeyResultInput,
   KeyResultUpdate,
+  MasterCalendar,
   MutationResult,
   ObjectiveInput,
   ObjectiveUpdate,
@@ -45,6 +48,12 @@ import type {
   ScorecardEntryInput,
   ScorecardMetricInput,
   ScorecardWorkspace,
+  SixItemInput,
+  SixItemUpdate,
+  SixMomentInput,
+  SixPeriodInput,
+  SixVersionInput,
+  SixWorkspace,
   Staff
 } from './api.schemas';
 
@@ -74,6 +83,1076 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetMasterCalendarUrl = () => {
+
+
+
+
+  return `/api/svp/calendar`
+}
+
+export const getMasterCalendar = async ( options?: Parameters<typeof customFetch>[1]): Promise<MasterCalendar> => {
+
+  return customFetch<MasterCalendar>(getGetMasterCalendarUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMasterCalendarQueryKey = () => {
+    return [
+    `/api/svp/calendar`
+    ] as const;
+    }
+
+
+export const getGetMasterCalendarQueryOptions = <TData = Awaited<ReturnType<typeof getMasterCalendar>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMasterCalendar>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMasterCalendarQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMasterCalendar>>> = ({ signal }) => getMasterCalendar({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMasterCalendar>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetMasterCalendarQueryResult = NonNullable<Awaited<ReturnType<typeof getMasterCalendar>>>
+export type GetMasterCalendarQueryError = ErrorType<unknown>
+
+
+export function useGetMasterCalendar<TData = Awaited<ReturnType<typeof getMasterCalendar>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMasterCalendar>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMasterCalendar>>,
+          TError,
+          Awaited<ReturnType<typeof getMasterCalendar>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMasterCalendar<TData = Awaited<ReturnType<typeof getMasterCalendar>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMasterCalendar>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMasterCalendar>>,
+          TError,
+          Awaited<ReturnType<typeof getMasterCalendar>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMasterCalendar<TData = Awaited<ReturnType<typeof getMasterCalendar>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMasterCalendar>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetMasterCalendar<TData = Awaited<ReturnType<typeof getMasterCalendar>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMasterCalendar>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetMasterCalendarQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateCalendarEventUrl = () => {
+
+
+
+
+  return `/api/svp/calendar/events`
+}
+
+export const createCalendarEvent = async (calendarEventInput: CalendarEventInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getCreateCalendarEventUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(calendarEventInput)
+  }
+);}
+
+
+
+
+
+export const getCreateCalendarEventMutationKey = () => ['createCalendarEvent'] as const;
+
+export const getCreateCalendarEventMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCalendarEvent>>, TError,CreateCalendarEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCalendarEvent>>, TError,CreateCalendarEventMutationVariables, TContext> => {
+
+const mutationKey = getCreateCalendarEventMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCalendarEvent>>, CreateCalendarEventMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCalendarEvent(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCalendarEventMutationResult = NonNullable<Awaited<ReturnType<typeof createCalendarEvent>>>
+    export type CreateCalendarEventMutationBody = BodyType<CalendarEventInput>
+    export type CreateCalendarEventMutationError = ErrorType<unknown>
+    export type CreateCalendarEventMutationVariables = {data: BodyType<CalendarEventInput>}
+
+    export const useCreateCalendarEvent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCalendarEvent>>, TError,CreateCalendarEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createCalendarEvent>>,
+        TError,
+        CreateCalendarEventMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateCalendarEventMutationOptions(options), queryClient);
+    }
+
+export const getUpdateCalendarEventUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/calendar/events/${id}`
+}
+
+export const updateCalendarEvent = async (id: string,
+    calendarEventInput: CalendarEventInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getUpdateCalendarEventUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(calendarEventInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateCalendarEventMutationKey = () => ['updateCalendarEvent'] as const;
+
+export const getUpdateCalendarEventMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCalendarEvent>>, TError,UpdateCalendarEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCalendarEvent>>, TError,UpdateCalendarEventMutationVariables, TContext> => {
+
+const mutationKey = getUpdateCalendarEventMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCalendarEvent>>, UpdateCalendarEventMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCalendarEvent(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCalendarEventMutationResult = NonNullable<Awaited<ReturnType<typeof updateCalendarEvent>>>
+    export type UpdateCalendarEventMutationBody = BodyType<CalendarEventInput>
+    export type UpdateCalendarEventMutationError = ErrorType<unknown>
+    export type UpdateCalendarEventMutationVariables = {id: string;data: BodyType<CalendarEventInput>}
+
+    export const useUpdateCalendarEvent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCalendarEvent>>, TError,UpdateCalendarEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateCalendarEvent>>,
+        TError,
+        UpdateCalendarEventMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateCalendarEventMutationOptions(options), queryClient);
+    }
+
+export const getDeleteCalendarEventUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/calendar/events/${id}`
+}
+
+export const deleteCalendarEvent = async (id: string,
+    sixVersionInput: SixVersionInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getDeleteCalendarEventUrl(id),
+  {
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sixVersionInput)
+  }
+);}
+
+
+
+
+
+export const getDeleteCalendarEventMutationKey = () => ['deleteCalendarEvent'] as const;
+
+export const getDeleteCalendarEventMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCalendarEvent>>, TError,DeleteCalendarEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCalendarEvent>>, TError,DeleteCalendarEventMutationVariables, TContext> => {
+
+const mutationKey = getDeleteCalendarEventMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCalendarEvent>>, DeleteCalendarEventMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  deleteCalendarEvent(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCalendarEventMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCalendarEvent>>>
+    export type DeleteCalendarEventMutationBody = BodyType<SixVersionInput>
+    export type DeleteCalendarEventMutationError = ErrorType<unknown>
+    export type DeleteCalendarEventMutationVariables = {id: string;data: BodyType<SixVersionInput>}
+
+    export const useDeleteCalendarEvent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCalendarEvent>>, TError,DeleteCalendarEventMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCalendarEvent>>,
+        TError,
+        DeleteCalendarEventMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteCalendarEventMutationOptions(options), queryClient);
+    }
+
+export const getCreateCalendarSubscriptionUrl = () => {
+
+
+
+
+  return `/api/svp/calendar/subscription`
+}
+
+export const createCalendarSubscription = async ( options?: Parameters<typeof customFetch>[1]): Promise<CalendarSubscription> => {
+
+  return customFetch<CalendarSubscription>(getCreateCalendarSubscriptionUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getCreateCalendarSubscriptionMutationKey = () => ['createCalendarSubscription'] as const;
+
+export const getCreateCalendarSubscriptionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCalendarSubscription>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCalendarSubscription>>, TError,void, TContext> => {
+
+const mutationKey = getCreateCalendarSubscriptionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCalendarSubscription>>, void> = () => {
+
+
+          return  createCalendarSubscription(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCalendarSubscriptionMutationResult = NonNullable<Awaited<ReturnType<typeof createCalendarSubscription>>>
+
+    export type CreateCalendarSubscriptionMutationError = ErrorType<unknown>
+
+
+    export const useCreateCalendarSubscription = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCalendarSubscription>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createCalendarSubscription>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCreateCalendarSubscriptionMutationOptions(options), queryClient);
+    }
+
+export const getRevokeCalendarSubscriptionUrl = () => {
+
+
+
+
+  return `/api/svp/calendar/subscription`
+}
+
+export const revokeCalendarSubscription = async ( options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+  return customFetch<MutationResult>(getRevokeCalendarSubscriptionUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getRevokeCalendarSubscriptionMutationKey = () => ['revokeCalendarSubscription'] as const;
+
+export const getRevokeCalendarSubscriptionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeCalendarSubscription>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof revokeCalendarSubscription>>, TError,void, TContext> => {
+
+const mutationKey = getRevokeCalendarSubscriptionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof revokeCalendarSubscription>>, void> = () => {
+
+
+          return  revokeCalendarSubscription(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RevokeCalendarSubscriptionMutationResult = NonNullable<Awaited<ReturnType<typeof revokeCalendarSubscription>>>
+
+    export type RevokeCalendarSubscriptionMutationError = ErrorType<unknown>
+
+
+    export const useRevokeCalendarSubscription = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeCalendarSubscription>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof revokeCalendarSubscription>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getRevokeCalendarSubscriptionMutationOptions(options), queryClient);
+    }
+
+export const getGetSixBySixUrl = () => {
+
+
+
+
+  return `/api/svp/six-by-six`
+}
+
+export const getSixBySix = async ( options?: Parameters<typeof customFetch>[1]): Promise<SixWorkspace> => {
+
+  return customFetch<SixWorkspace>(getGetSixBySixUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSixBySixQueryKey = () => {
+    return [
+    `/api/svp/six-by-six`
+    ] as const;
+    }
+
+
+export const getGetSixBySixQueryOptions = <TData = Awaited<ReturnType<typeof getSixBySix>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSixBySix>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSixBySixQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSixBySix>>> = ({ signal }) => getSixBySix({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSixBySix>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSixBySixQueryResult = NonNullable<Awaited<ReturnType<typeof getSixBySix>>>
+export type GetSixBySixQueryError = ErrorType<unknown>
+
+
+export function useGetSixBySix<TData = Awaited<ReturnType<typeof getSixBySix>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSixBySix>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSixBySix>>,
+          TError,
+          Awaited<ReturnType<typeof getSixBySix>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSixBySix<TData = Awaited<ReturnType<typeof getSixBySix>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSixBySix>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSixBySix>>,
+          TError,
+          Awaited<ReturnType<typeof getSixBySix>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSixBySix<TData = Awaited<ReturnType<typeof getSixBySix>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSixBySix>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetSixBySix<TData = Awaited<ReturnType<typeof getSixBySix>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSixBySix>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetSixBySixQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateSixPeriodUrl = () => {
+
+
+
+
+  return `/api/svp/six-by-six/periods`
+}
+
+export const createSixPeriod = async (sixPeriodInput: SixPeriodInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getCreateSixPeriodUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sixPeriodInput)
+  }
+);}
+
+
+
+
+
+export const getCreateSixPeriodMutationKey = () => ['createSixPeriod'] as const;
+
+export const getCreateSixPeriodMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSixPeriod>>, TError,CreateSixPeriodMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSixPeriod>>, TError,CreateSixPeriodMutationVariables, TContext> => {
+
+const mutationKey = getCreateSixPeriodMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSixPeriod>>, CreateSixPeriodMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createSixPeriod(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSixPeriodMutationResult = NonNullable<Awaited<ReturnType<typeof createSixPeriod>>>
+    export type CreateSixPeriodMutationBody = BodyType<SixPeriodInput>
+    export type CreateSixPeriodMutationError = ErrorType<unknown>
+    export type CreateSixPeriodMutationVariables = {data: BodyType<SixPeriodInput>}
+
+    export const useCreateSixPeriod = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSixPeriod>>, TError,CreateSixPeriodMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createSixPeriod>>,
+        TError,
+        CreateSixPeriodMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateSixPeriodMutationOptions(options), queryClient);
+    }
+
+export const getUpdateSixPeriodUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/six-by-six/periods/${id}`
+}
+
+export const updateSixPeriod = async (id: string,
+    sixPeriodInput: SixPeriodInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getUpdateSixPeriodUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sixPeriodInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateSixPeriodMutationKey = () => ['updateSixPeriod'] as const;
+
+export const getUpdateSixPeriodMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSixPeriod>>, TError,UpdateSixPeriodMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSixPeriod>>, TError,UpdateSixPeriodMutationVariables, TContext> => {
+
+const mutationKey = getUpdateSixPeriodMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSixPeriod>>, UpdateSixPeriodMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateSixPeriod(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSixPeriodMutationResult = NonNullable<Awaited<ReturnType<typeof updateSixPeriod>>>
+    export type UpdateSixPeriodMutationBody = BodyType<SixPeriodInput>
+    export type UpdateSixPeriodMutationError = ErrorType<unknown>
+    export type UpdateSixPeriodMutationVariables = {id: string;data: BodyType<SixPeriodInput>}
+
+    export const useUpdateSixPeriod = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSixPeriod>>, TError,UpdateSixPeriodMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateSixPeriod>>,
+        TError,
+        UpdateSixPeriodMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateSixPeriodMutationOptions(options), queryClient);
+    }
+
+export const getUpdateSixMomentUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/six-by-six/moments/${id}`
+}
+
+export const updateSixMoment = async (id: string,
+    sixMomentInput: SixMomentInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getUpdateSixMomentUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sixMomentInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateSixMomentMutationKey = () => ['updateSixMoment'] as const;
+
+export const getUpdateSixMomentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSixMoment>>, TError,UpdateSixMomentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSixMoment>>, TError,UpdateSixMomentMutationVariables, TContext> => {
+
+const mutationKey = getUpdateSixMomentMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSixMoment>>, UpdateSixMomentMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateSixMoment(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSixMomentMutationResult = NonNullable<Awaited<ReturnType<typeof updateSixMoment>>>
+    export type UpdateSixMomentMutationBody = BodyType<SixMomentInput>
+    export type UpdateSixMomentMutationError = ErrorType<unknown>
+    export type UpdateSixMomentMutationVariables = {id: string;data: BodyType<SixMomentInput>}
+
+    export const useUpdateSixMoment = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSixMoment>>, TError,UpdateSixMomentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateSixMoment>>,
+        TError,
+        UpdateSixMomentMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateSixMomentMutationOptions(options), queryClient);
+    }
+
+export const getCreateSixItemUrl = () => {
+
+
+
+
+  return `/api/svp/six-by-six/items`
+}
+
+export const createSixItem = async (sixItemInput: SixItemInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getCreateSixItemUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sixItemInput)
+  }
+);}
+
+
+
+
+
+export const getCreateSixItemMutationKey = () => ['createSixItem'] as const;
+
+export const getCreateSixItemMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSixItem>>, TError,CreateSixItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSixItem>>, TError,CreateSixItemMutationVariables, TContext> => {
+
+const mutationKey = getCreateSixItemMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSixItem>>, CreateSixItemMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createSixItem(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSixItemMutationResult = NonNullable<Awaited<ReturnType<typeof createSixItem>>>
+    export type CreateSixItemMutationBody = BodyType<SixItemInput>
+    export type CreateSixItemMutationError = ErrorType<unknown>
+    export type CreateSixItemMutationVariables = {data: BodyType<SixItemInput>}
+
+    export const useCreateSixItem = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSixItem>>, TError,CreateSixItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createSixItem>>,
+        TError,
+        CreateSixItemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateSixItemMutationOptions(options), queryClient);
+    }
+
+export const getUpdateSixItemUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/six-by-six/items/${id}`
+}
+
+export const updateSixItem = async (id: string,
+    sixItemUpdate: SixItemUpdate, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getUpdateSixItemUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sixItemUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateSixItemMutationKey = () => ['updateSixItem'] as const;
+
+export const getUpdateSixItemMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSixItem>>, TError,UpdateSixItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSixItem>>, TError,UpdateSixItemMutationVariables, TContext> => {
+
+const mutationKey = getUpdateSixItemMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSixItem>>, UpdateSixItemMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateSixItem(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSixItemMutationResult = NonNullable<Awaited<ReturnType<typeof updateSixItem>>>
+    export type UpdateSixItemMutationBody = BodyType<SixItemUpdate>
+    export type UpdateSixItemMutationError = ErrorType<unknown>
+    export type UpdateSixItemMutationVariables = {id: string;data: BodyType<SixItemUpdate>}
+
+    export const useUpdateSixItem = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSixItem>>, TError,UpdateSixItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateSixItem>>,
+        TError,
+        UpdateSixItemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateSixItemMutationOptions(options), queryClient);
+    }
+
+export const getDeleteSixItemUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/six-by-six/items/${id}`
+}
+
+export const deleteSixItem = async (id: string,
+    sixVersionInput: SixVersionInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getDeleteSixItemUrl(id),
+  {
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sixVersionInput)
+  }
+);}
+
+
+
+
+
+export const getDeleteSixItemMutationKey = () => ['deleteSixItem'] as const;
+
+export const getDeleteSixItemMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSixItem>>, TError,DeleteSixItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteSixItem>>, TError,DeleteSixItemMutationVariables, TContext> => {
+
+const mutationKey = getDeleteSixItemMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSixItem>>, DeleteSixItemMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  deleteSixItem(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteSixItemMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSixItem>>>
+    export type DeleteSixItemMutationBody = BodyType<SixVersionInput>
+    export type DeleteSixItemMutationError = ErrorType<unknown>
+    export type DeleteSixItemMutationVariables = {id: string;data: BodyType<SixVersionInput>}
+
+    export const useDeleteSixItem = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSixItem>>, TError,DeleteSixItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteSixItem>>,
+        TError,
+        DeleteSixItemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteSixItemMutationOptions(options), queryClient);
+    }
 
 export const getGetScorecardUrl = (params?: GetScorecardParams,) => {
   const normalizedParams = new URLSearchParams();

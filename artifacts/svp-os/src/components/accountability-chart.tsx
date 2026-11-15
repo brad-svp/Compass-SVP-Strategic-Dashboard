@@ -24,6 +24,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { errorMessage } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { NativeSelect } from '@/components/native-select';
 
 const NAVY = '#0A2540';
 const BLUE = '#1D5FA8';
@@ -290,20 +291,20 @@ export function SeatEditor({ seat, seats, staff, open, onClose, actions }: {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2"><Label htmlFor="seat-title">Title</Label><Input id="seat-title" maxLength={200} value={d.title} onChange={(e) => set('title', e.target.value)} data-testid="input-seat-title" /></div>
           <div><Label htmlFor="seat-kind">Kind</Label>
-            <select id="seat-kind" className={sel} value={d.kind} onChange={(e) => set('kind', e.target.value as AccountabilitySeatInputKind)} data-testid="select-seat-kind">
+            <NativeSelect id="seat-kind" className={sel} value={d.kind} onChange={(e) => set('kind', e.target.value as AccountabilitySeatInputKind)} data-testid="select-seat-kind">
               <option value="board">Board</option><option value="leadership">Leadership</option><option value="function">Function</option>
-            </select></div>
+            </NativeSelect></div>
           <div><Label htmlFor="seat-parent">Reports to</Label>
-            <select id="seat-parent" className={sel} value={d.parentId} onChange={(e) => set('parentId', e.target.value)} data-testid="select-seat-parent">
+            <NativeSelect id="seat-parent" className={sel} value={d.parentId} onChange={(e) => set('parentId', e.target.value)} data-testid="select-seat-parent">
               <option value="">No one (top of chart)</option>
               {parents.map((p) => <option key={p.id} value={p.id}>{p.title}{p.personName ? ` (${p.personName})` : ''}</option>)}
-            </select></div>
+            </NativeSelect></div>
           <div><Label htmlFor="seat-owner">Owner login</Label>
-            <select id="seat-owner" className={sel} value={d.ownerId} onChange={(e) => set('ownerId', e.target.value)} data-testid="select-seat-owner">
+            <NativeSelect id="seat-owner" className={sel} value={d.ownerId} onChange={(e) => set('ownerId', e.target.value)} data-testid="select-seat-owner">
               <option value="">Unassigned</option>
               {staff.map((s) => <option key={s.id} value={s.id}>{s.name}{s.active ? '' : ' (inactive)'}</option>)}
               {d.ownerId && !staff.some((s) => s.id === d.ownerId) && <option value={d.ownerId}>Missing staff record</option>}
-            </select></div>
+            </NativeSelect></div>
           <div><Label htmlFor="seat-person">Name shown on chart</Label><Input id="seat-person" maxLength={160} value={d.personName} onChange={(e) => set('personName', e.target.value)} placeholder="Full name" data-testid="input-seat-person" /></div>
           <div><Label htmlFor="seat-role">Role label</Label><Input id="seat-role" maxLength={200} value={d.roleLabel} onChange={(e) => set('roleLabel', e.target.value)} placeholder="COO / Operations" data-testid="input-seat-role" /></div>
           <div><Label htmlFor="seat-capacity">Capacity</Label><Input id="seat-capacity" maxLength={100} value={d.capacity} onChange={(e) => set('capacity', e.target.value)} placeholder="Part time" data-testid="input-seat-capacity" /></div>

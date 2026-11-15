@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { ArrowDown, ArrowUp, ChevronDown, Gauge, Hash, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronDown, Gauge, Hash, Pencil, Trash2 } from 'lucide-react';
 import type { CheckIn, Comment, Foundation, KeyResult, Objective } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { StaffAvatar } from '@/components/ui-bits';
 import { HealthDot, InlineText, ProgressTrack, Sparkline } from '@/components/okr/bits';
 import { CheckInDialog, ConfirmDelete, KeyResultDialog } from '@/components/okr/dialogs';
@@ -10,6 +9,23 @@ import { CommentThread } from '@/components/okr/comments';
 import { fmtNum, krValueLabel, type OkrActions } from '@/lib/okr';
 import { fmtDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { Link } from 'wouter';
+import { CalendarDays } from 'lucide-react';
+import { useMasterCalendar } from '@/lib/calendar-hooks';
+import { calendarHref } from '@/lib/event-metric';
+
+function EventLinkChip({ eventId }: { eventId: string }) {
+  const cal = useMasterCalendar(true);
+  const ev = cal.data?.events.find((e) => e.id === eventId);
+  if (cal.isLoading) return <span className="inline-flex items-center gap-1"><CalendarDays className="h-3 w-3" />Event</span>;
+  if (!ev) return <span className="inline-flex items-center gap-1 text-[#8E2D58]" data-testid={`text-kr-event-unavailable-${eventId}`}><CalendarDays className="h-3 w-3" />Linked event unavailable</span>;
+  return (
+    <Link href={calendarHref(ev)} className="inline-flex max-w-[16rem] items-center gap-1 truncate text-[#125F88] hover:underline" data-testid={`link-kr-event-${ev.id}`}>
+      <CalendarDays className="h-3 w-3 shrink-0" /><span className="truncate">{ev.title}</span>
+      <span className="shrink-0 text-muted-foreground">· {ev.startDate ? fmtDate(ev.startDate, 'MMM d') : `TBD ${ev.planningYear}`}</span>
+    </Link>
+  );
+}
 
 export function KrCard({ kr, objective, foundation, checkIns, comments, actions, detailed, onMove, canMoveUp, canMoveDown, krCount }: {
   kr: KeyResult; objective: Objective; foundation: Foundation; checkIns: CheckIn[]; comments: Comment[]; actions: OkrActions;
@@ -40,6 +56,7 @@ export function KrCard({ kr, objective, foundation, checkIns, comments, actions,
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
             <span className="inline-flex items-center gap-1"><TypeIcon className="h-3 w-3" />{kr.measurementType === 'metric' ? 'Metric' : 'Confidence'}</span>
             <span className="font-mono text-[#1E3349]" data-testid={`text-kr-value-${kr.id}`}>{krValueLabel(kr)}</span>
+            {kr.calendarEventId && <EventLinkChip eventId={kr.calendarEventId} />}
             {kr.lastCheckInAt && <span>updated {fmtDate(kr.lastCheckInAt, 'MMM d')}</span>}
             <span>{commentCount} comment{commentCount === 1 ? '' : 's'}</span>
           </div>
@@ -72,15 +89,10 @@ export function KrCard({ kr, objective, foundation, checkIns, comments, actions,
             </span>
           )}
           {kr.canEdit && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className={cn('rounded p-1.5 text-[#3A4E63] hover:bg-[#0A2540]/5', !onMove && 'ml-auto')} aria-label="Key result actions" data-testid={`button-kr-menu-${kr.id}`}><MoreHorizontal className="h-4 w-4" /></button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setEditOpen(true)} data-testid={`menu-edit-kr-${kr.id}`}><Pencil className="mr-2 h-4 w-4" />Edit details</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setDelOpen(true)} className="text-[#B03E71]" data-testid={`menu-delete-kr-${kr.id}`}><Trash2 className="mr-2 h-4 w-4" />Remove</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <span className={cn('flex items-center', !onMove && 'ml-auto')}>
+              <button type="button" onClick={() => setEditOpen(true)} aria-label="Edit key result" title="Edit details" className="rounded p-1.5 text-[#3A4E63] hover:bg-[#0A2540]/5" data-testid={`menu-edit-kr-${kr.id}`}><Pencil className="h-3.5 w-3.5" /></button>
+              <button type="button" onClick={() => setDelOpen(true)} aria-label="Remove key result" title="Remove" className="rounded p-1.5 text-[#B03E71] hover:bg-[#B03E71]/10" data-testid={`menu-delete-kr-${kr.id}`}><Trash2 className="h-3.5 w-3.5" /></button>
+            </span>
           )}
         </div>
       )}

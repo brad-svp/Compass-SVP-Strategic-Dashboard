@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useDevAuth, useWorkspaceSignOut } from '@/lib/dev-auth';
 import {
-  LayoutDashboard, Target, BarChart3, Grid3x3, Users, Workflow, GraduationCap, Settings, ShieldCheck, LogOut, Menu,
+  LayoutDashboard, Target, BarChart3, Grid3x3, CalendarDays, Users, Settings, ShieldCheck, LogOut, Menu,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { BrandLockup } from '@/components/brand-logo';
@@ -15,9 +15,8 @@ const NAV = [
   { href: '/qbos', label: 'QBOs', icon: Target },
   { href: '/scorecard', label: 'Scorecard', icon: BarChart3 },
   { href: '/six-by-six', label: '6x6', icon: Grid3x3 },
+  { href: '/calendar', label: 'Calendar', icon: CalendarDays },
   { href: '/team', label: 'Team & Ownership', icon: Users },
-  { href: '/systems', label: 'Systems', icon: Workflow, soon: true },
-  { href: '/learn', label: 'Learn', icon: GraduationCap, soon: true },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -44,9 +43,6 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
             <span className={cn('absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-[#1D8BC4] transition-transform origin-center', active ? 'scale-y-100' : 'scale-y-0')} />
             <Icon className={cn('h-[18px] w-[18px] transition-transform group-hover:scale-110', active ? 'text-[#5FB6E3]' : '')} />
             <span className="flex-1">{item.label}</span>
-            {'soon' in item && item.soon && (
-              <span className="rounded bg-white/8 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#ECA519]">Soon</span>
-            )}
           </Link>
         );
       })}

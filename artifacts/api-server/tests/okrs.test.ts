@@ -24,7 +24,7 @@ before(async () => {
     const baseline = await readFile(new URL("../../../lib/db/drizzle/0000_phase2_okrs.sql", import.meta.url), "utf8");
     // Drizzle emits explicitly public-qualified foreign-key targets.
     await client.query(baseline.replaceAll('"public".', `"${schema}".`));
-    for (const migration of ["0001_accountability_chart.sql", "0002_qbos_scorecard.sql"]) {
+    for (const migration of ["0001_accountability_chart.sql", "0002_qbos_scorecard.sql", "0003_editable_six_by_six.sql", "0004_master_calendar.sql", "0005_event_key_results.sql"]) {
       const sql = await readFile(new URL(`../../../lib/db/drizzle/${migration}`, import.meta.url), "utf8");
       await client.query(sql.replaceAll('"public".', `"${schema}".`));
     }

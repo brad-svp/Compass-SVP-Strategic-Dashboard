@@ -5,6 +5,230 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type CalendarEventInputDateStatus = typeof CalendarEventInputDateStatus[keyof typeof CalendarEventInputDateStatus];
+
+
+export const CalendarEventInputDateStatus = {
+  proposed: 'proposed',
+  confirmed: 'confirmed',
+  tbd: 'tbd',
+  cancelled: 'cancelled',
+} as const;
+
+export type CalendarEventInputLocationStatus = typeof CalendarEventInputLocationStatus[keyof typeof CalendarEventInputLocationStatus];
+
+
+export const CalendarEventInputLocationStatus = {
+  proposed: 'proposed',
+  confirmed: 'confirmed',
+  tbd: 'tbd',
+  not_applicable: 'not_applicable',
+} as const;
+
+export interface CalendarEventInput {
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  title: string;
+  /** @maxLength 120 */
+  program: string;
+  /**
+     * @minimum 1900
+     * @maximum 9999
+     */
+  planningYear: number;
+  /** @nullable */
+  startDate: string | null;
+  /** @nullable */
+  endDate: string | null;
+  allDay: boolean;
+  /** @nullable */
+  startsAt: string | null;
+  /** @nullable */
+  endsAt: string | null;
+  /** @maxLength 1000 */
+  location: string;
+  dateStatus: CalendarEventInputDateStatus;
+  locationStatus: CalendarEventInputLocationStatus;
+  /**
+     * @maxItems 30
+     * @items.maxLength 120
+     */
+  audience: string[];
+  /** @maxLength 2000 */
+  wixUrl: string;
+  /** @maxLength 16000 */
+  notes: string;
+  /** @nullable */
+  ownerId: string | null;
+  /** @minimum 0 */
+  expectedVersion: number;
+}
+
+export type CalendarEvent = CalendarEventInput & ({
+  id: string;
+  version: number;
+  /** @nullable */
+  sourceUrl: string | null;
+  imported: boolean;
+  canEdit: boolean;
+  updatedAt: string;
+});
+
+export interface CalendarImportInfo {
+  sourceUrl: string;
+  complete: boolean;
+  recordCount: number;
+  year2026: number;
+  year2027: number;
+  note: string;
+}
+
+export interface MasterCalendar {
+  events: CalendarEvent[];
+  timeZone: string;
+  hasSubscription: boolean;
+  isPublished: boolean;
+  sourceImport?: CalendarImportInfo;
+}
+
+export interface CalendarSubscription {
+  path: string;
+}
+
+export interface SixVersionInput {
+  /** @minimum 0 */
+  expectedVersion: number;
+}
+
+export type SixPeriodInputStatus = typeof SixPeriodInputStatus[keyof typeof SixPeriodInputStatus];
+
+
+export const SixPeriodInputStatus = {
+  draft: 'draft',
+  active: 'active',
+  closed: 'closed',
+} as const;
+
+export interface SixPeriodInput {
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  name: string;
+  startDate: string;
+  endDate: string;
+  /** @nullable */
+  meetingDate: string | null;
+  /** @maxLength 12000 */
+  meetingNotes: string;
+  status: SixPeriodInputStatus;
+  /** @minimum 0 */
+  expectedVersion: number;
+}
+
+export interface SixMomentInput {
+  /** @maxLength 300 */
+  title: string;
+  /** @nullable */
+  eventDate: string | null;
+  /** @minimum 1 */
+  expectedVersion: number;
+}
+
+export type SixItemInputStatus = typeof SixItemInputStatus[keyof typeof SixItemInputStatus];
+
+
+export const SixItemInputStatus = {
+  planned: 'planned',
+  in_progress: 'in_progress',
+  blocked: 'blocked',
+  done: 'done',
+} as const;
+
+export interface SixItemInput {
+  momentId: string;
+  ownerId: string;
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  title: string;
+  /** @maxLength 8000 */
+  description: string;
+  status: SixItemInputStatus;
+}
+
+export type SixItemUpdateStatus = typeof SixItemUpdateStatus[keyof typeof SixItemUpdateStatus];
+
+
+export const SixItemUpdateStatus = {
+  planned: 'planned',
+  in_progress: 'in_progress',
+  blocked: 'blocked',
+  done: 'done',
+} as const;
+
+export interface SixItemUpdate {
+  ownerId: string;
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  title: string;
+  /** @maxLength 8000 */
+  description: string;
+  status: SixItemUpdateStatus;
+  /** @minimum 1 */
+  expectedVersion: number;
+}
+
+export interface SixMoment {
+  id: string;
+  periodId: string;
+  position: number;
+  title: string;
+  /** @nullable */
+  eventDate: string | null;
+  version: number;
+}
+
+export type SixPeriodStatus = typeof SixPeriodStatus[keyof typeof SixPeriodStatus];
+
+
+export const SixPeriodStatus = {
+  draft: 'draft',
+  active: 'active',
+  closed: 'closed',
+} as const;
+
+export interface SixPeriod {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  /** @nullable */
+  meetingDate: string | null;
+  meetingNotes: string;
+  status: SixPeriodStatus;
+  version: number;
+  moments: SixMoment[];
+}
+
+export type SixItem = SixItemInput & {
+  id: string;
+  periodId: string;
+  version: number;
+  canEdit: boolean;
+  updatedAt: string;
+};
+
+export interface SixWorkspace {
+  periods: SixPeriod[];
+  items: SixItem[];
+}
+
 export type ScorecardMetricInputDirection = typeof ScorecardMetricInputDirection[keyof typeof ScorecardMetricInputDirection];
 
 
@@ -284,6 +508,8 @@ export const KeyResultInputMeasurementType = {
 
 export interface KeyResultInput {
   objectiveId: string;
+  /** @nullable */
+  calendarEventId?: string | null;
   ownerId: string;
   /**
      * @minLength 1
@@ -308,6 +534,8 @@ export const KeyResultUpdateMeasurementType = {
 } as const;
 
 export interface KeyResultUpdate {
+  /** @nullable */
+  calendarEventId?: string | null;
   ownerId?: string;
   /**
      * @minLength 1

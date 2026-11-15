@@ -2,8 +2,8 @@ import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 
 /** Browser-managed focus and modality, without a document-wide pointer-events lock. */
-export function BrowserDialog({ open, onOpenChange, title, description, children }: {
-  open: boolean; onOpenChange: (open: boolean) => void; title: string; description: string; children: ReactNode;
+export function BrowserDialog({ open, onOpenChange, title, description, children, testId = 'form-browser-dialog' }: {
+  open: boolean; onOpenChange: (open: boolean) => void; title: string; description: string; children: ReactNode; testId?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -23,7 +23,7 @@ export function BrowserDialog({ open, onOpenChange, title, description, children
       onCancel={(event) => { event.preventDefault(); onOpenChange(false); }}
       onClose={() => onOpenChange(false)}
       className="fixed inset-0 m-auto max-h-[92dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto rounded-xl border border-border bg-[#FBFAF6] p-6 text-foreground shadow-xl backdrop:bg-black/60"
-      data-testid="qbo-browser-dialog"
+      data-testid={testId}
     >
       <header className="mb-4 space-y-1.5 pr-7">
         <h2 id={titleId} className="font-display text-2xl font-semibold text-[#0A2540]">{title}</h2>

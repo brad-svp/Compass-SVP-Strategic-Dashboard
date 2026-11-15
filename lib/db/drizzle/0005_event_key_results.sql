@@ -1,0 +1,2 @@
+ALTER TABLE "key_results" ADD COLUMN "calendar_event_id" text;--> statement-breakpoint
+ALTER TABLE "key_results" ADD CONSTRAINT "key_results_calendar_event_id_calendar_events_id_fk" FOREIGN KEY ("calendar_event_id") REFERENCES "public"."calendar_events"("id") ON DELETE no action ON UPDATE no action;

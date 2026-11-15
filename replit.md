@@ -1,10 +1,10 @@
 # SVP OS
 
-Internal strategic operating system for SVP Sacramento: annual alignment, six-week planning, team ownership, and a directory of shared systems.
+Internal strategic operating system for SVP Sacramento: quarterly alignment, weekly measures, six-week planning, team ownership, and the master events calendar.
 
 ## Delivery scope
 
-The user supplied a six-phase build brief in `attached_assets/SVP_OS_—_Replit_Build_Prompt_1794430137287.pdf`. Foundation, quarterly organization-wide **QBOs**, and an EOS-style weekly Scorecard are implemented: branded welcome, Google sign-in, staff access checks, staff/areas/cycles administration, audit logging, metric/confidence quarterly key results, append-only check-ins, comments, and a live strategic dashboard. Annual and individual objectives from the earlier OKR model remain available as legacy objectives. Team & Ownership includes the user's editable 2027 accountability chart. Editable 6x6, RACI, Systems, Learn, AI, CRM, and MCP remain subsequent phases. The seeded 6x6 remains a read-only preview.
+The user supplied a six-phase build brief in `attached_assets/SVP_OS_—_Replit_Build_Prompt_1794430137287.pdf`. Foundation, quarterly organization-wide **QBOs**, an EOS-style weekly Scorecard, editable **6x6** planning, the accountability chart, and the **Master Calendar** are implemented. Annual and individual objectives from the earlier OKR model remain available as legacy objectives. Systems and Learn are removed from the menu at the user's request. RACI, AI, CRM integration, and MCP remain future scope.
 
 ## Product rules
 
@@ -13,6 +13,12 @@ The user supplied a six-phase build brief in `attached_assets/SVP_OS_—_Replit_
 - The user replaced OKRs with **QBOs**: new objectives are organization-wide, with key objectives and key results defined separately for Q1–Q4 and an accountable owner for each. Do not invent an expansion for “QBOs.” Preserve existing annual/individual objectives and check-in history rather than deleting or automatically converting them.
 - The EOS-style Scorecard accepts any custom numeric weekly measurable with one owner, a unit and an above/below/range goal, a 13-week view, on/off-track status, trends and notes. Admins configure metrics; owners and admins record results. Metric archiving retains history, weekly corrections retain revisions, and historical goals are snapshots.
 - QBO key results may link to Scorecard metrics for context, but weekly actuals remain separate from official quarterly key-result check-ins.
+- QBO event metrics link a calendar event to a numeric key result. Registration, attendance, and event-revenue shortcuts leave the target for the user to enter; calendar edits never invent or update actual results.
+- 6x6 uses Back / Current / Next navigation and previous/current/next accordions, not a month picker. Period status and past/future dates must not prevent editing. Admins manage periods and major moments and can edit anyone's items; staff edit their own items in any period. Removal keeps audit history.
+- Use button-based choices for app-owned selectors, not OS select popups or Radix portalled menus. The user repeatedly reported immediate closing even after the native-select replacement. Panels should overlay content without shifting layout, with explicitly controlled open/close state rather than focus-loss dismissal. QBO actions use visible buttons.
+- The Master Calendar replaces the Notion scheduling workflow for 2026 history and 2027 planning. Admins manage events; all staff view and subscribe. Preserve proposed versus confirmed dates and venues, unknown fields, inclusive all-day ranges, and America/Los_Angeles times.
+- The public Notion views are filtered, so the initial import is explicitly partial. Audience/Wix values and source timezone metadata were not reliably exposed. Do not claim a complete archive without reconciling a full database export. Retain captured source data; re-imports must not overwrite user edits or resurrect removed events.
+- Google Calendar uses a private, revocable, one-way ICS subscription covering the whole calendar, not Google OAuth or two-way sync. Feed keys are hashed in the database and shown once. Google controls refresh timing; a stable externally reachable published address is required. Do not publish automatically or weaken deployment privacy.
 - Published sign-in requires a verified `svpsacramento.org` Google identity matching an active admin-managed staff record.
 - The user explicitly requested development quick-login options for both staff and admin. These use separate labeled test identities, never real staff impersonation. Anyone with the development link can use them and change development data. Never enable this shortcut on a published app.
 - People are the primary unit; areas remain separate records supporting multiple people.
@@ -26,7 +32,7 @@ Match the supplied SVP brief: navy `#0A2540`, blue `#1D8BC4`, accents green `#49
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server using the managed workflow's PORT
 - `pnpm --filter @workspace/svp-os run dev` — frontend (use its managed workflow, which supplies PORT and BASE_PATH)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
@@ -35,6 +41,8 @@ Match the supplied SVP brief: navy `#0A2540`, blue `#1D8BC4`, accents green `#49
 - `pnpm --filter @workspace/scripts exec tsx --test ../artifacts/api-server/tests/okrs.test.ts` — OKR service and progress tests in an isolated disposable schema (never writes sample OKRs in real cycles).
 - `pnpm run test:okrs` — backend tests plus frontend render checks using the app's JSX and React configuration.
 - `pnpm --filter @workspace/scripts exec tsx --test ../artifacts/api-server/tests/scorecard.test.ts` — isolated QBO/Scorecard permissions, goal snapshots, correction history, conflict and archive tests.
+- `pnpm --filter @workspace/scripts exec tsx --test ../artifacts/api-server/tests/calendar.test.ts ../artifacts/api-server/tests/six-by-six.test.ts` — isolated calendar/ICS/event metrics and editable 6x6 tests.
+- `pnpm --filter @workspace/scripts exec tsx --tsconfig ../artifacts/svp-os/tsconfig.json --test ../artifacts/svp-os/tests/calendar-helpers.test.ts ../artifacts/svp-os/tests/six-by-six-helpers.test.ts` — frontend date/DST, event presets and 6x6 helper checks with the app's path aliases.
 - Required env: `DATABASE_URL` — Postgres connection string
 
 ## Stack
@@ -44,7 +52,7 @@ Match the supplied SVP brief: navy `#0A2540`, blue `#1D8BC4`, accents green `#49
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Build: esbuild (ESM server bundle)
 
 ## Where things live
 

@@ -25,7 +25,7 @@ before(async () => {
   try {
     await client.query(`CREATE SCHEMA "${schema}"`);
     await client.query(`SET search_path TO "${schema}"`);
-    for (const file of ["0000_phase2_okrs.sql", "0001_accountability_chart.sql", "0002_qbos_scorecard.sql"]) {
+    for (const file of ["0000_phase2_okrs.sql", "0001_accountability_chart.sql", "0002_qbos_scorecard.sql", "0003_editable_six_by_six.sql", "0004_master_calendar.sql", "0005_event_key_results.sql"]) {
       const sql = await readFile(new URL(`../../../lib/db/drizzle/${file}`, import.meta.url), "utf8");
       await client.query(sql.replaceAll('"public".', `"${schema}".`));
     }

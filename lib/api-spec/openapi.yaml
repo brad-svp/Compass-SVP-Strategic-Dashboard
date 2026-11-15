@@ -11,6 +11,173 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /svp/calendar:
+    get:
+      operationId: getMasterCalendar
+      responses:
+        "200":
+          description: Master events calendar and subscription status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MasterCalendar" }
+  /svp/calendar/events:
+    post:
+      operationId: createCalendarEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CalendarEventInput" }
+      responses:
+        "201":
+          description: Calendar event created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/calendar/events/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    patch:
+      operationId: updateCalendarEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CalendarEventInput" }
+      responses:
+        "200":
+          description: Event updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+    delete:
+      operationId: deleteCalendarEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SixVersionInput" }
+      responses:
+        "200":
+          description: Event removed with retained history and subscription cancellation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/calendar/subscription:
+    post:
+      operationId: createCalendarSubscription
+      responses:
+        "201":
+          description: New private URL shown once; replaces any previous subscription key
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CalendarSubscription" }
+    delete:
+      operationId: revokeCalendarSubscription
+      responses:
+        "200":
+          description: Private calendar URL revoked
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/six-by-six:
+    get:
+      operationId: getSixBySix
+      responses:
+        "200":
+          description: All planning periods, six major moments per period, and visible commitments
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SixWorkspace" }
+  /svp/six-by-six/periods:
+    post:
+      operationId: createSixPeriod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SixPeriodInput" }
+      responses:
+        "201":
+          description: Period and its six empty major-moment slots created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/six-by-six/periods/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    patch:
+      operationId: updateSixPeriod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SixPeriodInput" }
+      responses:
+        "200":
+          description: Planning period updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/six-by-six/moments/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    patch:
+      operationId: updateSixMoment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SixMomentInput" }
+      responses:
+        "200":
+          description: Major moment updated, retaining its commitments
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/six-by-six/items:
+    post:
+      operationId: createSixItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SixItemInput" }
+      responses:
+        "201":
+          description: Commitment created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/six-by-six/items/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    patch:
+      operationId: updateSixItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SixItemUpdate" }
+      responses:
+        "200":
+          description: Commitment updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+    delete:
+      operationId: deleteSixItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SixVersionInput" }
+      responses:
+        "200":
+          description: Commitment removed from view, retaining its audit history
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
   /svp/scorecard:
     get:
       operationId: getScorecard
@@ -385,6 +552,160 @@ components:
         type: string
         enum: [staff, areas, cycles]
   schemas:
+    CalendarEventInput:
+      type: object
+      additionalProperties: false
+      required: [title, program, planningYear, startDate, endDate, allDay, startsAt, endsAt, location, dateStatus, locationStatus, audience, wixUrl, notes, ownerId, expectedVersion]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 300 }
+        program: { type: string, maxLength: 120 }
+        planningYear: { type: integer, minimum: 1900, maximum: 9999 }
+        startDate: { type: [string, "null"] }
+        endDate: { type: [string, "null"] }
+        allDay: { type: boolean }
+        startsAt: { type: [string, "null"] }
+        endsAt: { type: [string, "null"] }
+        location: { type: string, maxLength: 1000 }
+        dateStatus: { type: string, enum: [proposed, confirmed, tbd, cancelled] }
+        locationStatus: { type: string, enum: [proposed, confirmed, tbd, not_applicable] }
+        audience:
+          type: array
+          maxItems: 30
+          items: { type: string, maxLength: 120 }
+        wixUrl: { type: string, maxLength: 2000 }
+        notes: { type: string, maxLength: 16000 }
+        ownerId: { type: [string, "null"] }
+        expectedVersion: { type: integer, minimum: 0 }
+    CalendarEvent:
+      allOf:
+        - $ref: "#/components/schemas/CalendarEventInput"
+        - type: object
+          required: [id, version, sourceUrl, imported, canEdit, updatedAt]
+          properties:
+            id: { type: string }
+            version: { type: integer }
+            sourceUrl: { type: [string, "null"] }
+            imported: { type: boolean }
+            canEdit: { type: boolean }
+            updatedAt: { type: string, format: date-time }
+    MasterCalendar:
+      type: object
+      required: [events, timeZone, hasSubscription, isPublished]
+      properties:
+        events:
+          type: array
+          items: { $ref: "#/components/schemas/CalendarEvent" }
+        timeZone: { type: string }
+        hasSubscription: { type: boolean }
+        isPublished: { type: boolean }
+        sourceImport: { $ref: "#/components/schemas/CalendarImportInfo" }
+    CalendarImportInfo:
+      type: object
+      required: [sourceUrl, complete, recordCount, year2026, year2027, note]
+      properties:
+        sourceUrl: { type: string }
+        complete: { type: boolean }
+        recordCount: { type: integer }
+        year2026: { type: integer }
+        year2027: { type: integer }
+        note: { type: string }
+    CalendarSubscription:
+      type: object
+      required: [path]
+      properties:
+        path: { type: string }
+    SixVersionInput:
+      type: object
+      additionalProperties: false
+      required: [expectedVersion]
+      properties:
+        expectedVersion: { type: integer, minimum: 0 }
+    SixPeriodInput:
+      type: object
+      additionalProperties: false
+      required: [name, startDate, endDate, meetingDate, meetingNotes, status, expectedVersion]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 160 }
+        startDate: { type: string }
+        endDate: { type: string }
+        meetingDate: { type: [string, "null"] }
+        meetingNotes: { type: string, maxLength: 12000 }
+        status: { type: string, enum: [draft, active, closed] }
+        expectedVersion: { type: integer, minimum: 0 }
+    SixMomentInput:
+      type: object
+      additionalProperties: false
+      required: [title, eventDate, expectedVersion]
+      properties:
+        title: { type: string, maxLength: 300 }
+        eventDate: { type: [string, "null"] }
+        expectedVersion: { type: integer, minimum: 1 }
+    SixItemInput:
+      type: object
+      additionalProperties: false
+      required: [momentId, ownerId, title, description, status]
+      properties:
+        momentId: { type: string }
+        ownerId: { type: string }
+        title: { type: string, minLength: 1, maxLength: 300 }
+        description: { type: string, maxLength: 8000 }
+        status: { type: string, enum: [planned, in_progress, blocked, done] }
+    SixItemUpdate:
+      type: object
+      additionalProperties: false
+      required: [ownerId, title, description, status, expectedVersion]
+      properties:
+        ownerId: { type: string }
+        title: { type: string, minLength: 1, maxLength: 300 }
+        description: { type: string, maxLength: 8000 }
+        status: { type: string, enum: [planned, in_progress, blocked, done] }
+        expectedVersion: { type: integer, minimum: 1 }
+    SixMoment:
+      type: object
+      required: [id, periodId, position, title, eventDate, version]
+      properties:
+        id: { type: string }
+        periodId: { type: string }
+        position: { type: integer }
+        title: { type: string }
+        eventDate: { type: [string, "null"] }
+        version: { type: integer }
+    SixPeriod:
+      type: object
+      required: [id, name, startDate, endDate, meetingDate, meetingNotes, status, version, moments]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        startDate: { type: string }
+        endDate: { type: string }
+        meetingDate: { type: [string, "null"] }
+        meetingNotes: { type: string }
+        status: { type: string, enum: [draft, active, closed] }
+        version: { type: integer }
+        moments:
+          type: array
+          items: { $ref: "#/components/schemas/SixMoment" }
+    SixItem:
+      allOf:
+        - $ref: "#/components/schemas/SixItemInput"
+        - type: object
+          required: [id, periodId, version, canEdit, updatedAt]
+          properties:
+            id: { type: string }
+            periodId: { type: string }
+            version: { type: integer }
+            canEdit: { type: boolean }
+            updatedAt: { type: string, format: date-time }
+    SixWorkspace:
+      type: object
+      required: [periods, items]
+      properties:
+        periods:
+          type: array
+          items: { $ref: "#/components/schemas/SixPeriod" }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/SixItem" }
     ScorecardMetricInput:
       type: object
       additionalProperties: false
@@ -531,6 +852,7 @@ components:
       required: [objectiveId, ownerId, title, measurementType]
       properties:
         objectiveId: { type: string }
+        calendarEventId: { type: [string, "null"] }
         ownerId: { type: string }
         title: { type: string, minLength: 1, maxLength: 300 }
         measurementType: { type: string, enum: [metric, confidence] }
@@ -541,6 +863,7 @@ components:
     KeyResultUpdate:
       type: object
       properties:
+        calendarEventId: { type: [string, "null"] }
         ownerId: { type: string }
         title: { type: string, minLength: 1, maxLength: 300 }
         measurementType: { type: string, enum: [metric, confidence] }

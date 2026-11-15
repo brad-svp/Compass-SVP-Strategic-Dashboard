@@ -9,6 +9,8 @@ import type { KeyResultInputMeasurementType } from './keyResultInputMeasurementT
 
 export interface KeyResultInput {
   objectiveId: string;
+  /** @nullable */
+  calendarEventId?: string | null;
   ownerId: string;
   /**
      * @minLength 1

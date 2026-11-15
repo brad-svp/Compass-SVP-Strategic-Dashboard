@@ -8,6 +8,377 @@
 import * as zod from 'zod';
 
 
+export const getMasterCalendarResponseEventsItemOneTitleMax = 300;
+
+export const getMasterCalendarResponseEventsItemOneProgramMax = 120;
+
+export const getMasterCalendarResponseEventsItemOnePlanningYearMin = 1900;
+export const getMasterCalendarResponseEventsItemOnePlanningYearMax = 9999;
+
+export const getMasterCalendarResponseEventsItemOneLocationMax = 1000;
+
+export const getMasterCalendarResponseEventsItemOneAudienceItemMax = 120;
+
+export const getMasterCalendarResponseEventsItemOneAudienceMax = 30;
+
+export const getMasterCalendarResponseEventsItemOneWixUrlMax = 2000;
+
+export const getMasterCalendarResponseEventsItemOneNotesMax = 16000;
+
+export const getMasterCalendarResponseEventsItemOneExpectedVersionMin = 0;
+
+
+
+export const GetMasterCalendarResponse = zod.object({
+  "events": zod.array(zod.object({
+  "title": zod.string().min(1).max(getMasterCalendarResponseEventsItemOneTitleMax),
+  "program": zod.string().max(getMasterCalendarResponseEventsItemOneProgramMax),
+  "planningYear": zod.number().int().min(getMasterCalendarResponseEventsItemOnePlanningYearMin).max(getMasterCalendarResponseEventsItemOnePlanningYearMax),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "allDay": zod.boolean(),
+  "startsAt": zod.string().nullable(),
+  "endsAt": zod.string().nullable(),
+  "location": zod.string().max(getMasterCalendarResponseEventsItemOneLocationMax),
+  "dateStatus": zod.enum(['proposed', 'confirmed', 'tbd', 'cancelled']),
+  "locationStatus": zod.enum(['proposed', 'confirmed', 'tbd', 'not_applicable']),
+  "audience": zod.array(zod.string().max(getMasterCalendarResponseEventsItemOneAudienceItemMax)).max(getMasterCalendarResponseEventsItemOneAudienceMax),
+  "wixUrl": zod.string().max(getMasterCalendarResponseEventsItemOneWixUrlMax),
+  "notes": zod.string().max(getMasterCalendarResponseEventsItemOneNotesMax),
+  "ownerId": zod.string().nullable(),
+  "expectedVersion": zod.number().int().min(getMasterCalendarResponseEventsItemOneExpectedVersionMin)
+}).and(zod.object({
+  "id": zod.string(),
+  "version": zod.number().int(),
+  "sourceUrl": zod.string().nullable(),
+  "imported": zod.boolean(),
+  "canEdit": zod.boolean(),
+  "updatedAt": zod.coerce.date()
+}))),
+  "timeZone": zod.string(),
+  "hasSubscription": zod.boolean(),
+  "isPublished": zod.boolean(),
+  "sourceImport": zod.object({
+  "sourceUrl": zod.string(),
+  "complete": zod.boolean(),
+  "recordCount": zod.number().int(),
+  "year2026": zod.number().int(),
+  "year2027": zod.number().int(),
+  "note": zod.string()
+}).optional()
+})
+
+
+export const createCalendarEventBodyTitleMax = 300;
+
+export const createCalendarEventBodyProgramMax = 120;
+
+export const createCalendarEventBodyPlanningYearMin = 1900;
+export const createCalendarEventBodyPlanningYearMax = 9999;
+
+export const createCalendarEventBodyLocationMax = 1000;
+
+export const createCalendarEventBodyAudienceItemMax = 120;
+
+export const createCalendarEventBodyAudienceMax = 30;
+
+export const createCalendarEventBodyWixUrlMax = 2000;
+
+export const createCalendarEventBodyNotesMax = 16000;
+
+export const createCalendarEventBodyExpectedVersionMin = 0;
+
+
+
+export const CreateCalendarEventBody = zod.object({
+  "title": zod.string().min(1).max(createCalendarEventBodyTitleMax),
+  "program": zod.string().max(createCalendarEventBodyProgramMax),
+  "planningYear": zod.number().int().min(createCalendarEventBodyPlanningYearMin).max(createCalendarEventBodyPlanningYearMax),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "allDay": zod.boolean(),
+  "startsAt": zod.string().nullable(),
+  "endsAt": zod.string().nullable(),
+  "location": zod.string().max(createCalendarEventBodyLocationMax),
+  "dateStatus": zod.enum(['proposed', 'confirmed', 'tbd', 'cancelled']),
+  "locationStatus": zod.enum(['proposed', 'confirmed', 'tbd', 'not_applicable']),
+  "audience": zod.array(zod.string().max(createCalendarEventBodyAudienceItemMax)).max(createCalendarEventBodyAudienceMax),
+  "wixUrl": zod.string().max(createCalendarEventBodyWixUrlMax),
+  "notes": zod.string().max(createCalendarEventBodyNotesMax),
+  "ownerId": zod.string().nullable(),
+  "expectedVersion": zod.number().int().min(createCalendarEventBodyExpectedVersionMin)
+})
+
+export const CreateCalendarEventResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const UpdateCalendarEventParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateCalendarEventBodyTitleMax = 300;
+
+export const updateCalendarEventBodyProgramMax = 120;
+
+export const updateCalendarEventBodyPlanningYearMin = 1900;
+export const updateCalendarEventBodyPlanningYearMax = 9999;
+
+export const updateCalendarEventBodyLocationMax = 1000;
+
+export const updateCalendarEventBodyAudienceItemMax = 120;
+
+export const updateCalendarEventBodyAudienceMax = 30;
+
+export const updateCalendarEventBodyWixUrlMax = 2000;
+
+export const updateCalendarEventBodyNotesMax = 16000;
+
+export const updateCalendarEventBodyExpectedVersionMin = 0;
+
+
+
+export const UpdateCalendarEventBody = zod.object({
+  "title": zod.string().min(1).max(updateCalendarEventBodyTitleMax),
+  "program": zod.string().max(updateCalendarEventBodyProgramMax),
+  "planningYear": zod.number().int().min(updateCalendarEventBodyPlanningYearMin).max(updateCalendarEventBodyPlanningYearMax),
+  "startDate": zod.string().nullable(),
+  "endDate": zod.string().nullable(),
+  "allDay": zod.boolean(),
+  "startsAt": zod.string().nullable(),
+  "endsAt": zod.string().nullable(),
+  "location": zod.string().max(updateCalendarEventBodyLocationMax),
+  "dateStatus": zod.enum(['proposed', 'confirmed', 'tbd', 'cancelled']),
+  "locationStatus": zod.enum(['proposed', 'confirmed', 'tbd', 'not_applicable']),
+  "audience": zod.array(zod.string().max(updateCalendarEventBodyAudienceItemMax)).max(updateCalendarEventBodyAudienceMax),
+  "wixUrl": zod.string().max(updateCalendarEventBodyWixUrlMax),
+  "notes": zod.string().max(updateCalendarEventBodyNotesMax),
+  "ownerId": zod.string().nullable(),
+  "expectedVersion": zod.number().int().min(updateCalendarEventBodyExpectedVersionMin)
+})
+
+export const UpdateCalendarEventResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const DeleteCalendarEventParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const deleteCalendarEventBodyExpectedVersionMin = 0;
+
+
+
+export const DeleteCalendarEventBody = zod.object({
+  "expectedVersion": zod.number().int().min(deleteCalendarEventBodyExpectedVersionMin)
+})
+
+export const DeleteCalendarEventResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const CreateCalendarSubscriptionResponse = zod.object({
+  "path": zod.string()
+})
+
+
+export const RevokeCalendarSubscriptionResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const getSixBySixResponseItemsItemOneTitleMax = 300;
+
+export const getSixBySixResponseItemsItemOneDescriptionMax = 8000;
+
+
+
+export const GetSixBySixResponse = zod.object({
+  "periods": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "meetingDate": zod.string().nullable(),
+  "meetingNotes": zod.string(),
+  "status": zod.enum(['draft', 'active', 'closed']),
+  "version": zod.number().int(),
+  "moments": zod.array(zod.object({
+  "id": zod.string(),
+  "periodId": zod.string(),
+  "position": zod.number().int(),
+  "title": zod.string(),
+  "eventDate": zod.string().nullable(),
+  "version": zod.number().int()
+}))
+})),
+  "items": zod.array(zod.object({
+  "momentId": zod.string(),
+  "ownerId": zod.string(),
+  "title": zod.string().min(1).max(getSixBySixResponseItemsItemOneTitleMax),
+  "description": zod.string().max(getSixBySixResponseItemsItemOneDescriptionMax),
+  "status": zod.enum(['planned', 'in_progress', 'blocked', 'done'])
+}).and(zod.object({
+  "id": zod.string(),
+  "periodId": zod.string(),
+  "version": zod.number().int(),
+  "canEdit": zod.boolean(),
+  "updatedAt": zod.coerce.date()
+})))
+})
+
+
+export const createSixPeriodBodyNameMax = 160;
+
+export const createSixPeriodBodyMeetingNotesMax = 12000;
+
+export const createSixPeriodBodyExpectedVersionMin = 0;
+
+
+
+export const CreateSixPeriodBody = zod.object({
+  "name": zod.string().min(1).max(createSixPeriodBodyNameMax),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "meetingDate": zod.string().nullable(),
+  "meetingNotes": zod.string().max(createSixPeriodBodyMeetingNotesMax),
+  "status": zod.enum(['draft', 'active', 'closed']),
+  "expectedVersion": zod.number().int().min(createSixPeriodBodyExpectedVersionMin)
+})
+
+export const CreateSixPeriodResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const UpdateSixPeriodParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateSixPeriodBodyNameMax = 160;
+
+export const updateSixPeriodBodyMeetingNotesMax = 12000;
+
+export const updateSixPeriodBodyExpectedVersionMin = 0;
+
+
+
+export const UpdateSixPeriodBody = zod.object({
+  "name": zod.string().min(1).max(updateSixPeriodBodyNameMax),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "meetingDate": zod.string().nullable(),
+  "meetingNotes": zod.string().max(updateSixPeriodBodyMeetingNotesMax),
+  "status": zod.enum(['draft', 'active', 'closed']),
+  "expectedVersion": zod.number().int().min(updateSixPeriodBodyExpectedVersionMin)
+})
+
+export const UpdateSixPeriodResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const UpdateSixMomentParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateSixMomentBodyTitleMax = 300;
+
+
+
+
+export const UpdateSixMomentBody = zod.object({
+  "title": zod.string().max(updateSixMomentBodyTitleMax),
+  "eventDate": zod.string().nullable(),
+  "expectedVersion": zod.number().int().min(1)
+})
+
+export const UpdateSixMomentResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const createSixItemBodyTitleMax = 300;
+
+export const createSixItemBodyDescriptionMax = 8000;
+
+
+
+export const CreateSixItemBody = zod.object({
+  "momentId": zod.string(),
+  "ownerId": zod.string(),
+  "title": zod.string().min(1).max(createSixItemBodyTitleMax),
+  "description": zod.string().max(createSixItemBodyDescriptionMax),
+  "status": zod.enum(['planned', 'in_progress', 'blocked', 'done'])
+})
+
+export const CreateSixItemResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const UpdateSixItemParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateSixItemBodyTitleMax = 300;
+
+export const updateSixItemBodyDescriptionMax = 8000;
+
+
+
+
+export const UpdateSixItemBody = zod.object({
+  "ownerId": zod.string(),
+  "title": zod.string().min(1).max(updateSixItemBodyTitleMax),
+  "description": zod.string().max(updateSixItemBodyDescriptionMax),
+  "status": zod.enum(['planned', 'in_progress', 'blocked', 'done']),
+  "expectedVersion": zod.number().int().min(1)
+})
+
+export const UpdateSixItemResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const DeleteSixItemParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const deleteSixItemBodyExpectedVersionMin = 0;
+
+
+
+export const DeleteSixItemBody = zod.object({
+  "expectedVersion": zod.number().int().min(deleteSixItemBodyExpectedVersionMin)
+})
+
+export const DeleteSixItemResponse = zod.object({
+  "id": zod.string()
+})
+
+
 export const getScorecardQueryEndWeekRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 
 
@@ -368,6 +739,7 @@ export const GetOkrWorkspaceResponse = zod.object({
 }))),
   "keyResults": zod.array(zod.object({
   "objectiveId": zod.string(),
+  "calendarEventId": zod.string().nullish(),
   "ownerId": zod.string(),
   "title": zod.string().min(1).max(getOkrWorkspaceResponseKeyResultsItemOneTitleMax),
   "measurementType": zod.enum(['metric', 'confidence']),
@@ -491,6 +863,7 @@ export const createKeyResultBodySortOrderMin = 0;
 
 export const CreateKeyResultBody = zod.object({
   "objectiveId": zod.string(),
+  "calendarEventId": zod.string().nullish(),
   "ownerId": zod.string(),
   "title": zod.string().min(1).max(createKeyResultBodyTitleMax),
   "measurementType": zod.enum(['metric', 'confidence']),
@@ -521,6 +894,7 @@ export const updateKeyResultBodySortOrderMin = 0;
 
 
 export const UpdateKeyResultBody = zod.object({
+  "calendarEventId": zod.string().nullish(),
   "ownerId": zod.string().optional(),
   "title": zod.string().min(1).max(updateKeyResultBodyTitleMax).optional(),
   "measurementType": zod.enum(['metric', 'confidence']).optional(),

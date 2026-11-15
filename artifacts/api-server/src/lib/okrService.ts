@@ -1,4 +1,4 @@
-import { db, objectivesTable as objectives, keyResultsTable as keyResults, checkInsTable as checkIns, commentsTable as comments, usersTable, areasTable, cyclesTable, auditLogTable } from "@workspace/db";
+import { db, objectivesTable as objectives, keyResultsTable as keyResults, checkInsTable as checkIns, commentsTable as comments, usersTable, areasTable, cyclesTable, auditLogTable, calendarEventsTable } from "@workspace/db";
 import { eq, sql, asc, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { AppError, requireAdmin, requireOwner, type StaffActor } from "./permissions";
@@ -18,6 +18,7 @@ const objectiveInput = z.object({
 const objectiveUpdate = objectiveInput.omit({ cycleId: true, level: true }).partial();
 const krInput = z.object({
   objectiveId: id, ownerId: id, title, measurementType: z.enum(["metric", "confidence"]),
+  calendarEventId: id.nullable().optional(),
   unit: z.string().max(80).default(""), startValue: z.number().finite().default(0),
   targetValue: z.number().finite().default(100), sortOrder: sortOrder.default(0),
 }).strict();
@@ -126,6 +127,13 @@ export async function saveKeyResult(actor: StaffActor, raw: unknown, itemId?: st
     if (actor.role !== "admin" && data.ownerId !== actor.id) throw new AppError(403, "Staff can assign key results only to themselves.");
     if (!before || before.ownerId !== data.ownerId) await owner(tx, data.ownerId);
     if (data.startValue === data.targetValue) throw new AppError(400, "The target must differ from the start value.");
+    if (data.calendarEventId) {
+      if (data.measurementType !== "metric") throw new AppError(400, "Event metrics need numeric measurement.");
+      if (data.calendarEventId !== before?.calendarEventId) {
+        const [event] = await tx.select().from(calendarEventsTable).where(eq(calendarEventsTable.id, data.calendarEventId));
+        if (!event || event.deletedAt) throw new AppError(400, "Choose an existing calendar event.");
+      }
+    }
     const entityId = itemId ?? crypto.randomUUID();
     const [after] = itemId
       ? await tx.update(keyResults).set({ ...parsed, updatedAt: new Date() }).where(eq(keyResults.id, itemId)).returning()

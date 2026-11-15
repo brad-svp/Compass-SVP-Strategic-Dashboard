@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useParams } from 'wouter';
-import { ArrowLeft, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Pencil, Plus, Trash2 } from 'lucide-react';
 import type { Foundation } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { NativeSelect } from '@/components/native-select';
@@ -22,6 +22,7 @@ function DetailBody({ foundation }: { foundation: Foundation }) {
   const [editOpen, setEditOpen] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [krOpen, setKrOpen] = useState(false);
+  const [krEventMode, setKrEventMode] = useState(false);
 
   if (q.isLoading) return <PageSkeleton />;
   if (q.isError || !q.data) return <ErrorPanel message={errorMessage(q.error)} onRetry={() => q.refetch()} />;
@@ -101,7 +102,12 @@ function DetailBody({ foundation }: { foundation: Foundation }) {
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-xl font-semibold text-[#0A2540]">Key results</h2>
-          {o.canEdit && <Button size="sm" onClick={() => setKrOpen(true)} className="bg-[#0A2540] text-white" data-testid="button-add-kr"><Plus className="mr-1 h-4 w-4" />Key result</Button>}
+          {o.canEdit && (
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={() => { setKrEventMode(true); setKrOpen(true); }} data-testid="button-add-event-metric"><CalendarDays className="mr-1 h-4 w-4" />Event metric</Button>
+              <Button size="sm" onClick={() => { setKrEventMode(false); setKrOpen(true); }} className="bg-[#0A2540] text-white" data-testid="button-add-kr"><Plus className="mr-1 h-4 w-4" />Key result</Button>
+            </div>
+          )}
         </div>
         <div className="space-y-3">
           {krs.map((k, i) => (
@@ -143,7 +149,7 @@ function DetailBody({ foundation }: { foundation: Foundation }) {
           <ObjectiveDialog open={editOpen} onOpenChange={setEditOpen} foundation={foundation} objectives={ws.objectives} cycleId={o.cycleId} actions={actions} editing={o} />
           <ConfirmDelete open={delOpen} onOpenChange={setDelOpen} what="objective" name={o.title}
             onConfirm={async () => { if (await actions.deleteObjective(o.id)) setLocation(back); }} />
-          <KeyResultDialog open={krOpen} onOpenChange={setKrOpen} foundation={foundation} objective={o} existingCount={krs.length} actions={actions} />
+          <KeyResultDialog open={krOpen} onOpenChange={setKrOpen} foundation={foundation} objective={o} existingCount={krs.length} actions={actions} startInEventMode={krEventMode} />
         </>
       )}
     </div>

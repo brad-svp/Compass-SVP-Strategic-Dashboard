@@ -3,8 +3,9 @@ import { Pencil, Plus } from 'lucide-react';
 import type { Cycle, CycleStatus } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DialogFooter } from '@/components/ui/dialog';
+import { BrowserDialog } from '@/components/browser-dialog';
+import { NativeSelect } from '@/components/native-select';
 import { StatusPill } from '@/components/ui-bits';
 import { fmtDate } from '@/lib/format';
 import { Field } from './field';
@@ -41,9 +42,8 @@ export function CyclesPanel({ cycles }: { cycles: Cycle[] }) {
         ))}
         {cycles.length === 0 && <div className="p-6 text-sm text-muted-foreground">No cycles yet. Add the first one to anchor objectives.</div>}
       </div>
-      <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle className="font-display text-2xl">{editing === 'new' ? 'Add cycle' : 'Edit cycle'}</DialogTitle></DialogHeader>
+      <BrowserDialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}
+        title={editing === 'new' ? 'Add cycle' : 'Edit cycle'} description="Set planning cycle dates and status." testId="cycle-browser-dialog">
           <div className="grid gap-4">
             <Field label="Name"><Input value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} data-testid="input-cycle-name" /></Field>
             <div className="grid grid-cols-2 gap-3">
@@ -51,20 +51,16 @@ export function CyclesPanel({ cycles }: { cycles: Cycle[] }) {
               <Field label="End"><Input type="date" value={d.endDate} onChange={(e) => setD({ ...d, endDate: e.target.value })} data-testid="input-cycle-end" /></Field>
             </div>
             <Field label="Status">
-              <Select value={d.status} onValueChange={(v) => setD({ ...d, status: v as CycleStatus })}>
-                <SelectTrigger data-testid="select-cycle-status"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="planning">Planning</SelectItem><SelectItem value="active">Active</SelectItem><SelectItem value="closed">Closed</SelectItem>
-                </SelectContent>
-              </Select>
+              <NativeSelect value={d.status} onChange={(e) => setD({ ...d, status: e.target.value as CycleStatus })} aria-label="Cycle status" data-testid="select-cycle-status">
+                <option value="planning">Planning</option><option value="active">Active</option><option value="closed">Closed</option>
+              </NativeSelect>
             </Field>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
             <Button onClick={submit} disabled={w.pending || !valid} className="bg-[#1D8BC4] text-white" data-testid="button-save-cycle">{w.pending ? 'Saving...' : 'Save'}</Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      </BrowserDialog>
     </div>
   );
 }
