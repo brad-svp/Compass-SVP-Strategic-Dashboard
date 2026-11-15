@@ -8,6 +8,184 @@
 import * as zod from 'zod';
 
 
+export const getScorecardQueryEndWeekRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const GetScorecardQueryParams = zod.object({
+  "endWeek": zod.coerce.string().regex(getScorecardQueryEndWeekRegExp).optional()
+})
+
+export const getScorecardResponseMetricsItemOneTitleMax = 200;
+
+export const getScorecardResponseMetricsItemOneDescriptionMax = 4000;
+
+export const getScorecardResponseMetricsItemOneUnitMax = 40;
+
+export const getScorecardResponseMetricsItemOneDecimalsMin = 0;
+export const getScorecardResponseMetricsItemOneDecimalsMax = 4;
+
+export const getScorecardResponseMetricsItemOneSortOrderMin = 0;
+export const getScorecardResponseMetricsItemOneSortOrderMax = 1000000;
+
+
+
+export const GetScorecardResponse = zod.object({
+  "weeks": zod.array(zod.string()),
+  "endWeek": zod.string(),
+  "metrics": zod.array(zod.object({
+  "title": zod.string().min(1).max(getScorecardResponseMetricsItemOneTitleMax),
+  "description": zod.string().max(getScorecardResponseMetricsItemOneDescriptionMax),
+  "ownerId": zod.string(),
+  "areaId": zod.string(),
+  "unit": zod.string().max(getScorecardResponseMetricsItemOneUnitMax),
+  "decimals": zod.number().int().min(getScorecardResponseMetricsItemOneDecimalsMin).max(getScorecardResponseMetricsItemOneDecimalsMax),
+  "direction": zod.enum(['at_least', 'at_most', 'range']),
+  "target": zod.number(),
+  "upperTarget": zod.number().nullable(),
+  "linkedKeyResultId": zod.string().nullable(),
+  "sortOrder": zod.number().int().min(getScorecardResponseMetricsItemOneSortOrderMin).max(getScorecardResponseMetricsItemOneSortOrderMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "id": zod.string(),
+  "canEdit": zod.boolean(),
+  "canRecord": zod.boolean()
+}))),
+  "entries": zod.array(zod.object({
+  "id": zod.string(),
+  "metricId": zod.string(),
+  "weekStart": zod.string(),
+  "value": zod.number().nullable(),
+  "note": zod.string(),
+  "version": zod.number().int(),
+  "authorId": zod.string(),
+  "updatedAt": zod.coerce.date(),
+  "direction": zod.enum(['at_least', 'at_most', 'range']),
+  "target": zod.number(),
+  "upperTarget": zod.number().nullable(),
+  "unit": zod.string(),
+  "status": zod.enum(['on_track', 'off_track', 'missing'])
+})),
+  "revisions": zod.array(zod.object({
+  "id": zod.string(),
+  "entryId": zod.string(),
+  "version": zod.number().int(),
+  "value": zod.number().nullable(),
+  "note": zod.string(),
+  "reason": zod.string(),
+  "authorId": zod.string(),
+  "createdAt": zod.coerce.date(),
+  "direction": zod.enum(['at_least', 'at_most', 'range']),
+  "target": zod.number(),
+  "upperTarget": zod.number().nullable(),
+  "unit": zod.string()
+}))
+})
+
+
+export const createScorecardMetricBodyTitleMax = 200;
+
+export const createScorecardMetricBodyDescriptionMax = 4000;
+
+export const createScorecardMetricBodyUnitMax = 40;
+
+export const createScorecardMetricBodyDecimalsMin = 0;
+export const createScorecardMetricBodyDecimalsMax = 4;
+
+export const createScorecardMetricBodySortOrderMin = 0;
+export const createScorecardMetricBodySortOrderMax = 1000000;
+
+
+
+export const CreateScorecardMetricBody = zod.object({
+  "title": zod.string().min(1).max(createScorecardMetricBodyTitleMax),
+  "description": zod.string().max(createScorecardMetricBodyDescriptionMax),
+  "ownerId": zod.string(),
+  "areaId": zod.string(),
+  "unit": zod.string().max(createScorecardMetricBodyUnitMax),
+  "decimals": zod.number().int().min(createScorecardMetricBodyDecimalsMin).max(createScorecardMetricBodyDecimalsMax),
+  "direction": zod.enum(['at_least', 'at_most', 'range']),
+  "target": zod.number(),
+  "upperTarget": zod.number().nullable(),
+  "linkedKeyResultId": zod.string().nullable(),
+  "sortOrder": zod.number().int().min(createScorecardMetricBodySortOrderMin).max(createScorecardMetricBodySortOrderMax),
+  "active": zod.boolean()
+})
+
+export const CreateScorecardMetricResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const UpdateScorecardMetricParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateScorecardMetricBodyTitleMax = 200;
+
+export const updateScorecardMetricBodyDescriptionMax = 4000;
+
+export const updateScorecardMetricBodyUnitMax = 40;
+
+export const updateScorecardMetricBodyDecimalsMin = 0;
+export const updateScorecardMetricBodyDecimalsMax = 4;
+
+export const updateScorecardMetricBodySortOrderMin = 0;
+export const updateScorecardMetricBodySortOrderMax = 1000000;
+
+
+
+export const UpdateScorecardMetricBody = zod.object({
+  "title": zod.string().min(1).max(updateScorecardMetricBodyTitleMax),
+  "description": zod.string().max(updateScorecardMetricBodyDescriptionMax),
+  "ownerId": zod.string(),
+  "areaId": zod.string(),
+  "unit": zod.string().max(updateScorecardMetricBodyUnitMax),
+  "decimals": zod.number().int().min(updateScorecardMetricBodyDecimalsMin).max(updateScorecardMetricBodyDecimalsMax),
+  "direction": zod.enum(['at_least', 'at_most', 'range']),
+  "target": zod.number(),
+  "upperTarget": zod.number().nullable(),
+  "linkedKeyResultId": zod.string().nullable(),
+  "sortOrder": zod.number().int().min(updateScorecardMetricBodySortOrderMin).max(updateScorecardMetricBodySortOrderMax),
+  "active": zod.boolean()
+})
+
+export const UpdateScorecardMetricResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+export const saveScorecardEntryPathWeekStartRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const SaveScorecardEntryParams = zod.object({
+  "id": zod.coerce.string().min(1),
+  "weekStart": zod.coerce.string().regex(saveScorecardEntryPathWeekStartRegExp)
+})
+
+export const saveScorecardEntryBodyNoteMax = 4000;
+
+export const saveScorecardEntryBodyReasonMax = 1000;
+
+export const saveScorecardEntryBodyExpectedVersionMin = 0;
+
+
+
+export const SaveScorecardEntryBody = zod.object({
+  "value": zod.number().nullable(),
+  "note": zod.string().max(saveScorecardEntryBodyNoteMax),
+  "reason": zod.string().max(saveScorecardEntryBodyReasonMax),
+  "expectedVersion": zod.number().int().min(saveScorecardEntryBodyExpectedVersionMin)
+})
+
+export const SaveScorecardEntryResponse = zod.object({
+  "id": zod.string()
+})
+
+
 export const getAccountabilityResponseOneTitleMax = 200;
 
 export const getAccountabilityResponseOnePersonNameMax = 160;

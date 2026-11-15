@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/reac
 import { ClerkProvider, Show, useClerk } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
-import { Redirect, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
+import { Redirect, Route, Switch, useLocation, useParams, useSearch, Router as WouterRouter } from 'wouter';
 import { Workflow, GraduationCap } from 'lucide-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -19,8 +19,9 @@ import Team from '@/pages/team';
 import Settings from '@/pages/settings';
 import Admin from '@/pages/admin';
 import { PhasePreview } from '@/pages/phase-preview';
-import Okrs from '@/pages/okrs';
-import OkrDetail from '@/pages/okr-detail';
+import Qbos from '@/pages/qbos';
+import QboDetail from '@/pages/qbo-detail';
+import Scorecard from '@/pages/scorecard';
 import { DevAuthProvider, useDevAuth } from '@/lib/dev-auth';
 
 const queryClient = new QueryClient();
@@ -143,10 +144,21 @@ const LearnPreview = () => (
   <PhasePreview eyebrow="Learn" title="Getting better on purpose." icon={GraduationCap} color="#ECA519"
     intro="Guides for working in SVP OS, plus what the team learns cycle to cycle."
     items={[
-      { title: 'How we use OKRs', body: 'A short guide to writing good objectives.' },
+      { title: 'How we use QBOs', body: 'A short guide to writing good quarterly objectives.' },
       { title: 'Cycle retrospectives', body: 'What worked, what we changed.' },
     ]} />
 );
+
+/** Old /okrs links keep working: same ids, same query string, same hash. */
+function LegacyOkrRedirect() {
+  const params = useParams<{ id?: string }>();
+  const search = useSearch();
+  const hash = typeof window !== 'undefined' ? window.location.hash : '';
+  const sp = new URLSearchParams(search);
+  if (!params.id && sp.get('owner') && !sp.get('view')) sp.set('view', 'legacy');
+  const qs = sp.toString();
+  return <Redirect to={`/qbos${params.id ? `/${encodeURIComponent(params.id)}` : ''}${qs ? `?${qs}` : ''}${hash}`} replace />;
+}
 
 function Routes() {
   const [location] = useLocation();
@@ -157,8 +169,11 @@ function Routes() {
         <Route path="/sign-in/*?" component={SignInPage} />
         <Route path="/sign-up/*?" component={SignUpPage} />
         <Route path="/dashboard"><Protected><Dashboard /></Protected></Route>
-        <Route path="/okrs"><Protected><Okrs /></Protected></Route>
-        <Route path="/okrs/:id"><Protected><OkrDetail /></Protected></Route>
+        <Route path="/qbos"><Protected><Qbos /></Protected></Route>
+        <Route path="/qbos/:id"><Protected><QboDetail /></Protected></Route>
+        <Route path="/scorecard"><Protected><Scorecard /></Protected></Route>
+        <Route path="/okrs" component={LegacyOkrRedirect} />
+        <Route path="/okrs/:id" component={LegacyOkrRedirect} />
         <Route path="/six-by-six"><Protected><SixBySix /></Protected></Route>
         <Route path="/team"><Protected><Team /></Protected></Route>
         <Route path="/systems"><Protected><SystemsPreview /></Protected></Route>

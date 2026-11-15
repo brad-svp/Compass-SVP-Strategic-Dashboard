@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useDevAuth, useWorkspaceSignOut } from '@/lib/dev-auth';
 import {
-  LayoutDashboard, Target, Grid3x3, Users, Workflow, GraduationCap, Settings, ShieldCheck, LogOut, Menu,
+  LayoutDashboard, Target, BarChart3, Grid3x3, Users, Workflow, GraduationCap, Settings, ShieldCheck, LogOut, Menu,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { BrandLockup } from '@/components/brand-logo';
@@ -12,7 +12,8 @@ import { cn } from '@/lib/utils';
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/okrs', label: 'OKRs', icon: Target },
+  { href: '/qbos', label: 'QBOs', icon: Target },
+  { href: '/scorecard', label: 'Scorecard', icon: BarChart3 },
   { href: '/six-by-six', label: '6x6', icon: Grid3x3 },
   { href: '/team', label: 'Team & Ownership', icon: Users },
   { href: '/systems', label: 'Systems', icon: Workflow, soon: true },

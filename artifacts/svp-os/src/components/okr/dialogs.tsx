@@ -1,10 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import type { CheckIn, Foundation, KeyResult, Objective, ObjectiveUpdate, KeyResultUpdate } from '@workspace/api-client-react';
+import type { CheckIn, Foundation, KeyResult, Objective, ObjectiveInput, ObjectiveUpdate, KeyResultUpdate } from '@workspace/api-client-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { NativeSelect } from '@/components/native-select';
+import { BrowserDialog } from '@/components/browser-dialog';
+import { QUARTERS, isQbo, type Quarter } from '@/lib/qbo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,40 +42,39 @@ function Seg<T extends string>({ value, options, onChange, testId }: { value: T;
 
 /* ---------------- Objective ---------------- */
 
-export function ObjectiveDialog({ open, onOpenChange, foundation, objectives, cycleId, actions, editing, preset }: {
+export function ObjectiveDialog({ open, onOpenChange, foundation, objectives, cycleId, actions, editing, quarter }: {
   open: boolean; onOpenChange: (o: boolean) => void; foundation: Foundation; objectives: Objective[]; cycleId: string; actions: OkrActions;
-  editing?: Objective | null; preset?: { level?: 'company' | 'individual'; ownerId?: string; parentObjectiveId?: string };
+  editing?: Objective | null; quarter?: Quarter;
 }) {
   const me = useStaffSession();
   const isAdmin = me.role === 'admin';
-  const staff = foundation.staff.filter((s) => s.active);
-  const [level, setLevel] = useState<'company' | 'individual'>('individual');
+  const staff = foundation.staff.filter((s) => s.active || s.id === editing?.ownerId);
   const [ownerId, setOwnerId] = useState(me.id);
   const [areaId, setAreaId] = useState(me.areaId);
   const [parentId, setParentId] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [scope, setScope] = useState<string>('annual');
+  const [scope, setScope] = useState<string>('Q1');
   const [status, setStatus] = useState<string>('active');
 
   useEffect(() => {
     if (!open) return;
     if (editing) {
-      setLevel(editing.level); setOwnerId(editing.ownerId); setAreaId(editing.areaId); setParentId(editing.parentObjectiveId ?? '');
+      setOwnerId(editing.ownerId); setAreaId(editing.areaId); setParentId(editing.parentObjectiveId ?? '');
       setTitle(editing.title); setDescription(editing.description ?? ''); setScope(editing.timeScope); setStatus(editing.status);
     } else {
-      const lvl = preset?.level ?? (isAdmin ? 'company' : 'individual');
-      const owner = isAdmin ? preset?.ownerId ?? me.id : me.id;
-      setLevel(lvl); setOwnerId(owner);
-      setAreaId(staff.find((s) => s.id === owner)?.areaId ?? me.areaId);
-      setParentId(preset?.parentObjectiveId ?? ''); setTitle(''); setDescription(''); setScope(lvl === 'company' ? 'annual' : 'Q1'); setStatus('active');
+      setOwnerId(me.id); setAreaId(me.areaId); setParentId(''); setTitle(''); setDescription('');
+      setScope(quarter ?? 'Q1'); setStatus('active');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, editing?.id]);
 
+  const level = editing?.level ?? 'company';
+  const legacy = !!editing && !isQbo(editing);
+  const scopeOptions: readonly string[] = legacy ? SCOPES : QUARTERS;
   const parents = objectives.filter((o) => o.level === 'company' && o.cycleId === (editing?.cycleId ?? cycleId)).sort(bySort);
   const needsParent = level === 'individual';
-  const valid = title.trim().length > 0 && areaId && ownerId && (!needsParent || parentId);
+  const valid = title.trim().length > 0 && areaId && ownerId && (!needsParent || parentId) && (editing || isAdmin);
 
   const submit = async () => {
     if (!valid) return;
@@ -91,78 +92,70 @@ export function ObjectiveDialog({ open, onOpenChange, foundation, objectives, cy
       if (r) onOpenChange(false);
     } else {
       const r = await actions.createObjective({
-        cycleId, level, ownerId, areaId, title: title.trim(), description: description.trim() || undefined,
-        timeScope: scope as 'annual', status: status as 'active',
-        parentObjectiveId: needsParent ? parentId : null,
-        sortOrder: objectives.filter((o) => o.cycleId === cycleId && o.level === level).length,
+        cycleId, level: 'company', ownerId, areaId, title: title.trim(), description: description.trim() || undefined,
+        timeScope: scope as ObjectiveInput['timeScope'], status: status as 'active', parentObjectiveId: null,
+        sortOrder: objectives.filter((o) => o.cycleId === cycleId && o.level === 'company' && o.timeScope === scope).length,
       });
       if (r) onOpenChange(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto bg-[#FBFAF6] sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="font-display text-2xl text-[#0A2540]">{editing ? 'Edit objective' : 'New objective'}</DialogTitle>
-          <DialogDescription>{level === 'company' ? 'A shared annual commitment for the whole team.' : 'Your contribution, tied to one company objective.'}</DialogDescription>
-        </DialogHeader>
+    <BrowserDialog open={open} onOpenChange={onOpenChange}
+      title={editing ? (legacy ? 'Edit legacy objective' : 'Edit QBO') : 'New QBO'}
+      description={legacy ? 'This objective predates QBOs. You can still edit it; it stays in the legacy view.' : 'An organization-wide objective for one quarter, with one accountable owner.'}>
         <div className="space-y-4">
-          {!editing && isAdmin && (
-            <Field label="Level">
-              <Seg value={level} testId="seg-level" onChange={(v) => { setLevel(v); setScope(v === 'company' ? 'annual' : 'Q1'); }}
-                options={[{ v: 'company', label: 'Company' }, { v: 'individual', label: 'Individual' }]} />
+          {!legacy && (
+            <Field label="Quarter">
+              <Seg value={scope} testId="seg-quarter" onChange={setScope} options={QUARTERS.map((q) => ({ v: q as string, label: q }))} />
             </Field>
           )}
           <Field label="Title">
             <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={300} placeholder="Grow the Sacramento giving circle" data-testid="input-objective-title" autoFocus />
           </Field>
-          <Field label="Description" hint="Optional. Why this matters now.">
+          <Field label="Description" hint="Optional. Why this matters this quarter.">
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} data-testid="input-objective-description" />
           </Field>
           {needsParent && (
-            <Field label="Supports company objective" hint={parents.length ? undefined : 'An admin needs to add a company objective in this cycle first.'}>
-              <Select value={parentId} onValueChange={setParentId}>
-                <SelectTrigger data-testid="select-parent"><SelectValue placeholder="Choose the company objective" /></SelectTrigger>
-                <SelectContent>{parents.map((p) => <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>)}</SelectContent>
-              </Select>
+            <Field label="Supports company objective">
+              <NativeSelect value={parentId} onChange={(e) => setParentId(e.target.value)} data-testid="select-parent">
+                <option value="" disabled>Choose the company objective</option>
+                {parents.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
+              </NativeSelect>
             </Field>
           )}
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Owner">
-              <Select value={ownerId} onValueChange={(v) => { setOwnerId(v); const s = staff.find((x) => x.id === v); if (s && !editing) setAreaId(s.areaId); }} disabled={!isAdmin}>
-                <SelectTrigger data-testid="select-owner"><SelectValue /></SelectTrigger>
-                <SelectContent>{staff.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
-              </Select>
+            <Field label="Accountable owner">
+              <NativeSelect value={ownerId} onChange={(e) => { const v = e.target.value; setOwnerId(v); const s = staff.find((x) => x.id === v); if (s && !editing) setAreaId(s.areaId); }} disabled={!isAdmin} data-testid="select-owner">
+                {staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </NativeSelect>
             </Field>
             <Field label="Area">
-              <Select value={areaId} onValueChange={setAreaId}>
-                <SelectTrigger data-testid="select-area"><SelectValue /></SelectTrigger>
-                <SelectContent>{foundation.areas.map((a) => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}</SelectContent>
-              </Select>
+              <NativeSelect value={areaId} onChange={(e) => setAreaId(e.target.value)} data-testid="select-area">
+                {foundation.areas.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+              </NativeSelect>
             </Field>
-            <Field label="Time scope">
-              <Select value={scope} onValueChange={setScope} disabled={level === 'company'}>
-                <SelectTrigger data-testid="select-scope"><SelectValue /></SelectTrigger>
-                <SelectContent>{SCOPES.map((s) => <SelectItem key={s} value={s}>{s === 'annual' ? 'Annual' : s}</SelectItem>)}</SelectContent>
-              </Select>
-            </Field>
+            {legacy && (
+              <Field label="Time scope">
+                <NativeSelect value={scope} onChange={(e) => setScope(e.target.value)} disabled={level === 'company'} data-testid="select-scope">
+                  {scopeOptions.map((s) => <option key={s} value={s}>{s === 'annual' ? 'Annual' : s}</option>)}
+                </NativeSelect>
+              </Field>
+            )}
             <Field label="Status">
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger data-testid="select-status"><SelectValue /></SelectTrigger>
-                <SelectContent>{OBJ_STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
-              </Select>
+              <NativeSelect value={status} onChange={(e) => setStatus(e.target.value)} className="capitalize" data-testid="select-status">
+                {OBJ_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </NativeSelect>
             </Field>
           </div>
         </div>
-        <DialogFooter className="gap-2">
+        <DialogFooter className="mt-4 gap-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)} data-testid="button-cancel-objective">Cancel</Button>
           <Button onClick={submit} disabled={!valid || actions.pending} className="bg-[#0A2540] text-white" data-testid="button-save-objective">
-            {actions.pending ? 'Saving' : editing ? 'Save changes' : 'Add objective'}
+            {actions.pending ? 'Saving' : editing ? 'Save changes' : 'Add QBO'}
           </Button>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    </BrowserDialog>
   );
 }
 
@@ -241,10 +234,9 @@ export function KeyResultDialog({ open, onOpenChange, foundation, objective, exi
           )}
           {isAdmin && (
             <Field label="Owner">
-              <Select value={ownerId} onValueChange={setOwnerId}>
-                <SelectTrigger data-testid="select-kr-owner"><SelectValue /></SelectTrigger>
-                <SelectContent>{foundation.staff.filter((s) => s.active).map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
-              </Select>
+              <NativeSelect value={ownerId} onChange={(e) => setOwnerId(e.target.value)} data-testid="select-kr-owner">
+                {foundation.staff.filter((s) => s.active || s.id === ownerId).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </NativeSelect>
             </Field>
           )}
         </div>

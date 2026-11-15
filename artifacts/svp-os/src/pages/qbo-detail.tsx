@@ -3,7 +3,8 @@ import { Link, useLocation, useParams } from 'wouter';
 import { ArrowLeft, Pencil, Plus, Trash2 } from 'lucide-react';
 import type { Foundation } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { NativeSelect } from '@/components/native-select';
+import { isQbo, qboHref } from '@/lib/qbo';
 import { WithFoundation } from '@/components/with-foundation';
 import { ErrorPanel, PageSkeleton, Panel, StaffAvatar } from '@/components/ui-bits';
 import { HealthLabel, InlineText, ProgressTrack, ScopeChip } from '@/components/okr/bits';
@@ -30,7 +31,7 @@ function DetailBody({ foundation }: { foundation: Foundation }) {
     return (
       <Panel className="flex flex-col items-start gap-3">
         <p className="font-display text-2xl text-[#0A2540]">This objective is no longer in the workspace.</p>
-        <Link href="/okrs" className="font-semibold text-[#1D8BC4]" data-testid="link-back-missing">Back to OKRs</Link>
+        <Link href="/qbos" className="font-semibold text-[#1D8BC4]" data-testid="link-back-missing">Back to QBOs</Link>
       </Panel>
     );
   }
@@ -41,16 +42,18 @@ function DetailBody({ foundation }: { foundation: Foundation }) {
   const children = ws.objectives.filter((c) => c.parentObjectiveId === o.id).sort(bySort);
   const krs = ws.keyResults.filter((k) => k.objectiveId === o.id).sort(bySort);
   const measured = krs.length > 0;
+  const qbo = isQbo(o);
+  const back = qbo ? qboHref({ cycle: o.cycleId, q: o.timeScope }) : qboHref({ cycle: o.cycleId, view: 'legacy', owner: o.level === 'individual' ? o.ownerId : null });
 
   return (
     <div className="space-y-6">
-      <Link href={o.level === 'individual' ? `/okrs?owner=${o.ownerId}&cycle=${o.cycleId}` : `/okrs?cycle=${o.cycleId}`} className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#3A4E63] hover:text-[#1D8BC4]" data-testid="link-back">
-        <ArrowLeft className="h-4 w-4" /> {o.level === 'individual' ? `${owner?.name.split(' ')[0] ?? 'Owner'}'s objectives` : 'All objectives'}
+      <Link href={back} className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#3A4E63] hover:text-[#1D8BC4]" data-testid="link-back">
+        <ArrowLeft className="h-4 w-4" /> {qbo ? `${o.timeScope} QBOs` : 'Legacy objectives'}
       </Link>
 
       <header className="rise">
         <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#1D8BC4]">
-          {o.level === 'company' ? 'Company objective' : 'Individual objective'} <span className="text-[#3A4E63]">·</span> {cycle?.name} <ScopeChip scope={o.timeScope} />
+          {qbo ? `${o.timeScope} QBO` : o.level === 'company' ? 'Legacy annual objective' : 'Legacy individual objective'} <span className="text-[#3A4E63]">·</span> {cycle?.name} <ScopeChip scope={o.timeScope} />
         </div>
         <InlineText value={o.title} canEdit={o.canEdit} testId="text-objective-title" className="mt-2 font-display text-3xl font-semibold leading-tight text-[#0A2540] md:text-[2.4rem]"
           onSave={(v) => actions.updateObjective(o.id, { title: v }, 'Title saved')} />
@@ -59,7 +62,7 @@ function DetailBody({ foundation }: { foundation: Foundation }) {
             onSave={(v) => actions.updateObjective(o.id, { description: v }, 'Description saved')} />
         </div>
         {parent && (
-          <Link href={`/okrs/${parent.id}`} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#1D8BC4]/8 px-3 py-1.5 text-[13px] text-[#0A2540] hover:bg-[#1D8BC4]/14" data-testid="link-parent">
+          <Link href={`/qbos/${parent.id}`} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#1D8BC4]/8 px-3 py-1.5 text-[13px] text-[#0A2540] hover:bg-[#1D8BC4]/14" data-testid="link-parent">
             <span className="font-semibold text-[#1D8BC4]">Supports</span> {parent.title}
           </Link>
         )}
@@ -81,10 +84,9 @@ function DetailBody({ foundation }: { foundation: Foundation }) {
             <div className="mt-1 flex items-center gap-2 font-semibold text-[#0A2540]"><span className="h-2 w-2 rounded-full" style={{ background: area?.color }} />{area?.name ?? 'None'}</div></div>
           <div className="col-span-2"><div className="mb-1 text-[11px] uppercase tracking-wider text-muted-foreground">Status</div>
             {o.canEdit ? (
-              <Select value={o.status} onValueChange={(v) => actions.updateObjective(o.id, { status: v as 'active' }, 'Status updated')}>
-                <SelectTrigger className="h-9 w-40 capitalize" data-testid="select-objective-status"><SelectValue /></SelectTrigger>
-                <SelectContent>{OBJ_STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
-              </Select>
+              <NativeSelect value={o.status} onChange={(e) => actions.updateObjective(o.id, { status: e.target.value as 'active' }, 'Status updated')} wrapClassName="w-40" className="capitalize" data-testid="select-objective-status">
+                {OBJ_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </NativeSelect>
             ) : <span className="font-semibold capitalize text-[#0A2540]">{o.status}</span>}
           </div>
           {o.canEdit && (
@@ -111,9 +113,9 @@ function DetailBody({ foundation }: { foundation: Foundation }) {
         </div>
       </section>
 
-      {o.level === 'company' && (
+      {o.level === 'company' && children.length > 0 && (
         <section>
-          <h2 className="mb-3 font-display text-xl font-semibold text-[#0A2540]">Supporting objectives <span className="font-mono text-sm text-muted-foreground">{children.length}</span></h2>
+          <h2 className="mb-3 font-display text-xl font-semibold text-[#0A2540]">Legacy supporting objectives <span className="font-mono text-sm text-muted-foreground">{children.length}</span></h2>
           {children.length === 0 ? <p className="text-[14px] text-muted-foreground">No individual objectives support this yet.</p> : (
             <ul className="grid gap-2 md:grid-cols-2">
               {children.map((c) => {
@@ -121,7 +123,7 @@ function DetailBody({ foundation }: { foundation: Foundation }) {
                 const ck = ws.keyResults.some((k) => k.objectiveId === c.id);
                 return (
                   <li key={c.id}>
-                    <Link href={`/okrs/${c.id}`} className="lift flex items-center gap-3 rounded-xl border border-border bg-card p-3" data-testid={`link-child-${c.id}`}>
+                    <Link href={`/qbos/${c.id}`} className="lift flex items-center gap-3 rounded-xl border border-border bg-card p-3" data-testid={`link-child-${c.id}`}>
                       <StaffAvatar name={s?.name ?? '?'} url={s?.avatarUrl} color={foundation.areas.find((a) => a.id === s?.areaId)?.color} size="h-8 w-8" />
                       <div className="min-w-0 flex-1"><div className="truncate font-medium text-[#0A2540]">{c.title}</div><div className="text-[11px] text-muted-foreground">{s?.name} · {c.timeScope}</div></div>
                       <span className="font-mono text-[12px]">{ck ? `${Math.round(c.progress)}%` : '--'}</span>
@@ -140,7 +142,7 @@ function DetailBody({ foundation }: { foundation: Foundation }) {
         <>
           <ObjectiveDialog open={editOpen} onOpenChange={setEditOpen} foundation={foundation} objectives={ws.objectives} cycleId={o.cycleId} actions={actions} editing={o} />
           <ConfirmDelete open={delOpen} onOpenChange={setDelOpen} what="objective" name={o.title}
-            onConfirm={async () => { if (await actions.deleteObjective(o.id)) setLocation(`/okrs?cycle=${o.cycleId}`); }} />
+            onConfirm={async () => { if (await actions.deleteObjective(o.id)) setLocation(back); }} />
           <KeyResultDialog open={krOpen} onOpenChange={setKrOpen} foundation={foundation} objective={o} existingCount={krs.length} actions={actions} />
         </>
       )}
@@ -148,6 +150,6 @@ function DetailBody({ foundation }: { foundation: Foundation }) {
   );
 }
 
-export default function OkrDetail() {
+export default function QboDetail() {
   return <WithFoundation>{(data) => <DetailBody foundation={data} />}</WithFoundation>;
 }

@@ -6,9 +6,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Router, Route } from 'wouter';
 import { getGetFoundationQueryKey, getGetOkrWorkspaceQueryKey, type Foundation, type OkrWorkspace, type Staff } from '@workspace/api-client-react';
 import { SessionContext } from '../src/lib/session-context';
+import { currentQuarter } from '../src/lib/qbo';
 import Dashboard from '../src/pages/dashboard';
-import Okrs from '../src/pages/okrs';
-import OkrDetail from '../src/pages/okr-detail';
+import Qbos from '../src/pages/qbos';
+import QboDetail from '../src/pages/qbo-detail';
 
 const staff: Staff[] = [
   { id: 'admin', name: 'Test Admin', role: 'admin', areaId: 'area', active: true, roleDescription: '' },
@@ -20,6 +21,12 @@ const foundation: Foundation = {
   periods: [], activity: [],
 };
 const empty: OkrWorkspace = { objectives: [], keyResults: [], checkIns: [], comments: [] };
+test('quarter selection uses calendar quarters even for partial-year cycles', () => {
+  const cycle = { id: 'partial', name: 'Partial year', startDate: '2026-04-01', endDate: '2026-06-30', status: 'planning' as const };
+  assert.equal(currentQuarter(cycle, new Date('2026-05-15T00:00:00Z')), 'Q2');
+  assert.equal(currentQuarter(cycle, new Date('2026-01-01T00:00:00Z')), 'Q2');
+  assert.equal(currentQuarter(cycle, new Date('2026-11-15T00:00:00Z')), 'Q2');
+});
 const workspace: OkrWorkspace = {
   objectives: [
     { id: 'company', cycleId: 'cycle', level: 'company', ownerId: 'admin', areaId: 'area', title: 'Shared company goal', description: 'For Sacramento', timeScope: 'annual', status: 'active', sortOrder: 0, aiDrafted: false, progress: 0, expectedProgress: 40, health: 'none', canEdit: false, parentObjectiveId: null },
@@ -37,45 +44,56 @@ function render(path: string, ws: OkrWorkspace, me = staff[1]) {
     <QueryClientProvider client={qc}><SessionContext.Provider value={me}>
       <Router ssrPath={path}>
         <Route path="/dashboard" component={Dashboard} />
-        <Route path="/okrs" component={Okrs} />
-        <Route path="/okrs/:id" component={OkrDetail} />
+        <Route path="/qbos" component={Qbos} />
+        <Route path="/qbos/:id" component={QboDetail} />
       </Router>
     </SessionContext.Provider></QueryClientProvider>,
   );
   qc.clear();
   return html;
 }
-test('empty dashboard renders honest empty state and cycle-aware My OKRs link', () => {
+const qbo = { ...workspace.objectives[0], id: 'qbo', title: 'Quarterly shared goal', timeScope: 'Q2' as const };
+const qboWs: OkrWorkspace = { ...workspace, objectives: [...workspace.objectives, qbo],
+  keyResults: [...workspace.keyResults, { ...workspace.keyResults[0], id: 'qkr', objectiveId: 'qbo', title: 'Quarter metric' }] };
+
+test('empty dashboard renders honest QBO empty state and no My OKRs framing', () => {
   const html = render('/dashboard', empty);
-  assert.match(html, /Start by adding your company objectives/);
-  assert.match(html, /owner=owner&amp;cycle=cycle/);
-  assert.match(html, /No check-ins yet/);
+  assert.match(html, /No QBOs for Q\d yet/);
+  assert.match(html, /href="\/qbos\?cycle=cycle&amp;q=Q\d"/);
+  assert.doesNotMatch(html, /My OKRs/);
 });
-test('dashboard renders staff progress and last check-in from real query data', () => {
-  const html = render('/dashboard', workspace);
-  assert.match(html, /Shared company goal/);
-  assert.match(html, /50%/);
-  assert.match(html, /Last check-in Apr 15/);
-  assert.match(html, /Five people joined/);
+test('dashboard shows quarter QBOs, not legacy annual objectives', () => {
+  const html = render('/dashboard', qboWs);
+  assert.doesNotMatch(html, /Shared company goal/);
+  assert.match(html, /legacy objective/);
 });
-test('staff cannot see company creation controls; admins can', () => {
-  assert.doesNotMatch(render('/okrs', empty), /data-testid="button-empty-new-company"/);
-  assert.match(render('/okrs', empty, staff[0]), /data-testid="button-empty-new-company"/);
+test('staff cannot see QBO creation controls; admins can', () => {
+  assert.doesNotMatch(render('/qbos?q=Q2', empty), /data-testid="button-empty-new-qbo"/);
+  assert.match(render('/qbos?q=Q2', empty, staff[0]), /data-testid="button-empty-new-qbo"/);
+  assert.doesNotMatch(render('/qbos?q=Q2', workspace, staff[0]), /button-new-individual|Individual objective<\/button/);
 });
-test('objective details render owner controls, progress, comment count and cycle-aware navigation', () => {
-  const html = render('/okrs/individual', workspace);
+test('QBO list renders quarter objectives; legacy view keeps annual and individual objectives', () => {
+  assert.match(render('/qbos?cycle=cycle&q=Q2', qboWs), /Quarterly shared goal/);
+  const legacy = render('/qbos?cycle=cycle&view=legacy', qboWs);
+  assert.match(legacy, /Shared company goal/);
+  assert.match(legacy, /A personal contribution/);
+  assert.doesNotMatch(legacy, /Quarterly shared goal/);
+});
+test('legacy objective details render owner controls, progress, comments and legacy navigation', () => {
+  const html = render('/qbos/individual', workspace);
   assert.match(html, /A personal contribution/);
+  assert.match(html, /Legacy individual objective/);
   assert.match(html, /button-edit-objective/);
   assert.match(html, /button-checkin-kr/);
   assert.match(html, /Shared context/);
-  assert.match(html, /owner=owner&amp;cycle=cycle/);
+  assert.match(html, /view=legacy&amp;owner=owner/);
 });
 test('read-only objective and key result omit write controls but preserve discussion', () => {
   const readonly = { ...workspace,
     objectives: workspace.objectives.map(o => ({ ...o, canEdit: false })),
     keyResults: workspace.keyResults.map(k => ({ ...k, canEdit: false })),
   };
-  const html = render('/okrs/individual', readonly);
+  const html = render('/qbos/individual', readonly);
   assert.doesNotMatch(html, /button-edit-objective/);
   assert.doesNotMatch(html, /button-checkin-kr/);
   assert.doesNotMatch(html, /button-delete-objective/);

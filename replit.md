@@ -4,17 +4,20 @@ Internal strategic operating system for SVP Sacramento: annual alignment, six-we
 
 ## Delivery scope
 
-The user supplied a six-phase build brief in `attached_assets/SVP_OS_—_Replit_Build_Prompt_1794430137287.pdf`. **Foundation and Phase 2 OKRs** are implemented: branded welcome, Google sign-in, staff access checks, staff/areas/cycles administration, audit logging, company/individual OKRs, metric/confidence KRs, append-only check-ins, comments, and a live strategic dashboard. Team & Ownership also includes the user's editable 2027 accountability chart. Editable 6x6, RACI, Systems, Learn, AI, CRM, and MCP remain subsequent phases. The seeded 6x6 remains a read-only preview.
+The user supplied a six-phase build brief in `attached_assets/SVP_OS_—_Replit_Build_Prompt_1794430137287.pdf`. Foundation, quarterly organization-wide **QBOs**, and an EOS-style weekly Scorecard are implemented: branded welcome, Google sign-in, staff access checks, staff/areas/cycles administration, audit logging, metric/confidence quarterly key results, append-only check-ins, comments, and a live strategic dashboard. Annual and individual objectives from the earlier OKR model remain available as legacy objectives. Team & Ownership includes the user's editable 2027 accountability chart. Editable 6x6, RACI, Systems, Learn, AI, CRM, and MCP remain subsequent phases. The seeded 6x6 remains a read-only preview.
 
 ## Product rules
 
 - This is a system of alignment, not a second CRM. Future CRM integration must be read-only and must not update official KR values without an owner's check-in.
-- Never seed sample OKRs in the real 2027 cycle. Show “Start by adding your company objectives.”
+- Never seed sample objectives or key results in the real 2027 cycle. Use disposable schemas or a clearly isolated temporary test cycle for verification.
+- The user replaced OKRs with **QBOs**: new objectives are organization-wide, with key objectives and key results defined separately for Q1–Q4 and an accountable owner for each. Do not invent an expansion for “QBOs.” Preserve existing annual/individual objectives and check-in history rather than deleting or automatically converting them.
+- The EOS-style Scorecard accepts any custom numeric weekly measurable with one owner, a unit and an above/below/range goal, a 13-week view, on/off-track status, trends and notes. Admins configure metrics; owners and admins record results. Metric archiving retains history, weekly corrections retain revisions, and historical goals are snapshots.
+- QBO key results may link to Scorecard metrics for context, but weekly actuals remain separate from official quarterly key-result check-ins.
 - Published sign-in requires a verified `svpsacramento.org` Google identity matching an active admin-managed staff record.
 - The user explicitly requested development quick-login options for both staff and admin. These use separate labeled test identities, never real staff impersonation. Anyone with the development link can use them and change development data. Never enable this shortcut on a published app.
 - People are the primary unit; areas remain separate records supporting multiple people.
 - All writes use shared server service/permission functions and transactional audit records, including future MCP writes.
-- The source brief defines the build order: Foundation; OKRs; 6x6; Team/Systems/Learn; AI; CRM/MCP.
+- The source brief defines the original build order. The user's later QBO and Scorecard request supersedes the original annual/individual OKR model.
 - Team & Ownership uses the supplied 2027 accountability chart (`attached_assets/image_1794780435602.png`): Board, Visionary, Integrator, and six functional seats. Drew holds the Integrator, Programs, and Operations & Finance seats. Admins edit the chart; all staff can read it. Accountability seats are separate from login permissions and department assignments, and importing the chart must not silently rename existing staff accounts.
 
 ## Branding
@@ -31,6 +34,7 @@ Match the supplied SVP brief: navy `#0A2540`, blue `#1D8BC4`, accents green `#49
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - `pnpm --filter @workspace/scripts exec tsx --test ../artifacts/api-server/tests/okrs.test.ts` — OKR service and progress tests in an isolated disposable schema (never writes sample OKRs in real cycles).
 - `pnpm run test:okrs` — backend tests plus frontend render checks using the app's JSX and React configuration.
+- `pnpm --filter @workspace/scripts exec tsx --test ../artifacts/api-server/tests/scorecard.test.ts` — isolated QBO/Scorecard permissions, goal snapshots, correction history, conflict and archive tests.
 - Required env: `DATABASE_URL` — Postgres connection string
 
 ## Stack
@@ -63,7 +67,7 @@ Match the supplied SVP brief: navy `#0A2540`, blue `#1D8BC4`, accents green `#49
 
 ## Product
 
-Six-person nonprofit staff workspace. Foundation and OKRs are live; the remaining strategic modules are phased additions.
+Six-person nonprofit staff workspace. Foundation, QBOs, the weekly Scorecard and the accountability chart are live; the remaining strategic modules are phased additions.
 
 ## User preferences
 

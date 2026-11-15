@@ -5,6 +5,133 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type ScorecardMetricInputDirection = typeof ScorecardMetricInputDirection[keyof typeof ScorecardMetricInputDirection];
+
+
+export const ScorecardMetricInputDirection = {
+  at_least: 'at_least',
+  at_most: 'at_most',
+  range: 'range',
+} as const;
+
+export interface ScorecardMetricInput {
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  title: string;
+  /** @maxLength 4000 */
+  description: string;
+  ownerId: string;
+  areaId: string;
+  /** @maxLength 40 */
+  unit: string;
+  /**
+     * @minimum 0
+     * @maximum 4
+     */
+  decimals: number;
+  direction: ScorecardMetricInputDirection;
+  target: number;
+  /** @nullable */
+  upperTarget: number | null;
+  /** @nullable */
+  linkedKeyResultId: string | null;
+  /**
+     * @minimum 0
+     * @maximum 1000000
+     */
+  sortOrder: number;
+  active: boolean;
+}
+
+export type ScorecardMetric = ScorecardMetricInput & {
+  id: string;
+  canEdit: boolean;
+  canRecord: boolean;
+};
+
+export interface ScorecardEntryInput {
+  /** @nullable */
+  value: number | null;
+  /** @maxLength 4000 */
+  note: string;
+  /** @maxLength 1000 */
+  reason: string;
+  /** @minimum 0 */
+  expectedVersion: number;
+}
+
+export type ScorecardEntryDirection = typeof ScorecardEntryDirection[keyof typeof ScorecardEntryDirection];
+
+
+export const ScorecardEntryDirection = {
+  at_least: 'at_least',
+  at_most: 'at_most',
+  range: 'range',
+} as const;
+
+export type ScorecardEntryStatus = typeof ScorecardEntryStatus[keyof typeof ScorecardEntryStatus];
+
+
+export const ScorecardEntryStatus = {
+  on_track: 'on_track',
+  off_track: 'off_track',
+  missing: 'missing',
+} as const;
+
+export interface ScorecardEntry {
+  id: string;
+  metricId: string;
+  weekStart: string;
+  /** @nullable */
+  value: number | null;
+  note: string;
+  version: number;
+  authorId: string;
+  updatedAt: string;
+  direction: ScorecardEntryDirection;
+  target: number;
+  /** @nullable */
+  upperTarget: number | null;
+  unit: string;
+  status: ScorecardEntryStatus;
+}
+
+export type ScorecardRevisionDirection = typeof ScorecardRevisionDirection[keyof typeof ScorecardRevisionDirection];
+
+
+export const ScorecardRevisionDirection = {
+  at_least: 'at_least',
+  at_most: 'at_most',
+  range: 'range',
+} as const;
+
+export interface ScorecardRevision {
+  id: string;
+  entryId: string;
+  version: number;
+  /** @nullable */
+  value: number | null;
+  note: string;
+  reason: string;
+  authorId: string;
+  createdAt: string;
+  direction: ScorecardRevisionDirection;
+  target: number;
+  /** @nullable */
+  upperTarget: number | null;
+  unit: string;
+}
+
+export interface ScorecardWorkspace {
+  weeks: string[];
+  endWeek: string;
+  metrics: ScorecardMetric[];
+  entries: ScorecardEntry[];
+  revisions: ScorecardRevision[];
+}
+
 export type AccountabilitySeatInputKind = typeof AccountabilitySeatInputKind[keyof typeof AccountabilitySeatInputKind];
 
 
@@ -473,6 +600,13 @@ export interface FoundationInput {
 export interface HealthStatus {
   status: string;
 }
+
+export type GetScorecardParams = {
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+endWeek?: string;
+};
 
 export type GetDevAuth200 = {
   enabled: boolean;

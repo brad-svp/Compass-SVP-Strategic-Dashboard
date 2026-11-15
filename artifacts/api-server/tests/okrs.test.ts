@@ -24,6 +24,10 @@ before(async () => {
     const baseline = await readFile(new URL("../../../lib/db/drizzle/0000_phase2_okrs.sql", import.meta.url), "utf8");
     // Drizzle emits explicitly public-qualified foreign-key targets.
     await client.query(baseline.replaceAll('"public".', `"${schema}".`));
+    for (const migration of ["0001_accountability_chart.sql", "0002_qbos_scorecard.sql"]) {
+      const sql = await readFile(new URL(`../../../lib/db/drizzle/${migration}`, import.meta.url), "utf8");
+      await client.query(sql.replaceAll('"public".', `"${schema}".`));
+    }
   } finally { client.release(); }
   await db.insert(areasTable).values({ id: "area", name: "Test area", color: "#1D8BC4" });
   [admin, alice, bob] = await db.insert(usersTable).values([
@@ -57,19 +61,25 @@ test("progress math clamps, supports decreasing targets, and handles confidence/
   assert.equal(expectedProgress("2025-01-01", "2025-12-31", "Q2", new Date("2025-07-01T00:00:00Z")), 100);
   assert.equal(expectedProgress("2027-01-01", "2027-12-31", "annual", new Date("2026-11-11T00:00:00Z")), 0);
 });
-test("company objectives require an administrator and annual scope", async () => {
-  const input = { cycleId: "cycle", level: "company", ownerId: "admin", areaId: "area", title: "Company objective", timeScope: "annual" };
+test("new QBOs require an administrator and organization-wide quarterly scope", async () => {
+  const input = { cycleId: "cycle", level: "company", ownerId: "admin", areaId: "area", title: "Quarterly objective", timeScope: "Q2" };
   await assert.rejects(saveObjective(alice, { ...input, ownerId: "alice" }), isStatus(403));
-  await assert.rejects(saveObjective(admin, { ...input, timeScope: "Q1" }), isStatus(400));
+  await assert.rejects(saveObjective(admin, { ...input, timeScope: "annual" }), isStatus(400));
   ({ id: companyId } = await saveObjective(admin, input));
   await assert.rejects(saveObjective(alice, { title: "Not allowed" }, companyId), isStatus(403));
 });
-test("individual objectives require same-cycle company alignment and own ownership", async () => {
+test("legacy individual objectives remain editable but cannot be newly created", async () => {
   const input = { cycleId: "cycle", level: "individual", ownerId: "alice", areaId: "area", title: "Personal objective", timeScope: "Q2", parentObjectiveId: companyId };
   await assert.rejects(saveObjective(alice, { ...input, ownerId: "bob" }), isStatus(403));
-  await assert.rejects(saveObjective(alice, { ...input, parentObjectiveId: null }), isStatus(400));
-  await assert.rejects(saveObjective(alice, { ...input, cycleId: "other" }), isStatus(400));
-  ({ id: individualId } = await saveObjective(alice, input));
+  await assert.rejects(saveObjective(admin, input), isStatus(400));
+  individualId = "legacy-individual";
+  // Imported legacy data, not a new-workflow path. Existing ownership and
+  // alignment protections must survive the QBO transition.
+  await db.insert(objectivesTable).values({
+    id: individualId, cycleId: "cycle", level: "individual", ownerId: "alice", areaId: "area",
+    title: "Legacy personal objective", timeScope: "Q2", parentObjectiveId: companyId,
+  });
+  await assert.rejects(saveObjective(alice, { parentObjectiveId: null }, individualId), isStatus(400));
   await assert.rejects(saveObjective(bob, { title: "Stolen" }, individualId), isStatus(403));
   await saveObjective(alice, { title: "Updated title", description: "Clear outcome", status: "active", sortOrder: 2 }, individualId);
   const [row] = await db.select().from(objectivesTable).where(eq(objectivesTable.id, individualId));

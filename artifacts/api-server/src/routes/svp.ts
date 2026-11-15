@@ -10,6 +10,7 @@ import { saveFoundation } from "../lib/foundationService";
 import { getClerkProxyHost } from "../middlewares/clerkProxyMiddleware";
 import okrsRouter from "./okrs";
 import accountabilityRouter from "./accountability";
+import scorecardRouter from "./scorecard";
 
 const router: IRouter = Router();
 router.use("/svp", staffAuth);
@@ -29,6 +30,7 @@ router.get("/svp/session", (_req, res) => {
 });
 router.use("/svp", okrsRouter);
 router.use("/svp", accountabilityRouter);
+router.use("/svp", scorecardRouter);
 router.get("/svp/foundation", async (_req, res): Promise<void> => {
   const [staff, areas, cycles, periods, moments] = await Promise.all([
     db.select().from(usersTable).orderBy(asc(usersTable.createdAt), asc(usersTable.name)),

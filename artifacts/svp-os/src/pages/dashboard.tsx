@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
-import { ArrowUpRight, CalendarDays, Target } from 'lucide-react';
+import { ArrowUpRight, BarChart3, CalendarDays, Target } from 'lucide-react';
 import type { Foundation, KeyResult } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { NativeSelect } from '@/components/native-select';
+import { QUARTERS, currentQuarter, isQbo, qboHref, type Quarter } from '@/lib/qbo';
 import { WithFoundation } from '@/components/with-foundation';
 import { ErrorPanel, PageHeader, PageSkeleton, Panel, StaffAvatar, StatusPill } from '@/components/ui-bits';
 import { HealthDot, ProgressTrack } from '@/components/okr/bits';
@@ -12,65 +13,59 @@ import { useStaffSession } from '@/lib/session-context';
 import { avgProgress, bySort, krValueLabel, useOkrActions, useOkrWorkspace } from '@/lib/okr';
 import { errorMessage, fmtDate, pickCurrentCycle } from '@/lib/format';
 
-const ALL = 'all';
-
 function DashboardBody({ data }: { data: Foundation }) {
   const me = useStaffSession();
   const q = useOkrWorkspace();
   const actions = useOkrActions();
   const [cycleId, setCycleId] = useState(() => pickCurrentCycle(data.cycles)?.id ?? '');
-  const [areaId, setAreaId] = useState(ALL);
-  const [personId, setPersonId] = useState(ALL);
+  const [quarterSel, setQuarterSel] = useState<Quarter | null>(null);
   const [checkKr, setCheckKr] = useState<KeyResult | null>(null);
 
   const cycle = data.cycles.find((c) => c.id === cycleId);
   const staff = data.staff.filter((s) => s.active);
   const period = data.periods.find((p) => p.status === 'active') ?? data.periods[0];
   const first = me.name.split(' ')[0];
+  const quarter = quarterSel ?? currentQuarter(cycle);
 
   if (q.isLoading) return <PageSkeleton />;
   if (q.isError || !q.data) return <ErrorPanel message={errorMessage(q.error)} onRetry={() => q.refetch()} />;
   const ws = q.data;
 
-  const objs = ws.objectives.filter((o) => o.cycleId === cycleId && (areaId === ALL || o.areaId === areaId) && (personId === ALL || o.ownerId === personId));
-  const company = ws.objectives.filter((o) => o.cycleId === cycleId && o.level === 'company' &&
-    (objs.some(match => match.id === o.id) || objs.some(match => match.parentObjectiveId === o.id))).sort(bySort);
-  const individual = objs.filter((o) => o.level === 'individual');
+  const company = ws.objectives.filter((o) => o.cycleId === cycleId && isQbo(o) && o.timeScope === quarter).sort(bySort);
   const companyAvg = avgProgress(company, ws.keyResults);
-  const cycleObjIds = new Set(ws.objectives.filter((o) => o.cycleId === cycleId).map((o) => o.id));
-  const myKrs = ws.keyResults.filter((k) => k.ownerId === me.id && k.canEdit && cycleObjIds.has(k.objectiveId))
+  const qboIds = new Set(company.map((o) => o.id));
+  const myKrs = ws.keyResults.filter((k) => k.ownerId === me.id && k.canEdit && qboIds.has(k.objectiveId))
     .sort((a, b) => (a.lastCheckInAt ?? '').localeCompare(b.lastCheckInAt ?? ''));
-  const people = staff.filter((s) => (areaId === ALL || s.areaId === areaId) && (personId === ALL || s.id === personId));
-  const recent = [...ws.checkIns].filter((c) => { const k = ws.keyResults.find((x) => x.id === c.keyResultId); return k && objs.some((o) => o.id === k.objectiveId); })
+  const recent = [...ws.checkIns].filter((c) => { const k = ws.keyResults.find((x) => x.id === c.keyResultId); return k && qboIds.has(k.objectiveId); })
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 6);
   const counts = { green: 0, yellow: 0, red: 0 } as Record<string, number>;
   company.forEach((o) => { if (ws.keyResults.some((k) => k.objectiveId === o.id) && o.health in counts) counts[o.health]++; });
+  const owners = staff.map((s) => ({ s, objs: company.filter((o) => o.ownerId === s.id), krs: ws.keyResults.filter((k) => k.ownerId === s.id && qboIds.has(k.objectiveId)) }))
+    .filter((x) => x.objs.length || x.krs.length);
+  const legacyCount = ws.objectives.filter((o) => o.cycleId === cycleId && !isQbo(o)).length;
 
   return (
     <>
       <PageHeader eyebrow={cycle ? `${cycle.name} · ${fmtDate(cycle.startDate, 'MMM d')} to ${fmtDate(cycle.endDate)}` : 'No cycle yet'} title={`Good to see you, ${first}.`}
         actions={<>
           {cycle && <StatusPill status={cycle.status} label={cycle.status} />}
-          <Link href={`/okrs?owner=${me.id}&cycle=${cycleId}`} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0A2540] px-3.5 text-[13px] font-semibold text-white hover:bg-[#0A2540]/90" data-testid="link-my-okrs">
-            <Target className="h-4 w-4" /> My OKRs
+          <Link href={qboHref({ cycle: cycleId, q: quarter })} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0A2540] px-3.5 text-[13px] font-semibold text-white hover:bg-[#0A2540]/90" data-testid="link-qbos">
+            <Target className="h-4 w-4" /> {quarter} QBOs
+          </Link>
+          <Link href="/scorecard" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 text-[13px] font-semibold text-[#0A2540] hover:border-[#1D8BC4]/50" data-testid="link-scorecard">
+            <BarChart3 className="h-4 w-4" /> Scorecard
           </Link>
         </>}>
-        Where Sacramento's commitments stand today, and what is waiting on you.
+        Where Sacramento's commitments stand today, and what is waiting on you this quarter.
       </PageHeader>
 
-      <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
-        <Select value={cycleId} onValueChange={setCycleId}>
-          <SelectTrigger className="bg-card" data-testid="filter-cycle"><SelectValue placeholder="Cycle" /></SelectTrigger>
-          <SelectContent>{data.cycles.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-        </Select>
-        <Select value={areaId} onValueChange={setAreaId}>
-          <SelectTrigger className="bg-card" data-testid="filter-area"><SelectValue /></SelectTrigger>
-          <SelectContent><SelectItem value={ALL}>All areas</SelectItem>{data.areas.map((a) => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}</SelectContent>
-        </Select>
-        <Select value={personId} onValueChange={setPersonId}>
-          <SelectTrigger className="bg-card" data-testid="filter-person"><SelectValue /></SelectTrigger>
-          <SelectContent><SelectItem value={ALL}>Everyone</SelectItem>{staff.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
-        </Select>
+      <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-[220px_140px]">
+        <NativeSelect value={cycleId} onChange={(e) => setCycleId(e.target.value)} aria-label="Cycle" data-testid="filter-cycle">
+          {data.cycles.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </NativeSelect>
+        <NativeSelect value={quarter} onChange={(e) => setQuarterSel(e.target.value as Quarter)} aria-label="Quarter" data-testid="filter-quarter">
+          {QUARTERS.map((qq) => <option key={qq} value={qq}>{qq}</option>)}
+        </NativeSelect>
       </div>
 
       {myKrs.length > 0 && (
@@ -98,8 +93,8 @@ function DashboardBody({ data }: { data: Foundation }) {
         <Panel className="rise">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="font-display text-2xl font-semibold text-[#0A2540]">Company objectives</h2>
-              <p className="mt-1 text-[12px] text-muted-foreground">Average includes objectives without key results as 0%.</p>
+              <h2 className="font-display text-2xl font-semibold text-[#0A2540]">{quarter} QBOs</h2>
+              <p className="mt-1 text-[12px] text-muted-foreground">Average counts QBOs without key results as 0%.</p>
             </div>
             <div className="text-right">
               <div className="font-display text-4xl font-semibold tabular-nums text-[#0A2540]" data-testid="text-company-avg">{companyAvg != null ? `${companyAvg}%` : '--'}</div>
@@ -110,24 +105,24 @@ function DashboardBody({ data }: { data: Foundation }) {
           </div>
           {company.length === 0 ? (
             <div className="mt-6 rounded-xl border border-dashed border-[#1D8BC4]/40 bg-[#1D8BC4]/[0.05] p-6" data-testid="empty-objectives">
-              <div className="font-display text-lg text-[#0A2540]">{ws.objectives.some(o => o.cycleId === cycleId && o.level === 'company') ? 'No objectives match these filters.' : 'Start by adding your company objectives.'}</div>
-              <Link href={`/okrs?cycle=${cycleId}`} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#1D8BC4]" data-testid="link-okrs-empty">Open OKRs <ArrowUpRight className="h-4 w-4" /></Link>
+              <div className="font-display text-lg text-[#0A2540]">{`No QBOs for ${quarter} yet.`}</div>
+              <Link href={qboHref({ cycle: cycleId, q: quarter })} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#1D8BC4]" data-testid="link-qbos-empty">Open QBOs <ArrowUpRight className="h-4 w-4" /></Link>
             </div>
           ) : (
             <ul className="mt-5 space-y-3">
               {company.map((o) => {
                 const m = ws.keyResults.some((k) => k.objectiveId === o.id);
-                const sup = ws.objectives.filter((c) => c.parentObjectiveId === o.id).length;
+                const own = data.staff.find((x) => x.id === o.ownerId);
                 return (
                   <li key={o.id}>
-                    <Link href={`/okrs/${o.id}`} className="group block rounded-xl px-2 py-2 transition-colors hover:bg-[#0A2540]/[0.03]" data-testid={`dash-objective-${o.id}`}>
+                    <Link href={`/qbos/${o.id}`} className="group block rounded-xl px-2 py-2 transition-colors hover:bg-[#0A2540]/[0.03]" data-testid={`dash-objective-${o.id}`}>
                       <div className="flex items-center gap-2">
                         <HealthDot health={m ? o.health : 'none'} />
                         <span className="flex-1 truncate text-[14px] font-semibold text-[#0A2540] group-hover:text-[#1D8BC4]">{o.title}</span>
                         <span className="font-mono text-[12px] tabular-nums">{m ? `${Math.round(o.progress)}%` : 'no KRs'}</span>
                       </div>
                       <ProgressTrack value={o.progress} expected={o.expectedProgress} health={o.health} measured={m} className="mt-2" />
-                      <div className="mt-1 text-[11px] text-muted-foreground">{sup} supporting objective{sup === 1 ? '' : 's'}</div>
+                      <div className="mt-1 text-[11px] text-muted-foreground">Accountable: {own?.name ?? 'Unassigned'}</div>
                     </Link>
                   </li>
                 );
@@ -164,33 +159,30 @@ function DashboardBody({ data }: { data: Foundation }) {
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.6fr_1fr]">
         <Panel className="rise">
-          <h2 className="font-display text-xl font-semibold text-[#0A2540]">Staff progress</h2>
-          <p className="mt-1 text-[12px] text-muted-foreground">Individual objectives this cycle; objectives without key results count as 0%.</p>
+          <h2 className="font-display text-xl font-semibold text-[#0A2540]">Who carries {quarter}</h2>
+          <p className="mt-1 text-[12px] text-muted-foreground">Accountable QBOs and key results owned this quarter.</p>
           <ul className="mt-4 divide-y divide-border/70">
-            {people.map((s) => {
-              const mine = individual.filter((o) => o.ownerId === s.id);
-              const p = avgProgress(mine, ws.keyResults);
+            {owners.map(({ s, objs, krs }) => {
               const area = data.areas.find((a) => a.id === s.areaId);
-              const health = mine.some((o) => o.health === 'red') ? 'red' : mine.some((o) => o.health === 'yellow') ? 'yellow' : mine.some(o => o.health === 'green') ? 'green' : 'none';
-              const lastCheckIn = ws.checkIns.filter(c => c.authorId === s.id && ws.keyResults.some(k => k.id === c.keyResultId && cycleObjIds.has(k.objectiveId)))
-                .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+              const lastCheckIn = ws.checkIns.filter((c) => c.authorId === s.id && krs.some((k) => k.id === c.keyResultId)).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
               return (
-                <li key={s.id}>
-                  <Link href={`/okrs?owner=${s.id}&cycle=${cycleId}`} className="flex items-center gap-3 py-2.5 hover:bg-[#0A2540]/[0.02]" data-testid={`staff-progress-${s.id}`}>
-                    <StaffAvatar name={s.name} url={s.avatarUrl} color={area?.color} size="h-8 w-8" />
-                    <div className="w-32 min-w-0 shrink-0 sm:w-44">
-                      <div className="truncate text-[14px] font-semibold text-[#0A2540]">{s.name}</div>
-                      <div className="truncate text-[11px] text-muted-foreground">{mine.length} objective{mine.length === 1 ? '' : 's'} · {area?.name}</div>
-                      <div className="text-[11px] text-muted-foreground">{lastCheckIn ? `Last check-in ${fmtDate(lastCheckIn.createdAt, 'MMM d')}` : 'No check-ins yet'}</div>
-                    </div>
-                    <ProgressTrack value={p ?? 0} health={health} measured={p != null} className="flex-1" />
-                    <span className="w-10 text-right font-mono text-[12px] tabular-nums">{p != null ? `${p}%` : '--'}</span>
-                  </Link>
+                <li key={s.id} className="flex items-center gap-3 py-2.5" data-testid={`owner-load-${s.id}`}>
+                  <StaffAvatar name={s.name} url={s.avatarUrl} color={area?.color} size="h-8 w-8" />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-[14px] font-semibold text-[#0A2540]">{s.name}</div>
+                    <div className="text-[11px] text-muted-foreground">{lastCheckIn ? `Last check-in ${fmtDate(lastCheckIn.createdAt, 'MMM d')}` : 'No check-ins yet'}</div>
+                  </div>
+                  <span className="font-mono text-[12px] text-[#3A4E63]">{objs.length} QBO{objs.length === 1 ? '' : 's'} · {krs.length} KR{krs.length === 1 ? '' : 's'}</span>
                 </li>
               );
             })}
-            {people.length === 0 && <li className="py-3 text-sm text-muted-foreground">No staff match these filters.</li>}
+            {owners.length === 0 && <li className="py-3 text-sm text-muted-foreground">Nobody owns a {quarter} QBO or key result yet.</li>}
           </ul>
+          {legacyCount > 0 && (
+            <Link href={qboHref({ cycle: cycleId, view: 'legacy' })} className="mt-3 inline-flex items-center gap-1 text-[13px] font-semibold text-[#8A5A00]" data-testid="link-legacy">
+              {legacyCount} legacy objective{legacyCount === 1 ? '' : 's'} in this cycle <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          )}
         </Panel>
 
         <Panel className="rise">

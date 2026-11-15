@@ -11,6 +11,69 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /svp/scorecard:
+    get:
+      operationId: getScorecard
+      parameters:
+        - in: query
+          name: endWeek
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
+      responses:
+        "200":
+          description: Thirteen Monday-based weeks, all metric definitions, and value revision history
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ScorecardWorkspace" }
+  /svp/scorecard/metrics:
+    post:
+      operationId: createScorecardMetric
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ScorecardMetricInput" }
+      responses:
+        "201":
+          description: Metric created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/scorecard/metrics/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    patch:
+      operationId: updateScorecardMetric
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ScorecardMetricInput" }
+      responses:
+        "200":
+          description: Metric updated; archiving retains all weekly history
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/scorecard/metrics/{id}/entries/{weekStart}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+      - in: path
+        name: weekStart
+        required: true
+        schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
+    put:
+      operationId: saveScorecardEntry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ScorecardEntryInput" }
+      responses:
+        "200":
+          description: Weekly value saved with immutable revision and goal snapshot
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
   /svp/accountability:
     get:
       operationId: getAccountability
@@ -322,6 +385,91 @@ components:
         type: string
         enum: [staff, areas, cycles]
   schemas:
+    ScorecardMetricInput:
+      type: object
+      additionalProperties: false
+      required: [title, description, ownerId, areaId, unit, decimals, direction, target, upperTarget, linkedKeyResultId, sortOrder, active]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: string, maxLength: 4000 }
+        ownerId: { type: string }
+        areaId: { type: string }
+        unit: { type: string, maxLength: 40 }
+        decimals: { type: integer, minimum: 0, maximum: 4 }
+        direction: { type: string, enum: [at_least, at_most, range] }
+        target: { type: number }
+        upperTarget: { type: [number, "null"] }
+        linkedKeyResultId: { type: [string, "null"] }
+        sortOrder: { type: integer, minimum: 0, maximum: 1000000 }
+        active: { type: boolean }
+    ScorecardMetric:
+      allOf:
+        - $ref: "#/components/schemas/ScorecardMetricInput"
+        - type: object
+          required: [id, canEdit, canRecord]
+          properties:
+            id: { type: string }
+            canEdit: { type: boolean }
+            canRecord: { type: boolean }
+    ScorecardEntryInput:
+      type: object
+      additionalProperties: false
+      required: [value, note, reason, expectedVersion]
+      properties:
+        value: { type: [number, "null"] }
+        note: { type: string, maxLength: 4000 }
+        reason: { type: string, maxLength: 1000 }
+        expectedVersion: { type: integer, minimum: 0 }
+    ScorecardEntry:
+      type: object
+      required: [id, metricId, weekStart, value, note, version, authorId, updatedAt, direction, target, upperTarget, unit, status]
+      properties:
+        id: { type: string }
+        metricId: { type: string }
+        weekStart: { type: string }
+        value: { type: [number, "null"] }
+        note: { type: string }
+        version: { type: integer }
+        authorId: { type: string }
+        updatedAt: { type: string, format: date-time }
+        direction: { type: string, enum: [at_least, at_most, range] }
+        target: { type: number }
+        upperTarget: { type: [number, "null"] }
+        unit: { type: string }
+        status: { type: string, enum: [on_track, off_track, missing] }
+    ScorecardRevision:
+      type: object
+      required: [id, entryId, version, value, note, reason, authorId, createdAt, direction, target, upperTarget, unit]
+      properties:
+        id: { type: string }
+        entryId: { type: string }
+        version: { type: integer }
+        value: { type: [number, "null"] }
+        note: { type: string }
+        reason: { type: string }
+        authorId: { type: string }
+        createdAt: { type: string, format: date-time }
+        direction: { type: string, enum: [at_least, at_most, range] }
+        target: { type: number }
+        upperTarget: { type: [number, "null"] }
+        unit: { type: string }
+    ScorecardWorkspace:
+      type: object
+      required: [weeks, endWeek, metrics, entries, revisions]
+      properties:
+        weeks:
+          type: array
+          items: { type: string }
+        endWeek: { type: string }
+        metrics:
+          type: array
+          items: { $ref: "#/components/schemas/ScorecardMetric" }
+        entries:
+          type: array
+          items: { $ref: "#/components/schemas/ScorecardEntry" }
+        revisions:
+          type: array
+          items: { $ref: "#/components/schemas/ScorecardRevision" }
     AccountabilitySeatInput:
       type: object
       additionalProperties: false

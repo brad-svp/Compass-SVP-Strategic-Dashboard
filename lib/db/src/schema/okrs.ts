@@ -25,7 +25,7 @@ export const objectivesTable = pgTable("objectives", {
   check("objective_level_check", sql`${t.level} in ('company','individual')`),
   check("objective_status_check", sql`${t.status} in ('draft','active','closed')`),
   check("objective_scope_check", sql`${t.timeScope} in ('annual','Q1','Q2','Q3','Q4')`),
-  check("objective_alignment_check", sql`(${t.level}='company' and ${t.timeScope}='annual' and ${t.parentObjectiveId} is null) or (${t.level}='individual' and ${t.parentObjectiveId} is not null)`),
+  check("objective_alignment_check", sql`(${t.level}='company' and ${t.parentObjectiveId} is null) or (${t.level}='individual' and ${t.parentObjectiveId} is not null)`),
 ]);
 export const keyResultsTable = pgTable("key_results", {
   id: text("id").primaryKey(), objectiveId: text("objective_id").notNull().references(() => objectivesTable.id),

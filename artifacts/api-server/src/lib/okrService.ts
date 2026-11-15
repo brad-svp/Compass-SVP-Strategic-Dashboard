@@ -78,6 +78,13 @@ export async function saveObjective(actor: StaffActor, raw: unknown, itemId?: st
     const before = itemId ? await objective(tx, itemId) : null;
     if (before) await canEditObjective(tx, actor, before);
     const data = { ...before, ...parsed } as z.infer<typeof objectiveInput>;
+    if (!before) {
+      requireAdmin(actor);
+      if (data.level !== "company" || data.timeScope === "annual") throw new AppError(400, "New QBOs must be organization-wide and assigned to Q1, Q2, Q3, or Q4.");
+    }
+    if (before?.level === "company" && before.timeScope !== "annual" && data.timeScope === "annual") {
+      throw new AppError(400, "Quarterly QBOs must remain assigned to Q1, Q2, Q3, or Q4.");
+    }
     if (data.level === "company") requireAdmin(actor);
     else if (actor.role !== "admin" && data.ownerId !== actor.id) throw new AppError(403, "Staff can create or assign objectives only to themselves.");
     if (!before || before.ownerId !== data.ownerId) await owner(tx, data.ownerId);
@@ -85,18 +92,18 @@ export async function saveObjective(actor: StaffActor, raw: unknown, itemId?: st
     if (!cycle) throw new AppError(400, "Choose an existing cycle.");
     if (!(await tx.select().from(areasTable).where(eq(areasTable.id, data.areaId))).length) throw new AppError(400, "Choose an existing area.");
     if (data.level === "company") {
-      if (data.timeScope !== "annual" || data.parentObjectiveId) throw new AppError(400, "Company objectives must be annual and cannot have a parent.");
+      if (data.parentObjectiveId) throw new AppError(400, "Organization-wide objectives cannot have a parent.");
     } else {
       if (!data.parentObjectiveId) throw new AppError(400, "Link this objective to a company objective.");
       const parent = await objective(tx, data.parentObjectiveId);
       if (parent.level !== "company" || parent.cycleId !== data.cycleId) throw new AppError(400, "Choose a company objective in the same cycle.");
-      if (data.timeScope !== "annual") {
-        const year = Number(cycle.startDate.slice(0, 4));
-        const q = Number(data.timeScope.slice(1));
-        const start = new Date(Date.UTC(year, (q - 1) * 3, 1)).toISOString().slice(0, 10);
-        const end = new Date(Date.UTC(year, q * 3, 0)).toISOString().slice(0, 10);
-        if (end < cycle.startDate || start > cycle.endDate) throw new AppError(400, "This quarter falls outside the selected cycle.");
-      }
+    }
+    if (data.timeScope !== "annual") {
+      const year = Number(cycle.startDate.slice(0, 4));
+      const q = Number(data.timeScope.slice(1));
+      const start = new Date(Date.UTC(year, (q - 1) * 3, 1)).toISOString().slice(0, 10);
+      const end = new Date(Date.UTC(year, q * 3, 0)).toISOString().slice(0, 10);
+      if (end < cycle.startDate || start > cycle.endDate) throw new AppError(400, "This quarter falls outside the selected cycle.");
     }
     const entityId = itemId ?? crypto.randomUUID();
     const [after] = itemId
