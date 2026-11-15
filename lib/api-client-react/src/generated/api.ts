@@ -28,8 +28,10 @@ import type {
   CheckInInput,
   CommentInput,
   CommentUpdate,
+  DevLoginInput,
   Foundation,
   FoundationInput,
+  GetDevAuth200,
   HealthStatus,
   KeyResultInput,
   KeyResultUpdate,
@@ -66,6 +68,251 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetDevAuthUrl = () => {
+
+
+
+
+  return `/api/dev-auth`
+}
+
+export const getDevAuth = async ( options?: Parameters<typeof customFetch>[1]): Promise<GetDevAuth200> => {
+
+  return customFetch<GetDevAuth200>(getGetDevAuthUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDevAuthQueryKey = () => {
+    return [
+    `/api/dev-auth`
+    ] as const;
+    }
+
+
+export const getGetDevAuthQueryOptions = <TData = Awaited<ReturnType<typeof getDevAuth>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevAuth>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDevAuthQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevAuth>>> = ({ signal }) => getDevAuth({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevAuth>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDevAuthQueryResult = NonNullable<Awaited<ReturnType<typeof getDevAuth>>>
+export type GetDevAuthQueryError = ErrorType<unknown>
+
+
+export function useGetDevAuth<TData = Awaited<ReturnType<typeof getDevAuth>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevAuth>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDevAuth>>,
+          TError,
+          Awaited<ReturnType<typeof getDevAuth>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDevAuth<TData = Awaited<ReturnType<typeof getDevAuth>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevAuth>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDevAuth>>,
+          TError,
+          Awaited<ReturnType<typeof getDevAuth>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDevAuth<TData = Awaited<ReturnType<typeof getDevAuth>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevAuth>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetDevAuth<TData = Awaited<ReturnType<typeof getDevAuth>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevAuth>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetDevAuthQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateDevAuthUrl = () => {
+
+
+
+
+  return `/api/dev-auth`
+}
+
+export const createDevAuth = async (devLoginInput: DevLoginInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getCreateDevAuthUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(devLoginInput)
+  }
+);}
+
+
+
+
+
+export const getCreateDevAuthMutationKey = () => ['createDevAuth'] as const;
+
+export const getCreateDevAuthMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDevAuth>>, TError,CreateDevAuthMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createDevAuth>>, TError,CreateDevAuthMutationVariables, TContext> => {
+
+const mutationKey = getCreateDevAuthMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createDevAuth>>, CreateDevAuthMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createDevAuth(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateDevAuthMutationResult = NonNullable<Awaited<ReturnType<typeof createDevAuth>>>
+    export type CreateDevAuthMutationBody = BodyType<DevLoginInput>
+    export type CreateDevAuthMutationError = ErrorType<unknown>
+    export type CreateDevAuthMutationVariables = {data: BodyType<DevLoginInput>}
+
+    export const useCreateDevAuth = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDevAuth>>, TError,CreateDevAuthMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createDevAuth>>,
+        TError,
+        CreateDevAuthMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateDevAuthMutationOptions(options), queryClient);
+    }
+
+export const getDeleteDevAuthUrl = () => {
+
+
+
+
+  return `/api/dev-auth`
+}
+
+export const deleteDevAuth = async ( options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+  return customFetch<MutationResult>(getDeleteDevAuthUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteDevAuthMutationKey = () => ['deleteDevAuth'] as const;
+
+export const getDeleteDevAuthMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevAuth>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDevAuth>>, TError,void, TContext> => {
+
+const mutationKey = getDeleteDevAuthMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDevAuth>>, void> = () => {
+
+
+          return  deleteDevAuth(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteDevAuthMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDevAuth>>>
+
+    export type DeleteDevAuthMutationError = ErrorType<unknown>
+
+
+    export const useDeleteDevAuth = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevAuth>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteDevAuth>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getDeleteDevAuthMutationOptions(options), queryClient);
+    }
 
 export const getGetOkrWorkspaceUrl = () => {
 

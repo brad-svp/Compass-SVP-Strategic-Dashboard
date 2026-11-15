@@ -3,11 +3,14 @@ import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import type { RequestHandler } from "express";
 import type { StaffActor } from "../lib/permissions";
+import { getDevActor } from "../lib/devAuth";
 
 declare global {
   namespace Express { interface Locals { actor: StaffActor } }
 }
 export const staffAuth: RequestHandler = async (req, res, next) => {
+  const devActor = await getDevActor(req);
+  if (devActor) { res.locals.actor = devActor; next(); return; }
   const { userId } = getAuth(req);
   if (!userId) { res.status(401).json({ error: "Please sign in with your SVP Google account." }); return; }
   const identity = await clerkClient.users.getUser(userId);

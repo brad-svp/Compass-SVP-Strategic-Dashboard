@@ -8,6 +8,26 @@
 import * as zod from 'zod';
 
 
+export const GetDevAuthResponse = zod.object({
+  "enabled": zod.boolean(),
+  "signedIn": zod.boolean()
+})
+
+
+export const CreateDevAuthBody = zod.object({
+  "role": zod.enum(['admin', 'staff'])
+})
+
+export const CreateDevAuthResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const DeleteDevAuthResponse = zod.object({
+  "id": zod.string()
+})
+
+
 export const getOkrWorkspaceResponseObjectivesItemOneTitleMax = 300;
 
 export const getOkrWorkspaceResponseObjectivesItemOneDescriptionMax = 12000;

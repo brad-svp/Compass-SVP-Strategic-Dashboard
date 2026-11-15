@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
-import { useClerk } from '@clerk/react';
+import { useDevAuth, useWorkspaceSignOut } from '@/lib/dev-auth';
 import {
   LayoutDashboard, Target, Grid3x3, Users, Workflow, GraduationCap, Settings, ShieldCheck, LogOut, Menu,
 } from 'lucide-react';
@@ -9,8 +9,6 @@ import { BrandLockup } from '@/components/brand-logo';
 import { StaffAvatar } from '@/components/ui-bits';
 import { useStaffSession } from '@/lib/session-context';
 import { cn } from '@/lib/utils';
-
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -57,7 +55,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
 
 function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const me = useStaffSession();
-  const { signOut } = useClerk();
+  const signOut = useWorkspaceSignOut();
   return (
     <div className="flex h-full flex-col bg-[#0A2540] px-4 py-6">
       <Link href="/dashboard" className="mb-8 px-2" data-testid="link-home-logo" onClick={onNavigate}>
@@ -72,7 +70,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
             <div className="text-[11px] uppercase tracking-wider text-[#8FC6E4]">{me.role}</div>
           </div>
           <button
-            onClick={() => signOut({ redirectUrl: basePath || '/' })}
+            onClick={() => signOut()}
             className="grid h-8 w-8 place-items-center rounded-md text-[#C9D6E3] transition hover:bg-white/10 hover:text-white"
             aria-label="Sign out"
             data-testid="button-signout-sidebar"
@@ -87,6 +85,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const dev = useDevAuth();
   return (
     <div className="grain min-h-[100dvh] bg-background">
       <aside className="fixed inset-y-0 left-0 hidden w-64 lg:block">
@@ -105,6 +104,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </SheetContent>
       </Sheet>
       <main className="lg:pl-64">
+        {dev.signedIn && <div className="border-b border-[#ECA519]/30 bg-[#ECA519]/15 px-4 py-2 text-center text-xs font-medium text-[#72500A]">Development quick login — test identity. Changes affect development data.</div>}
         <div className="mx-auto max-w-6xl px-4 py-8 md:px-10 md:py-12">{children}</div>
       </main>
     </div>

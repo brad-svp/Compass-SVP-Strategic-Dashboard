@@ -1,13 +1,11 @@
-import { useClerk } from '@clerk/react';
+import { useWorkspaceSignOut } from '@/lib/dev-auth';
 import { Link } from 'wouter';
 import { LockKeyhole, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BrandLockup } from '@/components/brand-logo';
 
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
-
 export function AccessDenied({ status, inline = false }: { status?: number; inline?: boolean }) {
-  const { signOut } = useClerk();
+  const signOut = useWorkspaceSignOut();
   const isAuth = status === 401;
   const body = (
     <div className="rise mx-auto max-w-lg rounded-3xl border border-card-border bg-card p-8 text-center md:p-10">
@@ -30,7 +28,7 @@ export function AccessDenied({ status, inline = false }: { status?: number; inli
             Back to dashboard
           </Link>
         ) : (
-          <Button onClick={() => signOut({ redirectUrl: basePath || '/' })} className="bg-[#0A2540] text-white" data-testid="button-signout-denied">
+          <Button onClick={() => signOut()} className="bg-[#0A2540] text-white" data-testid="button-signout-denied">
             <LogOut className="mr-2 h-4 w-4" /> Sign out
           </Button>
         )}

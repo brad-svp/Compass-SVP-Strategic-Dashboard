@@ -11,6 +11,42 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /dev-auth:
+    get:
+      operationId: getDevAuth
+      responses:
+        "200":
+          description: Development login availability and current shortcut session
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [enabled, signedIn]
+                properties:
+                  enabled: { type: boolean }
+                  signedIn: { type: boolean }
+    post:
+      operationId: createDevAuth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DevLoginInput"
+      responses:
+        "200":
+          description: Development session created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+    delete:
+      operationId: deleteDevAuth
+      responses:
+        "200":
+          description: Development session cleared
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
   /svp/okrs:
     get:
       operationId: getOkrWorkspace
@@ -238,6 +274,12 @@ components:
         type: string
         enum: [staff, areas, cycles]
   schemas:
+    DevLoginInput:
+      type: object
+      additionalProperties: false
+      required: [role]
+      properties:
+        role: { type: string, enum: [admin, staff] }
     ObjectiveInput:
       type: object
       required: [cycleId, level, ownerId, areaId, title, timeScope]

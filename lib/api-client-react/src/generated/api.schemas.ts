@@ -5,6 +5,18 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type DevLoginInputRole = typeof DevLoginInputRole[keyof typeof DevLoginInputRole];
+
+
+export const DevLoginInputRole = {
+  admin: 'admin',
+  staff: 'staff',
+} as const;
+
+export interface DevLoginInput {
+  role: DevLoginInputRole;
+}
+
 export type ObjectiveInputLevel = typeof ObjectiveInputLevel[keyof typeof ObjectiveInputLevel];
 
 
@@ -417,4 +429,9 @@ export interface FoundationInput {
 export interface HealthStatus {
   status: string;
 }
+
+export type GetDevAuth200 = {
+  enabled: boolean;
+  signedIn: boolean;
+};
 

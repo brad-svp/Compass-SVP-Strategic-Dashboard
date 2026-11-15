@@ -21,6 +21,7 @@ import Admin from '@/pages/admin';
 import { PhasePreview } from '@/pages/phase-preview';
 import Okrs from '@/pages/okrs';
 import OkrDetail from '@/pages/okr-detail';
+import { DevAuthProvider, useDevAuth } from '@/lib/dev-auth';
 
 const queryClient = new QueryClient();
 
@@ -105,6 +106,9 @@ function ClerkQueryClientCacheInvalidator() {
 }
 
 function HomeRedirect() {
+  const dev = useDevAuth();
+  if (dev.loading) return null;
+  if (dev.signedIn) return <Redirect to="/dashboard" />;
   return (
     <>
       <Show when="signed-in"><Redirect to="/dashboard" /></Show>
@@ -114,6 +118,9 @@ function HomeRedirect() {
 }
 
 function Protected({ children }: { children: ReactNode }) {
+  const dev = useDevAuth();
+  if (dev.loading) return null;
+  if (dev.signedIn) return <StaffGate><AppShell>{children}</AppShell></StaffGate>;
   return (
     <>
       <Show when="signed-in">
@@ -185,7 +192,7 @@ function ClerkProviderWithRoutes() {
       <QueryClientProvider client={queryClient}>
         <ClerkQueryClientCacheInvalidator />
         <TooltipProvider>
-          <Routes />
+          <DevAuthProvider><Routes /></DevAuthProvider>
           <Toaster />
         </TooltipProvider>
       </QueryClientProvider>

@@ -4,13 +4,16 @@ import { useSignIn } from '@clerk/react/legacy';
 import { Link, Redirect, useLocation } from 'wouter';
 import { AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { BrandLockup, LogoMark } from '@/components/brand-logo';
+import { createDevAuth } from '@workspace/api-client-react';
+import { useDevAuth } from '@/lib/dev-auth';
+import { errorMessage } from '@/lib/format';
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 const origin = window.location.origin;
 
 function AuthFrame({ children }: { children: ReactNode }) {
   return (
-    <div className="grain relative flex min-h-[100dvh] flex-col bg-[#0A2540]">
+    <div className="grain relative flex min-h-[100dvh] flex-col overflow-x-clip bg-[#0A2540]">
       <div className="pointer-events-none absolute -right-32 top-10 h-96 w-96 rounded-full bg-[#1D8BC4]/25 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 -left-24 h-80 w-80 rounded-full bg-[#B03E71]/20 blur-3xl" />
       <header className="relative mx-auto flex w-full max-w-6xl items-center px-5 py-6">
@@ -41,9 +44,21 @@ function clerkErrorMessage(err: unknown) {
 }
 
 function GoogleCard() {
+  const dev = useDevAuth();
   const { isLoaded, signIn } = useSignIn();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const quickLogin = async (role: 'admin' | 'staff') => {
+    setPending(true);
+    setError(null);
+    try {
+      await createDevAuth({ role });
+      window.location.assign(`${basePath}/dashboard`);
+    } catch (e) {
+      setError(errorMessage(e));
+      setPending(false);
+    }
+  };
 
   const start = async () => {
     if (!isLoaded || !signIn) return;
@@ -88,8 +103,18 @@ function GoogleCard() {
       )}
 
       <div className="mt-8 border-t border-[#0A2540]/10 pt-5 text-[13px] leading-relaxed text-[#3A4E63]">
-        Only active staff on the SVP list with a verified organization email can enter. Google is the only way in; there are no passwords here.
+        Only active staff on the SVP list with a verified organization email can enter through Google.
       </div>
+      {dev.enabled && (
+        <div className="mt-5 rounded-xl border border-[#ECA519]/50 bg-[#ECA519]/10 p-4" data-testid="dev-login-options">
+          <p className="text-xs font-bold uppercase tracking-wider text-[#72500A]">Development only</p>
+          <p className="mt-2 text-xs leading-relaxed text-[#3A4E63]">Skip Google with a test identity. These accounts can change development data. Anyone with this dev link can use them; published apps cannot.</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button disabled={pending} onClick={() => quickLogin('staff')} className="rounded-lg border border-[#0A2540]/20 bg-white px-3 py-2 text-sm font-semibold text-[#0A2540] disabled:opacity-50" data-testid="button-dev-staff">Quick login: Staff</button>
+            <button disabled={pending} onClick={() => quickLogin('admin')} className="rounded-lg bg-[#0A2540] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50" data-testid="button-dev-admin">Quick login: Admin</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -123,7 +148,9 @@ function ContinueCard() {
 }
 
 function AuthRoute() {
+  const dev = useDevAuth();
   const [location] = useLocation();
+  if (dev.signedIn) return <Redirect to="/dashboard" />;
   const isCallback = location.endsWith('/sso-callback');
   const isContinue = location.endsWith('/continue');
   return (

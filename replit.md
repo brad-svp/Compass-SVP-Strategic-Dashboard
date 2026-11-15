@@ -10,7 +10,8 @@ The user supplied a six-phase build brief in `attached_assets/SVP_OS_—_Replit_
 
 - This is a system of alignment, not a second CRM. Future CRM integration must be read-only and must not update official KR values without an owner's check-in.
 - Never seed sample OKRs in the real 2027 cycle. Show “Start by adding your company objectives.”
-- Google identity must have a verified `svpsacramento.org` email and match an active admin-managed staff record. No demo bypass.
+- Published sign-in requires a verified `svpsacramento.org` Google identity matching an active admin-managed staff record.
+- The user explicitly requested development quick-login options for both staff and admin. These use separate labeled test identities, never real staff impersonation. Anyone with the development link can use them and change development data. Never enable this shortcut on a published app.
 - People are the primary unit; areas remain separate records supporting multiple people.
 - All writes use shared server service/permission functions and transactional audit records, including future MCP writes.
 - The source brief defines the build order: Foundation; OKRs; 6x6; Team/Systems/Learn; AI; CRM/MCP.
@@ -52,7 +53,7 @@ Match the supplied SVP brief: navy `#0A2540`, blue `#1D8BC4`, accents green `#49
 
 ## Architecture decisions
 
-- Use Replit-managed Clerk's Google OAuth instead of handling Google client secrets or inventing local authentication. All application authorization is server-side.
+- Use Replit-managed Clerk's Google OAuth for normal sign-in. All authorization remains server-side. The explicitly requested development shortcut is separately gated by development runtime, no deployment marker, and the exact Replit development hostname; signed HttpOnly cookies expire after eight hours and on server restart.
 - Initial development schema was applied using Drizzle push. Future changes should retain migration history for development; managed production schema changes go through Publish, never startup DDL.
 - Seed initialization runs once per database, uses stable IDs, never overwrites admin edits, and audits seed writes.
 - An admin cannot deactivate, demote, or alter their own sign-in email; another admin must make those changes to prevent accidental lockout.
@@ -69,7 +70,7 @@ Build a separate strategic dashboard that aligns with the SVP CRM branding.
 
 ## Gotchas
 
-- No authenticated UI bypass is allowed for screenshots. The preview capture is signed out; verify protected routes separately.
+- Do not add authentication bypasses merely for screenshots or tests. The user-requested development quick-login feature may be tested, but must never weaken production Google authentication.
 - Browser auth uses Clerk cookies, not manually attached bearer tokens.
 - Frontend and API run via their existing artifact-managed workflows.
 
