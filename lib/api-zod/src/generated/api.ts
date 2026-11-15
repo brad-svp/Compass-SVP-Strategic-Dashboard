@@ -8,6 +8,301 @@
 import * as zod from 'zod';
 
 
+export const createCalendarProgramBodyNameMax = 120;
+
+export const createCalendarProgramBodyExpectedVersionMin = 0;
+
+
+
+export const CreateCalendarProgramBody = zod.object({
+  "name": zod.string().min(1).max(createCalendarProgramBodyNameMax),
+  "logoId": zod.string().nullable(),
+  "active": zod.boolean(),
+  "expectedVersion": zod.number().int().min(createCalendarProgramBodyExpectedVersionMin)
+})
+
+export const CreateCalendarProgramResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const UpdateCalendarProgramParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateCalendarProgramBodyNameMax = 120;
+
+export const updateCalendarProgramBodyExpectedVersionMin = 0;
+
+
+
+export const UpdateCalendarProgramBody = zod.object({
+  "name": zod.string().min(1).max(updateCalendarProgramBodyNameMax),
+  "logoId": zod.string().nullable(),
+  "active": zod.boolean(),
+  "expectedVersion": zod.number().int().min(updateCalendarProgramBodyExpectedVersionMin)
+})
+
+export const UpdateCalendarProgramResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const requestProgramLogoUploadBodyNameMax = 255;
+
+export const requestProgramLogoUploadBodySizeMax = 2097152;
+
+
+
+export const RequestProgramLogoUploadBody = zod.object({
+  "name": zod.string().min(1).max(requestProgramLogoUploadBodyNameMax),
+  "size": zod.number().int().min(1).max(requestProgramLogoUploadBodySizeMax),
+  "contentType": zod.enum(['image/png', 'image/jpeg', 'image/webp'])
+})
+
+export const RequestProgramLogoUploadResponse = zod.object({
+  "id": zod.string(),
+  "uploadURL": zod.string()
+})
+
+
+
+
+
+export const CompleteProgramLogoUploadParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const CompleteProgramLogoUploadResponse = zod.object({
+  "logoId": zod.string(),
+  "logoUrl": zod.string()
+})
+
+
+
+
+
+export const GetProgramLogoParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const GetProgramLogoResponse = zod.unknown()
+
+
+export const getSvpPurposeResponseValuesItemIdMax = 80;
+
+export const getSvpPurposeResponseValuesItemTitleMax = 200;
+
+export const getSvpPurposeResponseValuesItemDescriptionMax = 4000;
+
+
+
+export const GetSvpPurposeResponse = zod.object({
+  "mission": zod.string(),
+  "vision": zod.string(),
+  "values": zod.array(zod.object({
+  "id": zod.string().min(1).max(getSvpPurposeResponseValuesItemIdMax),
+  "title": zod.string().min(1).max(getSvpPurposeResponseValuesItemTitleMax),
+  "description": zod.string().max(getSvpPurposeResponseValuesItemDescriptionMax)
+})),
+  "version": zod.number().int(),
+  "canEdit": zod.boolean(),
+  "sourceUrls": zod.array(zod.string()),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const updateSvpPurposeBodyMissionMax = 6000;
+
+export const updateSvpPurposeBodyVisionMax = 6000;
+
+export const updateSvpPurposeBodyValuesItemIdMax = 80;
+
+export const updateSvpPurposeBodyValuesItemTitleMax = 200;
+
+export const updateSvpPurposeBodyValuesItemDescriptionMax = 4000;
+
+export const updateSvpPurposeBodyValuesMax = 30;
+
+
+
+
+export const UpdateSvpPurposeBody = zod.object({
+  "mission": zod.string().max(updateSvpPurposeBodyMissionMax),
+  "vision": zod.string().max(updateSvpPurposeBodyVisionMax),
+  "values": zod.array(zod.object({
+  "id": zod.string().min(1).max(updateSvpPurposeBodyValuesItemIdMax),
+  "title": zod.string().min(1).max(updateSvpPurposeBodyValuesItemTitleMax),
+  "description": zod.string().max(updateSvpPurposeBodyValuesItemDescriptionMax)
+})).max(updateSvpPurposeBodyValuesMax),
+  "expectedVersion": zod.number().int().min(1)
+})
+
+export const UpdateSvpPurposeResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const getSystemsOverviewResponseSystemsItemOneNameMax = 200;
+
+export const getSystemsOverviewResponseSystemsItemOneUrlMax = 2000;
+
+export const getSystemsOverviewResponseSystemsItemOnePurposeMax = 4000;
+
+export const getSystemsOverviewResponseSystemsItemOneHowUsedMax = 8000;
+
+export const getSystemsOverviewResponseSystemsItemOneAudienceMax = 2000;
+
+export const getSystemsOverviewResponseSystemsItemOneUsedByIdsMax = 100;
+
+export const getSystemsOverviewResponseSystemsItemOneCategoryMax = 100;
+
+export const getSystemsOverviewResponseSystemsItemOneCadenceMax = 200;
+
+export const getSystemsOverviewResponseSystemsItemOneAccessInstructionsMax = 4000;
+
+export const getSystemsOverviewResponseSystemsItemOneExpectedVersionMin = 0;
+
+
+
+export const GetSystemsOverviewResponse = zod.object({
+  "systems": zod.array(zod.object({
+  "name": zod.string().min(1).max(getSystemsOverviewResponseSystemsItemOneNameMax),
+  "url": zod.string().min(1).max(getSystemsOverviewResponseSystemsItemOneUrlMax),
+  "purpose": zod.string().max(getSystemsOverviewResponseSystemsItemOnePurposeMax),
+  "howUsed": zod.string().max(getSystemsOverviewResponseSystemsItemOneHowUsedMax),
+  "audience": zod.string().max(getSystemsOverviewResponseSystemsItemOneAudienceMax),
+  "usedByIds": zod.array(zod.string()).max(getSystemsOverviewResponseSystemsItemOneUsedByIdsMax),
+  "ownerId": zod.string().nullable(),
+  "category": zod.string().max(getSystemsOverviewResponseSystemsItemOneCategoryMax),
+  "cadence": zod.string().max(getSystemsOverviewResponseSystemsItemOneCadenceMax),
+  "accessInstructions": zod.string().max(getSystemsOverviewResponseSystemsItemOneAccessInstructionsMax),
+  "status": zod.enum(['active', 'retired']),
+  "expectedVersion": zod.number().int().min(getSystemsOverviewResponseSystemsItemOneExpectedVersionMin)
+}).and(zod.object({
+  "id": zod.string(),
+  "version": zod.number().int(),
+  "canEdit": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})))
+})
+
+
+export const createSvpSystemBodyNameMax = 200;
+
+export const createSvpSystemBodyUrlMax = 2000;
+
+export const createSvpSystemBodyPurposeMax = 4000;
+
+export const createSvpSystemBodyHowUsedMax = 8000;
+
+export const createSvpSystemBodyAudienceMax = 2000;
+
+export const createSvpSystemBodyUsedByIdsMax = 100;
+
+export const createSvpSystemBodyCategoryMax = 100;
+
+export const createSvpSystemBodyCadenceMax = 200;
+
+export const createSvpSystemBodyAccessInstructionsMax = 4000;
+
+export const createSvpSystemBodyExpectedVersionMin = 0;
+
+
+
+export const CreateSvpSystemBody = zod.object({
+  "name": zod.string().min(1).max(createSvpSystemBodyNameMax),
+  "url": zod.string().min(1).max(createSvpSystemBodyUrlMax),
+  "purpose": zod.string().max(createSvpSystemBodyPurposeMax),
+  "howUsed": zod.string().max(createSvpSystemBodyHowUsedMax),
+  "audience": zod.string().max(createSvpSystemBodyAudienceMax),
+  "usedByIds": zod.array(zod.string()).max(createSvpSystemBodyUsedByIdsMax),
+  "ownerId": zod.string().nullable(),
+  "category": zod.string().max(createSvpSystemBodyCategoryMax),
+  "cadence": zod.string().max(createSvpSystemBodyCadenceMax),
+  "accessInstructions": zod.string().max(createSvpSystemBodyAccessInstructionsMax),
+  "status": zod.enum(['active', 'retired']),
+  "expectedVersion": zod.number().int().min(createSvpSystemBodyExpectedVersionMin)
+})
+
+export const CreateSvpSystemResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const UpdateSvpSystemParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateSvpSystemBodyNameMax = 200;
+
+export const updateSvpSystemBodyUrlMax = 2000;
+
+export const updateSvpSystemBodyPurposeMax = 4000;
+
+export const updateSvpSystemBodyHowUsedMax = 8000;
+
+export const updateSvpSystemBodyAudienceMax = 2000;
+
+export const updateSvpSystemBodyUsedByIdsMax = 100;
+
+export const updateSvpSystemBodyCategoryMax = 100;
+
+export const updateSvpSystemBodyCadenceMax = 200;
+
+export const updateSvpSystemBodyAccessInstructionsMax = 4000;
+
+export const updateSvpSystemBodyExpectedVersionMin = 0;
+
+
+
+export const UpdateSvpSystemBody = zod.object({
+  "name": zod.string().min(1).max(updateSvpSystemBodyNameMax),
+  "url": zod.string().min(1).max(updateSvpSystemBodyUrlMax),
+  "purpose": zod.string().max(updateSvpSystemBodyPurposeMax),
+  "howUsed": zod.string().max(updateSvpSystemBodyHowUsedMax),
+  "audience": zod.string().max(updateSvpSystemBodyAudienceMax),
+  "usedByIds": zod.array(zod.string()).max(updateSvpSystemBodyUsedByIdsMax),
+  "ownerId": zod.string().nullable(),
+  "category": zod.string().max(updateSvpSystemBodyCategoryMax),
+  "cadence": zod.string().max(updateSvpSystemBodyCadenceMax),
+  "accessInstructions": zod.string().max(updateSvpSystemBodyAccessInstructionsMax),
+  "status": zod.enum(['active', 'retired']),
+  "expectedVersion": zod.number().int().min(updateSvpSystemBodyExpectedVersionMin)
+})
+
+export const UpdateSvpSystemResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const DeleteSvpSystemParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const deleteSvpSystemBodyExpectedVersionMin = 0;
+
+
+
+export const DeleteSvpSystemBody = zod.object({
+  "expectedVersion": zod.number().int().min(deleteSvpSystemBodyExpectedVersionMin)
+})
+
+export const DeleteSvpSystemResponse = zod.object({
+  "id": zod.string()
+})
+
+
 export const getMasterCalendarResponseEventsItemOneTitleMax = 300;
 
 export const getMasterCalendarResponseEventsItemOneProgramMax = 120;
@@ -49,6 +344,7 @@ export const GetMasterCalendarResponse = zod.object({
   "expectedVersion": zod.number().int().min(getMasterCalendarResponseEventsItemOneExpectedVersionMin)
 }).and(zod.object({
   "id": zod.string(),
+  "programId": zod.string().nullish(),
   "version": zod.number().int(),
   "sourceUrl": zod.string().nullable(),
   "imported": zod.boolean(),
@@ -65,7 +361,18 @@ export const GetMasterCalendarResponse = zod.object({
   "year2026": zod.number().int(),
   "year2027": zod.number().int(),
   "note": zod.string()
-}).optional()
+}).optional(),
+  "programs": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "logoId": zod.string().nullable(),
+  "logoUrl": zod.string().nullable(),
+  "active": zod.boolean(),
+  "version": zod.number().int(),
+  "canEdit": zod.boolean(),
+  "eventCount": zod.number().int(),
+  "updatedAt": zod.coerce.date()
+})).optional()
 })
 
 

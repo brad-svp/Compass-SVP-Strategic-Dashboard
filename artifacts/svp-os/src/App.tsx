@@ -15,7 +15,9 @@ import { SignInPage, SignUpPage } from '@/pages/auth-pages';
 import Dashboard from '@/pages/dashboard';
 import SixBySix from '@/pages/six-by-six';
 import CalendarPage from '@/pages/calendar';
-import { Workflow, GraduationCap } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
+import SystemsPage from '@/pages/systems';
+import PurposePage from '@/pages/purpose';
 import { PhasePreview } from '@/pages/phase-preview';
 import Team from '@/pages/team';
 import Settings from '@/pages/settings';
@@ -145,14 +147,6 @@ function LegacyOkrRedirect() {
   return <Redirect to={`/qbos${params.id ? `/${encodeURIComponent(params.id)}` : ''}${qs ? `?${qs}` : ''}${hash}`} replace />;
 }
 
-const SystemsPreview = () => (
-  <PhasePreview eyebrow="Systems" title="How the work gets done." icon={Workflow} color="#49B949"
-    intro="The recurring processes the team relies on, documented with owners."
-    items={[
-      { title: 'Process library', body: 'Each recurring process written once, owned by one person.' },
-      { title: 'Rhythm calendar', body: 'Meetings and cadences in one place.' },
-    ]} />
-);
 const LearnPreview = () => (
   <PhasePreview eyebrow="Learn" title="Getting better on purpose." icon={GraduationCap} color="#ECA519"
     intro="Guides for working in SVP OS, plus what the team learns cycle to cycle."
@@ -178,7 +172,8 @@ function Routes() {
         <Route path="/okrs/:id" component={LegacyOkrRedirect} />
         <Route path="/six-by-six"><Protected><SixBySix /></Protected></Route>
         <Route path="/calendar"><Protected><CalendarPage /></Protected></Route>
-        <Route path="/systems"><Protected><SystemsPreview /></Protected></Route>
+        <Route path="/purpose"><Protected><PurposePage /></Protected></Route>
+        <Route path="/systems"><Protected><SystemsPage /></Protected></Route>
         <Route path="/learn"><Protected><LearnPreview /></Protected></Route>
         <Route path="/team"><Protected><Team /></Protected></Route>
         <Route path="/settings"><Protected><Settings /></Protected></Route>

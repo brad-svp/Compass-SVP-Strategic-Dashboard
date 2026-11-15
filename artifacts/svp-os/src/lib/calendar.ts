@@ -10,11 +10,12 @@ export const DATE_STATUS: Record<string, { label: string; cls: string }> = {
 export const LOCATION_STATUS: Record<string, string> = {
   confirmed: 'Venue confirmed', proposed: 'Venue proposed', tbd: 'Venue TBD', not_applicable: 'No venue',
 };
-export const KNOWN_PROGRAMS = ['Think Tank', '100x', 'Fast Pitch', 'AI for Good', 'Impact Tours', 'Board', 'Partner Social', 'Other'];
+/** Colour order only (keeps historic program colours stable); not a program list. */
+const COLOR_ORDER = ['Think Tank', '100x', 'Fast Pitch', 'AI for Good', 'Impact Tours', 'Board', 'Partner Social', 'Other'];
 const PALETTE = ['#1D8BC4', '#B03E71', '#49B949', '#ECA519', '#0A2540', '#2E7D7A', '#7A5BA6', '#C2602F'];
 
 export function programColor(program: string) {
-  const i = KNOWN_PROGRAMS.findIndex((p) => p.toLowerCase() === program.trim().toLowerCase());
+  const i = COLOR_ORDER.findIndex((p) => p.toLowerCase() === program.trim().toLowerCase());
   if (i >= 0) return PALETTE[i % PALETTE.length];
   let h = 0;
   for (const c of program) h = (h * 31 + c.charCodeAt(0)) >>> 0;

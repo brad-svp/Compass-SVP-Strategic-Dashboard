@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearch } from 'wouter';
-import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, GitCommitVertical, Rss } from 'lucide-react';
+import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, GitCommitVertical, Layers, Rss } from 'lucide-react';
 import type { CalendarEvent, Foundation, MasterCalendar } from '@workspace/api-client-react';
 import { WithFoundation } from '@/components/with-foundation';
 import { ErrorPanel, PageHeader, PageSkeleton, Panel } from '@/components/ui-bits';
@@ -8,8 +8,11 @@ import { NativeSelect } from '@/components/native-select';
 import { useStaffSession } from '@/lib/session-context';
 import { errorMessage } from '@/lib/format';
 import { MONTHS, todayInZone } from '@/lib/calendar-time';
-import { EMPTY_FILTERS, KNOWN_PROGRAMS, blankDraft, distinct, inYear, matches, overlaps, sortEvents, spanOf, type Filters } from '@/lib/calendar';
-import { useCalendarActions, useMasterCalendar } from '@/lib/calendar-hooks';
+import { EMPTY_FILTERS, blankDraft, distinct, inYear, matches, overlaps, sortEvents, spanOf, type Filters } from '@/lib/calendar';
+import { useCalendarActions, useMasterCalendar, useProgramActions } from '@/lib/calendar-hooks';
+import { filterProgramNames, indexPrograms } from '@/lib/calendar-programs';
+import { ProgramIndexContext } from '@/components/calendar/program-mark';
+import { ProgramManager } from '@/components/calendar/program-manager';
 import { FiltersBar } from '@/components/calendar/calendar-bits';
 import { MonthView } from '@/components/calendar/month-view';
 import { YearAgenda } from '@/components/calendar/year-agenda';
@@ -22,10 +25,14 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
   const actor = useStaffSession();
   const isAdmin = actor.role === 'admin';
   const actions = useCalendarActions();
+  const programActions = useProgramActions();
+  const [programsOpen, setProgramsOpen] = useState(false);
+  const managedPrograms = useMemo(() => cal.programs ?? [], [cal.programs]);
+  const programIndex = useMemo(() => indexPrograms(managedPrograms), [managedPrograms]);
   const today = todayInZone(cal.timeZone);
   const thisYear = Number(today.slice(0, 4));
 
-  const [view, setView] = useState<'month' | 'year'>('month');
+  const [view, setView] = useState<'month' | 'year'>('year');
   const [year, setYear] = useState(thisYear);
   const [month, setMonth] = useState(Number(today.slice(5, 7)) - 1);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
@@ -49,7 +56,7 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
     setTarget({ event: ev, seed: blankDraft(y), editing: false, nonce: 0 });
   }, [deepId, cal.events, search]);
 
-  const programs = useMemo(() => distinct([...KNOWN_PROGRAMS, ...cal.events.map((e) => e.program)]), [cal.events]);
+  const programs = useMemo(() => filterProgramNames(managedPrograms, cal.events), [managedPrograms, cal.events]);
   const audiences = useMemo(() => distinct(cal.events.flatMap((e) => e.audience)), [cal.events]);
   const years = useMemo(() => {
     const ys = new Set([2026, 2027, thisYear, thisYear + 1, thisYear + 2, year]);
@@ -76,9 +83,10 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
   };
 
   return (
-    <>
+    <ProgramIndexContext.Provider value={programIndex}>
       <PageHeader eyebrow="Master calendar" title="Every SVP gathering, one calendar."
         actions={<>
+          {isAdmin && <button type="button" className={ghost} onClick={() => setProgramsOpen(true)} data-testid="button-manage-programs"><Layers className="h-4 w-4" /> Programs</button>}
           <button type="button" className={ghost} onClick={() => setSubOpen(true)} data-testid="button-subscribe"><Rss className="h-4 w-4" /> Subscribe</button>
           {isAdmin && <button type="button" onClick={() => addNew()} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0A2540] px-3.5 text-[13px] font-semibold text-[#FBFAF6]" data-testid="button-new-event"><CalendarPlus className="h-4 w-4" /> New event</button>}
         </>}>
@@ -92,7 +100,7 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
       <Panel className="rise mb-4 space-y-3 p-4 md:p-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="inline-flex rounded-lg border border-border bg-card p-0.5" role="group" aria-label="View">
-            {(['month', 'year'] as const).map((v) => (
+            {(['year', 'month'] as const).map((v) => (
               <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}
                 className={`inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-[13px] font-semibold ${view === v ? 'bg-[#0A2540] text-[#FBFAF6]' : 'text-[#3A4E63]'}`} data-testid={`button-view-${v}`}>
                 {v === 'month' ? <CalendarDays className="h-4 w-4" /> : <GitCommitVertical className="h-4 w-4" />}{v === 'month' ? 'Month' : 'Timeline'}
@@ -140,10 +148,11 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
         </Panel>
       )}
 
-      <EventDialog target={target} staff={foundation.staff} programs={programs} isAdmin={isAdmin} actions={actions}
+      <EventDialog target={target} staff={foundation.staff} programs={managedPrograms} isAdmin={isAdmin} actions={actions}
         onClose={() => setTarget(null)} onEdit={() => target && setTarget({ ...target, event: cal.events.find((x) => x.id === target.event?.id) ?? target.event, editing: true, nonce: target.nonce + 1 })} onReopen={reopen} />
       <SubscribeDialog open={subOpen} onClose={() => setSubOpen(false)} hasSubscription={cal.hasSubscription} isPublished={cal.isPublished} actions={actions} />
-    </>
+      {isAdmin && <ProgramManager open={programsOpen} onClose={() => setProgramsOpen(false)} programs={managedPrograms} actions={programActions} />}
+    </ProgramIndexContext.Provider>
   );
 }
 

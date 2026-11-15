@@ -38,6 +38,7 @@ export default function Settings() {
             <Row label="Email" value={me.email ?? 'Not set'} testId="text-email" />
             <Row label="Access" value={me.role === 'admin' ? 'Administrator' : 'Staff'} testId="text-role" />
             <Row label="Role" value={me.roleDescription || 'Not written yet'} testId="text-role-description" />
+            <Row label="6x6 permissions" value={me.role === 'admin' ? 'Manage periods, major moments and everyone’s items.' : 'Add, edit and remove your own items in any period. Other teammates’ items are read-only.'} testId="text-six-permissions" />
           </dl>
           <Button variant="outline" className="mt-5 border-[#B03E71]/40 text-[#8C2F59] hover:bg-[#B03E71]/5" onClick={() => signOut({ redirectUrl: basePath || '/' })} data-testid="button-signout">
             <LogOut className="mr-2 h-4 w-4" /> Sign out

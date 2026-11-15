@@ -30,6 +30,8 @@ test('columns keep inactive owners with items; permissions', () => {
   const staff = [{ id: 'x', active: true }, { id: 'y', active: false }, { id: 'z', active: false }] as never;
   const items = [{ id: 'i', periodId: 'c', ownerId: 'y', status: 'done' }] as SixItem[];
   assert.deepEqual(columnsFor(staff, items, 'c').map((s) => s.id), ['x', 'y']);
+  assert.deepEqual(columnsFor(staff, items, 'c', 'y').map((s) => s.id), ['y', 'x']);
+  assert.deepEqual(columnsFor(staff, items, 'c', 'missing').map((s) => s.id), ['x', 'y']);
   assert.deepEqual(summarize(items), { total: 1, done: 1, blocked: 0 });
   assert.equal(canCreateFor({ id: 'x', role: 'staff' }, { id: 'x', active: true }), true);
   assert.equal(canCreateFor({ id: 'x', role: 'staff' }, { id: 'q', active: true }), false);

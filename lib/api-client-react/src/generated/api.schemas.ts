@@ -5,6 +5,140 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type ProgramLogoUploadRequestContentType = typeof ProgramLogoUploadRequestContentType[keyof typeof ProgramLogoUploadRequestContentType];
+
+
+export const ProgramLogoUploadRequestContentType = {
+  'image/png': 'image/png',
+  'image/jpeg': 'image/jpeg',
+  'image/webp': 'image/webp',
+} as const;
+
+export interface ProgramLogoUploadRequest {
+  /**
+     * @minLength 1
+     * @maxLength 255
+     */
+  name: string;
+  /**
+     * @minimum 1
+     * @maximum 2097152
+     */
+  size: number;
+  contentType: ProgramLogoUploadRequestContentType;
+}
+
+export interface CalendarProgramInput {
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  name: string;
+  /** @nullable */
+  logoId: string | null;
+  active: boolean;
+  /** @minimum 0 */
+  expectedVersion: number;
+}
+
+export interface CalendarProgram {
+  id: string;
+  name: string;
+  /** @nullable */
+  logoId: string | null;
+  /** @nullable */
+  logoUrl: string | null;
+  active: boolean;
+  version: number;
+  canEdit: boolean;
+  eventCount: number;
+  updatedAt: string;
+}
+
+export interface SvpValue {
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  id: string;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  title: string;
+  /** @maxLength 4000 */
+  description: string;
+}
+
+export interface SvpPurposeInput {
+  /** @maxLength 6000 */
+  mission: string;
+  /** @maxLength 6000 */
+  vision: string;
+  /** @maxItems 30 */
+  values: SvpValue[];
+  /** @minimum 1 */
+  expectedVersion: number;
+}
+
+export interface SvpPurpose {
+  mission: string;
+  vision: string;
+  values: SvpValue[];
+  version: number;
+  canEdit: boolean;
+  sourceUrls: string[];
+  updatedAt: string;
+}
+
+export type SvpSystemInputStatus = typeof SvpSystemInputStatus[keyof typeof SvpSystemInputStatus];
+
+
+export const SvpSystemInputStatus = {
+  active: 'active',
+  retired: 'retired',
+} as const;
+
+export interface SvpSystemInput {
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  name: string;
+  /**
+     * @minLength 1
+     * @maxLength 2000
+     */
+  url: string;
+  /** @maxLength 4000 */
+  purpose: string;
+  /** @maxLength 8000 */
+  howUsed: string;
+  /** @maxLength 2000 */
+  audience: string;
+  /** @maxItems 100 */
+  usedByIds: string[];
+  /** @nullable */
+  ownerId: string | null;
+  /** @maxLength 100 */
+  category: string;
+  /** @maxLength 200 */
+  cadence: string;
+  /** @maxLength 4000 */
+  accessInstructions: string;
+  status: SvpSystemInputStatus;
+  /** @minimum 0 */
+  expectedVersion: number;
+}
+
+export type SvpSystem = SvpSystemInput & {
+  id: string;
+  version: number;
+  canEdit: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type CalendarEventInputDateStatus = typeof CalendarEventInputDateStatus[keyof typeof CalendarEventInputDateStatus];
 
 
@@ -68,6 +202,8 @@ export interface CalendarEventInput {
 
 export type CalendarEvent = CalendarEventInput & ({
   id: string;
+  /** @nullable */
+  programId?: string | null;
   version: number;
   /** @nullable */
   sourceUrl: string | null;
@@ -91,6 +227,7 @@ export interface MasterCalendar {
   hasSubscription: boolean;
   isPublished: boolean;
   sourceImport?: CalendarImportInfo;
+  programs?: CalendarProgram[];
 }
 
 export interface CalendarSubscription {
@@ -828,6 +965,20 @@ export interface FoundationInput {
 export interface HealthStatus {
   status: string;
 }
+
+export type RequestProgramLogoUpload201 = {
+  id: string;
+  uploadURL: string;
+};
+
+export type CompleteProgramLogoUpload200 = {
+  logoId: string;
+  logoUrl: string;
+};
+
+export type GetSystemsOverview200 = {
+  systems: SvpSystem[];
+};
 
 export type GetScorecardParams = {
 /**

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { ExternalLink, MapPin, Pencil, Users } from 'lucide-react';
-import type { CalendarEvent, Staff } from '@workspace/api-client-react';
+import type { CalendarEvent, CalendarProgram, Staff } from '@workspace/api-client-react';
 import { BrowserDialog } from '@/components/browser-dialog';
 import { Btn } from '@/components/six-by-six/form-kit';
 import { fmtDate } from '@/lib/format';
@@ -12,7 +12,7 @@ import { EventForm } from './event-form';
 export type EventTarget = { event: CalendarEvent | null; seed: EventDraft; editing: boolean; nonce: number };
 
 export function EventDialog({ target, staff, programs, isAdmin, actions, onClose, onEdit, onReopen }: {
-  target: EventTarget | null; staff: Staff[]; programs: string[]; isAdmin: boolean; actions: CalendarActions;
+  target: EventTarget | null; staff: Staff[]; programs: CalendarProgram[]; isAdmin: boolean; actions: CalendarActions;
   onClose: () => void; onEdit: () => void; onReopen: () => void;
 }) {
   const e = target?.event ?? null;
@@ -43,7 +43,7 @@ function EventDetails({ e, staff, canEdit, onEdit, onClose }: { e: CalendarEvent
   return (
     <div data-testid={`detail-event-${e.id}`}>
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <DateStatusBadge status={e.dateStatus} /><ProgramTag program={e.program} />
+        <DateStatusBadge status={e.dateStatus} /><ProgramTag e={e} />
       </div>
       {isTentative(e) && e.dateStatus !== 'tbd' && (
         <p className="mb-3 rounded-lg bg-[#ECA519]/10 px-3 py-2 text-[13px] text-[#6B4600]">Tentative: this date is proposed, not confirmed.</p>

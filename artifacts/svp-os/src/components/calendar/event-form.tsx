@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Trash2 } from 'lucide-react';
-import type { CalendarEvent, CalendarEventInputDateStatus, CalendarEventInputLocationStatus, Staff } from '@workspace/api-client-react';
+import type { CalendarEvent, CalendarEventInputDateStatus, CalendarEventInputLocationStatus, CalendarProgram, Staff } from '@workspace/api-client-react';
+import { programChoices } from '@/lib/calendar-programs';
 import { NativeSelect } from '@/components/native-select';
 import { Btn, ConflictNotice, Field, FormError, inputCls } from '@/components/six-by-six/form-kit';
 import { DATE_STATUS, LOCATION_STATUS, buildInput, eventToDraft, type DateMode, type EventDraft } from '@/lib/calendar';
@@ -11,7 +12,7 @@ const MODES: { id: DateMode; label: string }[] = [
 ];
 
 export function EventForm({ event, seed, staff, programs, actions, onDone, onReopen }: {
-  event: CalendarEvent | null; seed: EventDraft; staff: Staff[]; programs: string[]; actions: CalendarActions; onDone: () => void; onReopen: () => void;
+  event: CalendarEvent | null; seed: EventDraft; staff: Staff[]; programs: CalendarProgram[]; actions: CalendarActions; onDone: () => void; onReopen: () => void;
 }) {
   const [version] = useState(event?.version ?? 0); // captured at open
   const [d, setD] = useState<EventDraft>(() => (event ? eventToDraft(event) : seed));
@@ -21,6 +22,9 @@ export function EventForm({ event, seed, staff, programs, actions, onDone, onReo
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const set = (p: Partial<EventDraft>) => setD((x) => ({ ...x, ...p }));
+  const [initialProgram] = useState(() => (event ? eventToDraft(event) : seed).program);
+  const choices = programChoices(programs, initialProgram);
+  const currentChoice = choices.find((c) => c.value === d.program);
   const owners = staff.filter((s) => s.active || s.id === event?.ownerId);
 
   async function submit(e: FormEvent) {
@@ -45,10 +49,19 @@ export function EventForm({ event, seed, staff, programs, actions, onDone, onReo
     <form onSubmit={submit} className="space-y-4" data-testid="form-calendar-event">
       {conflict && <ConflictNotice onReopen={onReopen} />}
       <Field label="Title"><input className={inputCls} required maxLength={300} value={d.title} onChange={(e) => set({ title: e.target.value })} autoFocus data-testid="input-event-title" /></Field>
-      <Field label="Program" hint="Pick a listed program or type a new one.">
-        <input className={inputCls} list="calendar-programs" maxLength={120} value={d.program} onChange={(e) => set({ program: e.target.value })} data-testid="input-event-program" />
-        <datalist id="calendar-programs">{programs.map((p) => <option key={p} value={p} />)}</datalist>
+      <Field label="Program" hint={programs.length ? 'Programs are managed by admins from the Programs list.' : 'No programs yet. An admin can add them from Programs.'}>
+        <NativeSelect aria-label="Program" value={d.program} onChange={(e) => set({ program: e.target.value })} data-testid="select-event-program">
+          <option value="">No program</option>
+          {choices.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+        </NativeSelect>
       </Field>
+      {currentChoice?.inactive && (
+        <p className="rounded-lg bg-[#ECA519]/10 px-3 py-2 text-[13px] text-[#6B4600]" data-testid="text-program-inactive-warning">
+          {currentChoice.unmanaged
+            ? `"${currentChoice.value}" is not in the managed program list. Saving may be rejected; choose a listed program or No program.`
+            : `"${currentChoice.value}" is retired. This event keeps it, but it cannot be newly assigned elsewhere.`}
+        </p>
+      )}
       <fieldset className="space-y-3">
         <legend className="mb-1.5 text-[12px] font-semibold uppercase tracking-wider text-[#3A4E63]">When</legend>
         <div className="inline-flex rounded-lg border border-border bg-card p-0.5" role="radiogroup" aria-label="Date type">

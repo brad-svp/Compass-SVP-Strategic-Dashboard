@@ -7,6 +7,7 @@
  */
 import type { CalendarEvent } from './calendarEvent';
 import type { CalendarImportInfo } from './calendarImportInfo';
+import type { CalendarProgram } from './calendarProgram';
 
 export interface MasterCalendar {
   events: CalendarEvent[];
@@ -14,4 +15,5 @@ export interface MasterCalendar {
   hasSubscription: boolean;
   isPublished: boolean;
   sourceImport?: CalendarImportInfo;
+  programs?: CalendarProgram[];
 }

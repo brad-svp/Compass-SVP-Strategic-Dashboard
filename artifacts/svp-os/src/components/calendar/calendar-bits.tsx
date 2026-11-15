@@ -2,17 +2,20 @@ import { Search } from 'lucide-react';
 import type { CalendarEvent } from '@workspace/api-client-react';
 import { NativeSelect } from '@/components/native-select';
 import { DATE_STATUS, programColor, type Filters } from '@/lib/calendar';
+import { ProgramMark, useEventProgram } from './program-mark';
 
 export function DateStatusBadge({ status }: { status: string }) {
   const s = DATE_STATUS[status] ?? DATE_STATUS.tbd;
   return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${s.cls}`} data-testid={`badge-date-${status}`}>{s.label}</span>;
 }
 
-export function ProgramTag({ program }: { program: string }) {
-  if (!program) return <span className="text-[12px] text-muted-foreground">No program</span>;
+export function ProgramTag({ e }: { e: Pick<CalendarEvent, 'program' | 'programId'> }) {
+  const { name, logoUrl, program } = useEventProgram(e);
+  if (!name) return <span className="text-[12px] text-muted-foreground">No program</span>;
   return (
-    <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#0A2540]">
-      <span className="h-2 w-2 rounded-sm" style={{ background: programColor(program) }} />{program}
+    <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#0A2540]" data-testid="text-event-program">
+      <ProgramMark name={name} logoUrl={logoUrl} size={16} />{name}
+      {program && !program.active && <span className="font-normal text-muted-foreground">(retired)</span>}
     </span>
   );
 }

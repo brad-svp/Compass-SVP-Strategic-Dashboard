@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { before, after, test } from "node:test";
 import { readFile } from "node:fs/promises";
-import { db, pool, usersTable, areasTable, cyclesTable, calendarEventsTable, calendarSubscriptionsTable } from "@workspace/db";
+import { db, pool, usersTable, areasTable, cyclesTable, calendarEventsTable, calendarSubscriptionsTable, calendarProgramsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { GetMasterCalendarResponse } from "@workspace/api-zod";
 import { saveCalendarEvent, deleteCalendarEvent, getMasterCalendar, createCalendarSubscription, revokeCalendarSubscription, getCalendarFeed, calendarSubscriberAllowed } from "../src/lib/calendarService";
@@ -23,12 +23,13 @@ before(async () => {
   const client = await pool.connect();
   try {
     await client.query(`CREATE SCHEMA "${schema}"`); await client.query(`SET search_path TO "${schema}"`);
-    for (const file of ["0000_phase2_okrs.sql", "0001_accountability_chart.sql", "0002_qbos_scorecard.sql", "0003_editable_six_by_six.sql", "0004_master_calendar.sql", "0005_event_key_results.sql"]) {
+    for (const file of ["0000_phase2_okrs.sql", "0001_accountability_chart.sql", "0002_qbos_scorecard.sql", "0003_editable_six_by_six.sql", "0004_master_calendar.sql", "0005_event_key_results.sql", "0006_systems_overview.sql", "0007_purpose_calendar_programs.sql"]) {
       const sql = await readFile(new URL(`../../../lib/db/drizzle/${file}`, import.meta.url), "utf8");
       await client.query(sql.replaceAll('"public".', `"${schema}".`));
     }
   } finally { client.release(); }
   await db.insert(areasTable).values({ id: "area", name: "Area", color: "#1D8BC4" });
+  await db.insert(calendarProgramsTable).values({ id: "social", name: "Partner Social" });
   [admin, staff] = await db.insert(usersTable).values([
     { id: "admin", name: "Admin", role: "admin", areaId: "area" },
     { id: "staff", name: "Staff", role: "staff", areaId: "area" },

@@ -103,9 +103,10 @@ export function validatePeriod(d: PeriodDraft, all: SixPeriod[], selfId?: string
 /* ---------- columns, permissions, summaries ---------- */
 
 /** Active staff plus anyone (even inactive) who owns items in this period. */
-export function columnsFor(staff: Staff[], items: SixItem[], periodId: string) {
+export function columnsFor(staff: Staff[], items: SixItem[], periodId: string, ownId?: string) {
   const owners = new Set(items.filter((i) => i.periodId === periodId).map((i) => i.ownerId));
-  return staff.filter((s) => s.active || owners.has(s.id));
+  const visible = staff.filter((s) => s.active || owners.has(s.id));
+  return ownId ? [...visible.filter(s => s.id === ownId), ...visible.filter(s => s.id !== ownId)] : visible;
 }
 export function canCreateFor(actor: Pick<Staff, 'id' | 'role'>, owner: Pick<Staff, 'id' | 'active'>) {
   return owner.active && (actor.role === 'admin' || actor.id === owner.id);

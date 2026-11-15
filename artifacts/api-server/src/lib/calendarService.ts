@@ -6,6 +6,7 @@ import { AppError, requireAdmin, type StaffActor } from "./permissions";
 import { CALENDAR_ZONE, calendarDate, isCalendarDate } from "./calendarDates";
 import { renderCalendarIcs } from "./calendarIcs";
 import { calendarImportInfo } from "./calendarImportInfo";
+import { getCalendarPrograms, resolveCalendarProgram } from "./calendarProgramsService";
 import { sql } from "drizzle-orm";
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 const date = z.string().refine(isCalendarDate, "Enter a valid YYYY-MM-DD date.").nullable();
@@ -62,7 +63,8 @@ export async function saveCalendarEvent(actor: StaffActor, raw: unknown, id?: st
       if (!person || (!person.active && before?.ownerId !== person.id)) throw new AppError(400, "Choose an active owner.");
     }
     const entityId = id ?? randomUUID();
-    const values = { ...data, startsAt: data.startsAt ? new Date(data.startsAt) : null, endsAt: data.endsAt ? new Date(data.endsAt) : null };
+    const program = await resolveCalendarProgram(tx, data.program, before?.programId);
+    const values = { ...data, program: program?.name ?? "", programId: program?.id ?? null, startsAt: data.startsAt ? new Date(data.startsAt) : null, endsAt: data.endsAt ? new Date(data.endsAt) : null };
     const [after] = id
       ? await tx.update(events).set({ ...values, version: before!.version + 1, updatedAt: new Date() }).where(eq(events.id, id)).returning()
       : await tx.insert(events).values({ ...values, id: entityId }).returning();
@@ -83,16 +85,17 @@ export async function deleteCalendarEvent(actor: StaffActor, id: string, raw: un
   });
 }
 export async function getMasterCalendar(actor: StaffActor) {
-  const [all, feeds] = await Promise.all([
+  const [all, feeds, programs] = await Promise.all([
     db.select().from(events).where(isNull(events.deletedAt)).orderBy(asc(events.startDate), asc(events.title)),
     db.select({ id: subscriptions.id }).from(subscriptions).where(eq(subscriptions.userId, actor.id)),
+    getCalendarPrograms(actor),
   ]);
   return {
     events: all.map(event => ({
       ...event, startsAt: event.startsAt?.toISOString() ?? null, endsAt: event.endsAt?.toISOString() ?? null,
       updatedAt: event.updatedAt.toISOString(), imported: !!event.sourceId, canEdit: actor.role === "admin", expectedVersion: event.version,
     })),
-    timeZone: CALENDAR_ZONE, hasSubscription: !!feeds.length, isPublished: !!process.env.REPLIT_DEPLOYMENT, sourceImport: calendarImportInfo,
+    timeZone: CALENDAR_ZONE, hasSubscription: !!feeds.length, isPublished: !!process.env.REPLIT_DEPLOYMENT, sourceImport: calendarImportInfo, programs,
   };
 }
 const hash = (key: string) => createHash("sha256").update(key).digest("hex");

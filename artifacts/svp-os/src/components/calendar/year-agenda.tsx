@@ -3,6 +3,7 @@ import type { CalendarEvent } from '@workspace/api-client-react';
 import { MONTHS, fmtDay } from '@/lib/calendar-time';
 import { LOCATION_STATUS, overlaps, programColor, sortEvents, spanOf, whenLabel } from '@/lib/calendar';
 import { DateStatusBadge, ProgramTag } from './calendar-bits';
+import { EventProgramMark } from './program-mark';
 
 /** Day marker on the axis: the first day of the event visible in this month (continuations say so). */
 function Marker({ e, monthFrom }: { e: CalendarEvent; monthFrom?: string }) {
@@ -29,14 +30,17 @@ function Card({ e, onOpen, continued }: { e: CalendarEvent; onOpen: (e: Calendar
       data-testid={`row-event-${e.id}`}>
       <span className="absolute inset-y-3 left-0 w-[3px] rounded-r" style={{ background: c, opacity: e.dateStatus === 'confirmed' ? 1 : 0.45 }} />
       <span className="flex flex-wrap items-start justify-between gap-2">
-        <span className={`min-w-0 font-semibold leading-snug text-[#0A2540] ${e.dateStatus === 'cancelled' ? 'line-through opacity-60' : ''}`}>{e.title}</span>
+        <span className="flex min-w-0 items-start gap-2.5">
+          <EventProgramMark e={e} size={30} className="mt-0.5" testId={`logo-timeline-${e.id}`} />
+          <span className={`min-w-0 font-semibold leading-snug text-[#0A2540] ${e.dateStatus === 'cancelled' ? 'line-through opacity-60' : ''}`}>{e.title}</span>
+        </span>
         <DateStatusBadge status={e.dateStatus} />
       </span>
       <span className={`mt-1 block text-[12.5px] tabular-nums ${e.startDate ? 'text-[#3A4E63]' : 'italic text-muted-foreground'}`}>
         {continued && 'Continues · '}{whenLabel(e)}
       </span>
       <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
-        <ProgramTag program={e.program} />
+        <ProgramTag e={e} />
         {e.location && <span className="inline-flex min-w-0 items-center gap-1"><MapPin className="h-3 w-3 shrink-0" /><span className="truncate">{e.location}</span></span>}
         <span>{LOCATION_STATUS[e.locationStatus]}</span>
         {e.audience.length > 0 && <span className="inline-flex items-center gap-1"><Users className="h-3 w-3" />{e.audience.join(', ')}</span>}

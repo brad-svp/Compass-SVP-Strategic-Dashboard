@@ -9,6 +9,8 @@ import type { CalendarEventInput } from './calendarEventInput';
 
 export type CalendarEvent = CalendarEventInput & ({
   id: string;
+  /** @nullable */
+  programId?: string | null;
   version: number;
   /** @nullable */
   sourceUrl: string | null;

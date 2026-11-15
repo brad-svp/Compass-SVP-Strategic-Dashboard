@@ -2,8 +2,10 @@ import { pgTable, text, integer, boolean, timestamp, date, jsonb, uniqueIndex, c
 import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { usersTable } from "./foundation";
+import { calendarProgramsTable } from "./calendar-programs";
 export const calendarEventsTable = pgTable("calendar_events", {
   id: text("id").primaryKey(), title: text("title").notNull(), program: text("program").notNull().default(""),
+  programId: text("program_id").references(() => calendarProgramsTable.id),
   planningYear: integer("planning_year").notNull(), startDate: date("start_date"), endDate: date("end_date"),
   allDay: boolean("all_day").notNull().default(true),
   startsAt: timestamp("starts_at", { withTimezone: true }), endsAt: timestamp("ends_at", { withTimezone: true }),

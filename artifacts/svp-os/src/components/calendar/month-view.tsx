@@ -2,6 +2,7 @@ import type { CalendarEvent } from '@workspace/api-client-react';
 import { fmtTime } from '@/lib/calendar-time';
 import { monthWeeks, programColor, timedOn, weekBars } from '@/lib/calendar';
 import { eventStyle } from './calendar-bits';
+import { EventProgramMark } from './program-mark';
 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const LANE = 22;
@@ -46,6 +47,7 @@ export function MonthView({ year, month, events, today, onOpen, onAddOn }: {
                           <span className={`h-2 w-2 shrink-0 rounded-full ${e.dateStatus === 'confirmed' ? '' : 'ring-1 ring-inset ring-current bg-transparent'}`}
                             style={e.dateStatus === 'confirmed' ? { background: programColor(e.program) } : { color: programColor(e.program) }} />
                           <span className="shrink-0 tabular-nums text-muted-foreground">{e.startsAt ? fmtTime(e.startsAt) : ''}</span>
+                          <EventProgramMark e={e} size={14} testId={`logo-month-${e.id}`} />
                           <span className="truncate text-[#0A2540]">{e.title}</span>
                           {e.dateStatus !== 'confirmed' && e.dateStatus !== 'cancelled' && <span className="shrink-0 text-[10px] uppercase text-[#8A5A00]">tent.</span>}
                         </button>
@@ -57,10 +59,11 @@ export function MonthView({ year, month, events, today, onOpen, onAddOn }: {
               {bars.map((b) => (
                 <button key={`${b.event.id}-${week[0]}`} type="button" onClick={() => onOpen(b.event)}
                   title={`${b.event.title}${b.event.dateStatus === 'confirmed' ? '' : ` (${b.event.dateStatus})`}`}
-                  className={`absolute truncate border px-1.5 text-left text-[11.5px] font-semibold leading-[18px] transition-transform hover:-translate-y-px ${b.contLeft ? 'rounded-l-none border-l-0' : 'rounded-l-md'} ${b.contRight ? 'rounded-r-none border-r-0' : 'rounded-r-md'}`}
+                  className={`absolute flex items-center gap-1 overflow-hidden whitespace-nowrap border px-1 text-left text-[11.5px] font-semibold leading-[18px] transition-transform hover:-translate-y-px ${b.contLeft ? 'rounded-l-none border-l-0' : 'rounded-l-md'} ${b.contRight ? 'rounded-r-none border-r-0' : 'rounded-r-md'}`}
                   style={{ ...eventStyle(b.event), top: 32 + b.lane * LANE, left: `calc(${(b.col / 7) * 100}% + 3px)`, width: `calc(${(b.span / 7) * 100}% - 6px)`, height: 20 }}
                   data-testid={`event-bar-${b.event.id}`}>
-                  {b.contLeft && '... '}{b.event.title}{b.event.dateStatus === 'proposed' && ' · proposed'}
+                  <EventProgramMark e={b.event} size={14} className="ring-1 ring-[#FBFAF6]/60" testId={`logo-bar-${b.event.id}-${week[0]}`} />
+                  <span className="truncate">{b.contLeft && '... '}{b.event.title}{b.event.dateStatus === 'proposed' && ' · proposed'}</span>
                 </button>
               ))}
             </div>

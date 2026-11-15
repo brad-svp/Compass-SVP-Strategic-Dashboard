@@ -22,6 +22,7 @@ export function SixGrid({ period, items, columns, areas, actor, onOpenItem, onAd
               const own = summarize(items.filter((i) => i.ownerId === s.id));
               return (
                 <th key={s.id} className="min-w-[11rem] border-b border-border px-2.5 py-3 text-left font-medium" data-testid={`col-staff-${s.id}`}>
+                  {actor.id === s.id && <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-[#125F88]" data-testid="label-your-six-items">Your items · click to edit</span>}
                   <div className="flex items-center gap-2">
                     <StaffAvatar name={s.name} url={s.avatarUrl} color={areaById(areas, s.areaId)?.color} size="h-7 w-7" />
                     <div className="min-w-0">

@@ -28,15 +28,18 @@ import type {
   AccountabilitySeat,
   AccountabilitySeatInput,
   CalendarEventInput,
+  CalendarProgramInput,
   CalendarSubscription,
   CheckInInput,
   CommentInput,
   CommentUpdate,
+  CompleteProgramLogoUpload200,
   DevLoginInput,
   Foundation,
   FoundationInput,
   GetDevAuth200,
   GetScorecardParams,
+  GetSystemsOverview200,
   HealthStatus,
   KeyResultInput,
   KeyResultUpdate,
@@ -45,6 +48,8 @@ import type {
   ObjectiveInput,
   ObjectiveUpdate,
   OkrWorkspace,
+  ProgramLogoUploadRequest,
+  RequestProgramLogoUpload201,
   ScorecardEntryInput,
   ScorecardMetricInput,
   ScorecardWorkspace,
@@ -54,7 +59,10 @@ import type {
   SixPeriodInput,
   SixVersionInput,
   SixWorkspace,
-  Staff
+  Staff,
+  SvpPurpose,
+  SvpPurposeInput,
+  SvpSystemInput
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -83,6 +91,936 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getCreateCalendarProgramUrl = () => {
+
+
+
+
+  return `/api/svp/calendar/programs`
+}
+
+export const createCalendarProgram = async (calendarProgramInput: CalendarProgramInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getCreateCalendarProgramUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(calendarProgramInput)
+  }
+);}
+
+
+
+
+
+export const getCreateCalendarProgramMutationKey = () => ['createCalendarProgram'] as const;
+
+export const getCreateCalendarProgramMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCalendarProgram>>, TError,CreateCalendarProgramMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCalendarProgram>>, TError,CreateCalendarProgramMutationVariables, TContext> => {
+
+const mutationKey = getCreateCalendarProgramMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCalendarProgram>>, CreateCalendarProgramMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCalendarProgram(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCalendarProgramMutationResult = NonNullable<Awaited<ReturnType<typeof createCalendarProgram>>>
+    export type CreateCalendarProgramMutationBody = BodyType<CalendarProgramInput>
+    export type CreateCalendarProgramMutationError = ErrorType<unknown>
+    export type CreateCalendarProgramMutationVariables = {data: BodyType<CalendarProgramInput>}
+
+    export const useCreateCalendarProgram = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCalendarProgram>>, TError,CreateCalendarProgramMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createCalendarProgram>>,
+        TError,
+        CreateCalendarProgramMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateCalendarProgramMutationOptions(options), queryClient);
+    }
+
+export const getUpdateCalendarProgramUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/calendar/programs/${id}`
+}
+
+export const updateCalendarProgram = async (id: string,
+    calendarProgramInput: CalendarProgramInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getUpdateCalendarProgramUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(calendarProgramInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateCalendarProgramMutationKey = () => ['updateCalendarProgram'] as const;
+
+export const getUpdateCalendarProgramMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCalendarProgram>>, TError,UpdateCalendarProgramMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCalendarProgram>>, TError,UpdateCalendarProgramMutationVariables, TContext> => {
+
+const mutationKey = getUpdateCalendarProgramMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCalendarProgram>>, UpdateCalendarProgramMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCalendarProgram(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCalendarProgramMutationResult = NonNullable<Awaited<ReturnType<typeof updateCalendarProgram>>>
+    export type UpdateCalendarProgramMutationBody = BodyType<CalendarProgramInput>
+    export type UpdateCalendarProgramMutationError = ErrorType<unknown>
+    export type UpdateCalendarProgramMutationVariables = {id: string;data: BodyType<CalendarProgramInput>}
+
+    export const useUpdateCalendarProgram = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCalendarProgram>>, TError,UpdateCalendarProgramMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateCalendarProgram>>,
+        TError,
+        UpdateCalendarProgramMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateCalendarProgramMutationOptions(options), queryClient);
+    }
+
+export const getRequestProgramLogoUploadUrl = () => {
+
+
+
+
+  return `/api/svp/calendar/program-logo-uploads`
+}
+
+export const requestProgramLogoUpload = async (programLogoUploadRequest: ProgramLogoUploadRequest, options?: Parameters<typeof customFetch>[1]): Promise<RequestProgramLogoUpload201> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<RequestProgramLogoUpload201>(getRequestProgramLogoUploadUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(programLogoUploadRequest)
+  }
+);}
+
+
+
+
+
+export const getRequestProgramLogoUploadMutationKey = () => ['requestProgramLogoUpload'] as const;
+
+export const getRequestProgramLogoUploadMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestProgramLogoUpload>>, TError,RequestProgramLogoUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestProgramLogoUpload>>, TError,RequestProgramLogoUploadMutationVariables, TContext> => {
+
+const mutationKey = getRequestProgramLogoUploadMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestProgramLogoUpload>>, RequestProgramLogoUploadMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  requestProgramLogoUpload(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestProgramLogoUploadMutationResult = NonNullable<Awaited<ReturnType<typeof requestProgramLogoUpload>>>
+    export type RequestProgramLogoUploadMutationBody = BodyType<ProgramLogoUploadRequest>
+    export type RequestProgramLogoUploadMutationError = ErrorType<unknown>
+    export type RequestProgramLogoUploadMutationVariables = {data: BodyType<ProgramLogoUploadRequest>}
+
+    export const useRequestProgramLogoUpload = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestProgramLogoUpload>>, TError,RequestProgramLogoUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof requestProgramLogoUpload>>,
+        TError,
+        RequestProgramLogoUploadMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRequestProgramLogoUploadMutationOptions(options), queryClient);
+    }
+
+export const getCompleteProgramLogoUploadUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/calendar/program-logo-uploads/${id}/complete`
+}
+
+export const completeProgramLogoUpload = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<CompleteProgramLogoUpload200> => {
+
+  return customFetch<CompleteProgramLogoUpload200>(getCompleteProgramLogoUploadUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getCompleteProgramLogoUploadMutationKey = () => ['completeProgramLogoUpload'] as const;
+
+export const getCompleteProgramLogoUploadMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeProgramLogoUpload>>, TError,CompleteProgramLogoUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof completeProgramLogoUpload>>, TError,CompleteProgramLogoUploadMutationVariables, TContext> => {
+
+const mutationKey = getCompleteProgramLogoUploadMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof completeProgramLogoUpload>>, CompleteProgramLogoUploadMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  completeProgramLogoUpload(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CompleteProgramLogoUploadMutationResult = NonNullable<Awaited<ReturnType<typeof completeProgramLogoUpload>>>
+
+    export type CompleteProgramLogoUploadMutationError = ErrorType<unknown>
+    export type CompleteProgramLogoUploadMutationVariables = {id: string}
+
+    export const useCompleteProgramLogoUpload = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeProgramLogoUpload>>, TError,CompleteProgramLogoUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof completeProgramLogoUpload>>,
+        TError,
+        CompleteProgramLogoUploadMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCompleteProgramLogoUploadMutationOptions(options), queryClient);
+    }
+
+export const getGetProgramLogoUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/program-logos/${id}`
+}
+
+export const getProgramLogo = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetProgramLogoUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetProgramLogoQueryKey = (id: string,) => {
+    return [
+    `/api/svp/program-logos/${id}`
+    ] as const;
+    }
+
+
+export const getGetProgramLogoQueryOptions = <TData = Awaited<ReturnType<typeof getProgramLogo>>, TError = ErrorType<unknown>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProgramLogo>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProgramLogoQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProgramLogo>>> = ({ signal }) => getProgramLogo(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProgramLogo>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProgramLogoQueryResult = NonNullable<Awaited<ReturnType<typeof getProgramLogo>>>
+export type GetProgramLogoQueryError = ErrorType<unknown>
+
+
+export function useGetProgramLogo<TData = Awaited<ReturnType<typeof getProgramLogo>>, TError = ErrorType<unknown>>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProgramLogo>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProgramLogo>>,
+          TError,
+          Awaited<ReturnType<typeof getProgramLogo>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProgramLogo<TData = Awaited<ReturnType<typeof getProgramLogo>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProgramLogo>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProgramLogo>>,
+          TError,
+          Awaited<ReturnType<typeof getProgramLogo>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProgramLogo<TData = Awaited<ReturnType<typeof getProgramLogo>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProgramLogo>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetProgramLogo<TData = Awaited<ReturnType<typeof getProgramLogo>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProgramLogo>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProgramLogoQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetSvpPurposeUrl = () => {
+
+
+
+
+  return `/api/svp/purpose`
+}
+
+export const getSvpPurpose = async ( options?: Parameters<typeof customFetch>[1]): Promise<SvpPurpose> => {
+
+  return customFetch<SvpPurpose>(getGetSvpPurposeUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSvpPurposeQueryKey = () => {
+    return [
+    `/api/svp/purpose`
+    ] as const;
+    }
+
+
+export const getGetSvpPurposeQueryOptions = <TData = Awaited<ReturnType<typeof getSvpPurpose>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSvpPurpose>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSvpPurposeQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSvpPurpose>>> = ({ signal }) => getSvpPurpose({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSvpPurpose>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSvpPurposeQueryResult = NonNullable<Awaited<ReturnType<typeof getSvpPurpose>>>
+export type GetSvpPurposeQueryError = ErrorType<unknown>
+
+
+export function useGetSvpPurpose<TData = Awaited<ReturnType<typeof getSvpPurpose>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSvpPurpose>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSvpPurpose>>,
+          TError,
+          Awaited<ReturnType<typeof getSvpPurpose>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSvpPurpose<TData = Awaited<ReturnType<typeof getSvpPurpose>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSvpPurpose>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSvpPurpose>>,
+          TError,
+          Awaited<ReturnType<typeof getSvpPurpose>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSvpPurpose<TData = Awaited<ReturnType<typeof getSvpPurpose>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSvpPurpose>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetSvpPurpose<TData = Awaited<ReturnType<typeof getSvpPurpose>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSvpPurpose>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetSvpPurposeQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateSvpPurposeUrl = () => {
+
+
+
+
+  return `/api/svp/purpose`
+}
+
+export const updateSvpPurpose = async (svpPurposeInput: SvpPurposeInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getUpdateSvpPurposeUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(svpPurposeInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateSvpPurposeMutationKey = () => ['updateSvpPurpose'] as const;
+
+export const getUpdateSvpPurposeMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSvpPurpose>>, TError,UpdateSvpPurposeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSvpPurpose>>, TError,UpdateSvpPurposeMutationVariables, TContext> => {
+
+const mutationKey = getUpdateSvpPurposeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSvpPurpose>>, UpdateSvpPurposeMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateSvpPurpose(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSvpPurposeMutationResult = NonNullable<Awaited<ReturnType<typeof updateSvpPurpose>>>
+    export type UpdateSvpPurposeMutationBody = BodyType<SvpPurposeInput>
+    export type UpdateSvpPurposeMutationError = ErrorType<unknown>
+    export type UpdateSvpPurposeMutationVariables = {data: BodyType<SvpPurposeInput>}
+
+    export const useUpdateSvpPurpose = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSvpPurpose>>, TError,UpdateSvpPurposeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateSvpPurpose>>,
+        TError,
+        UpdateSvpPurposeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateSvpPurposeMutationOptions(options), queryClient);
+    }
+
+export const getGetSystemsOverviewUrl = () => {
+
+
+
+
+  return `/api/svp/systems`
+}
+
+export const getSystemsOverview = async ( options?: Parameters<typeof customFetch>[1]): Promise<GetSystemsOverview200> => {
+
+  return customFetch<GetSystemsOverview200>(getGetSystemsOverviewUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSystemsOverviewQueryKey = () => {
+    return [
+    `/api/svp/systems`
+    ] as const;
+    }
+
+
+export const getGetSystemsOverviewQueryOptions = <TData = Awaited<ReturnType<typeof getSystemsOverview>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSystemsOverview>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSystemsOverviewQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSystemsOverview>>> = ({ signal }) => getSystemsOverview({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSystemsOverview>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSystemsOverviewQueryResult = NonNullable<Awaited<ReturnType<typeof getSystemsOverview>>>
+export type GetSystemsOverviewQueryError = ErrorType<unknown>
+
+
+export function useGetSystemsOverview<TData = Awaited<ReturnType<typeof getSystemsOverview>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSystemsOverview>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSystemsOverview>>,
+          TError,
+          Awaited<ReturnType<typeof getSystemsOverview>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSystemsOverview<TData = Awaited<ReturnType<typeof getSystemsOverview>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSystemsOverview>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSystemsOverview>>,
+          TError,
+          Awaited<ReturnType<typeof getSystemsOverview>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSystemsOverview<TData = Awaited<ReturnType<typeof getSystemsOverview>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSystemsOverview>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetSystemsOverview<TData = Awaited<ReturnType<typeof getSystemsOverview>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSystemsOverview>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetSystemsOverviewQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateSvpSystemUrl = () => {
+
+
+
+
+  return `/api/svp/systems`
+}
+
+export const createSvpSystem = async (svpSystemInput: SvpSystemInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getCreateSvpSystemUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(svpSystemInput)
+  }
+);}
+
+
+
+
+
+export const getCreateSvpSystemMutationKey = () => ['createSvpSystem'] as const;
+
+export const getCreateSvpSystemMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSvpSystem>>, TError,CreateSvpSystemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSvpSystem>>, TError,CreateSvpSystemMutationVariables, TContext> => {
+
+const mutationKey = getCreateSvpSystemMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSvpSystem>>, CreateSvpSystemMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createSvpSystem(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSvpSystemMutationResult = NonNullable<Awaited<ReturnType<typeof createSvpSystem>>>
+    export type CreateSvpSystemMutationBody = BodyType<SvpSystemInput>
+    export type CreateSvpSystemMutationError = ErrorType<unknown>
+    export type CreateSvpSystemMutationVariables = {data: BodyType<SvpSystemInput>}
+
+    export const useCreateSvpSystem = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSvpSystem>>, TError,CreateSvpSystemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createSvpSystem>>,
+        TError,
+        CreateSvpSystemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateSvpSystemMutationOptions(options), queryClient);
+    }
+
+export const getUpdateSvpSystemUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/systems/${id}`
+}
+
+export const updateSvpSystem = async (id: string,
+    svpSystemInput: SvpSystemInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getUpdateSvpSystemUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(svpSystemInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateSvpSystemMutationKey = () => ['updateSvpSystem'] as const;
+
+export const getUpdateSvpSystemMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSvpSystem>>, TError,UpdateSvpSystemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSvpSystem>>, TError,UpdateSvpSystemMutationVariables, TContext> => {
+
+const mutationKey = getUpdateSvpSystemMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSvpSystem>>, UpdateSvpSystemMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateSvpSystem(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSvpSystemMutationResult = NonNullable<Awaited<ReturnType<typeof updateSvpSystem>>>
+    export type UpdateSvpSystemMutationBody = BodyType<SvpSystemInput>
+    export type UpdateSvpSystemMutationError = ErrorType<unknown>
+    export type UpdateSvpSystemMutationVariables = {id: string;data: BodyType<SvpSystemInput>}
+
+    export const useUpdateSvpSystem = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSvpSystem>>, TError,UpdateSvpSystemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateSvpSystem>>,
+        TError,
+        UpdateSvpSystemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateSvpSystemMutationOptions(options), queryClient);
+    }
+
+export const getDeleteSvpSystemUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/systems/${id}`
+}
+
+export const deleteSvpSystem = async (id: string,
+    sixVersionInput: SixVersionInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getDeleteSvpSystemUrl(id),
+  {
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sixVersionInput)
+  }
+);}
+
+
+
+
+
+export const getDeleteSvpSystemMutationKey = () => ['deleteSvpSystem'] as const;
+
+export const getDeleteSvpSystemMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSvpSystem>>, TError,DeleteSvpSystemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteSvpSystem>>, TError,DeleteSvpSystemMutationVariables, TContext> => {
+
+const mutationKey = getDeleteSvpSystemMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSvpSystem>>, DeleteSvpSystemMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  deleteSvpSystem(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteSvpSystemMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSvpSystem>>>
+    export type DeleteSvpSystemMutationBody = BodyType<SixVersionInput>
+    export type DeleteSvpSystemMutationError = ErrorType<unknown>
+    export type DeleteSvpSystemMutationVariables = {id: string;data: BodyType<SixVersionInput>}
+
+    export const useDeleteSvpSystem = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSvpSystem>>, TError,DeleteSvpSystemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteSvpSystem>>,
+        TError,
+        DeleteSvpSystemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteSvpSystemMutationOptions(options), queryClient);
+    }
 
 export const getGetMasterCalendarUrl = () => {
 

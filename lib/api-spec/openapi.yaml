@@ -11,6 +11,162 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /svp/calendar/programs:
+    post:
+      operationId: createCalendarProgram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CalendarProgramInput" }
+      responses:
+        "201":
+          description: Program created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/calendar/programs/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    patch:
+      operationId: updateCalendarProgram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CalendarProgramInput" }
+      responses:
+        "200":
+          description: Program updated without losing event assignments
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/calendar/program-logo-uploads:
+    post:
+      operationId: requestProgramLogoUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProgramLogoUploadRequest" }
+      responses:
+        "201":
+          description: Private direct-to-storage upload URL
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, uploadURL]
+                properties:
+                  id: { type: string }
+                  uploadURL: { type: string }
+  /svp/calendar/program-logo-uploads/{id}/complete:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    post:
+      operationId: completeProgramLogoUpload
+      responses:
+        "200":
+          description: Verified immutable logo ready to assign to a program
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [logoId, logoUrl]
+                properties:
+                  logoId: { type: string }
+                  logoUrl: { type: string }
+  /svp/program-logos/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    get:
+      operationId: getProgramLogo
+      responses:
+        "200":
+          description: Staff-readable program logo
+          content:
+            image/png: { schema: { type: string, format: binary } }
+            image/jpeg: { schema: { type: string, format: binary } }
+            image/webp: { schema: { type: string, format: binary } }
+  /svp/purpose:
+    get:
+      operationId: getSvpPurpose
+      responses:
+        "200":
+          description: Organization mission, vision and values
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SvpPurpose" }
+    patch:
+      operationId: updateSvpPurpose
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SvpPurposeInput" }
+      responses:
+        "200":
+          description: Mission, vision and values updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/systems:
+    get:
+      operationId: getSystemsOverview
+      responses:
+        "200":
+          description: SVP systems directory
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [systems]
+                properties:
+                  systems:
+                    type: array
+                    items: { $ref: "#/components/schemas/SvpSystem" }
+    post:
+      operationId: createSvpSystem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SvpSystemInput" }
+      responses:
+        "201":
+          description: System added
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/systems/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    patch:
+      operationId: updateSvpSystem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SvpSystemInput" }
+      responses:
+        "200":
+          description: System updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+    delete:
+      operationId: deleteSvpSystem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SixVersionInput" }
+      responses:
+        "200":
+          description: System removed with retained audit history
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
   /svp/calendar:
     get:
       operationId: getMasterCalendar
@@ -552,6 +708,102 @@ components:
         type: string
         enum: [staff, areas, cycles]
   schemas:
+    ProgramLogoUploadRequest:
+      type: object
+      additionalProperties: false
+      required: [name, size, contentType]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        size: { type: integer, minimum: 1, maximum: 2097152 }
+        contentType: { type: string, enum: [image/png, image/jpeg, image/webp] }
+    CalendarProgramInput:
+      type: object
+      additionalProperties: false
+      required: [name, logoId, active, expectedVersion]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        logoId: { type: [string, "null"] }
+        active: { type: boolean }
+        expectedVersion: { type: integer, minimum: 0 }
+    CalendarProgram:
+      type: object
+      required: [id, name, logoId, logoUrl, active, version, canEdit, eventCount, updatedAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        logoId: { type: [string, "null"] }
+        logoUrl: { type: [string, "null"] }
+        active: { type: boolean }
+        version: { type: integer }
+        canEdit: { type: boolean }
+        eventCount: { type: integer }
+        updatedAt: { type: string, format: date-time }
+    SvpValue:
+      type: object
+      additionalProperties: false
+      required: [id, title, description]
+      properties:
+        id: { type: string, minLength: 1, maxLength: 80 }
+        title: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: string, maxLength: 4000 }
+    SvpPurposeInput:
+      type: object
+      additionalProperties: false
+      required: [mission, vision, values, expectedVersion]
+      properties:
+        mission: { type: string, maxLength: 6000 }
+        vision: { type: string, maxLength: 6000 }
+        values:
+          type: array
+          maxItems: 30
+          items: { $ref: "#/components/schemas/SvpValue" }
+        expectedVersion: { type: integer, minimum: 1 }
+    SvpPurpose:
+      type: object
+      required: [mission, vision, values, version, canEdit, sourceUrls, updatedAt]
+      properties:
+        mission: { type: string }
+        vision: { type: string }
+        values:
+          type: array
+          items: { $ref: "#/components/schemas/SvpValue" }
+        version: { type: integer }
+        canEdit: { type: boolean }
+        sourceUrls:
+          type: array
+          items: { type: string }
+        updatedAt: { type: string, format: date-time }
+    SvpSystemInput:
+      type: object
+      additionalProperties: false
+      required: [name, url, purpose, howUsed, audience, usedByIds, ownerId, category, cadence, accessInstructions, status, expectedVersion]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        url: { type: string, minLength: 1, maxLength: 2000 }
+        purpose: { type: string, maxLength: 4000 }
+        howUsed: { type: string, maxLength: 8000 }
+        audience: { type: string, maxLength: 2000 }
+        usedByIds:
+          type: array
+          maxItems: 100
+          items: { type: string }
+        ownerId: { type: [string, "null"] }
+        category: { type: string, maxLength: 100 }
+        cadence: { type: string, maxLength: 200 }
+        accessInstructions: { type: string, maxLength: 4000 }
+        status: { type: string, enum: [active, retired] }
+        expectedVersion: { type: integer, minimum: 0 }
+    SvpSystem:
+      allOf:
+        - $ref: "#/components/schemas/SvpSystemInput"
+        - type: object
+          required: [id, version, canEdit, createdAt, updatedAt]
+          properties:
+            id: { type: string }
+            version: { type: integer }
+            canEdit: { type: boolean }
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }
     CalendarEventInput:
       type: object
       additionalProperties: false
@@ -583,6 +835,7 @@ components:
           required: [id, version, sourceUrl, imported, canEdit, updatedAt]
           properties:
             id: { type: string }
+            programId: { type: [string, "null"] }
             version: { type: integer }
             sourceUrl: { type: [string, "null"] }
             imported: { type: boolean }
@@ -599,6 +852,9 @@ components:
         hasSubscription: { type: boolean }
         isPublished: { type: boolean }
         sourceImport: { $ref: "#/components/schemas/CalendarImportInfo" }
+        programs:
+          type: array
+          items: { $ref: "#/components/schemas/CalendarProgram" }
     CalendarImportInfo:
       type: object
       required: [sourceUrl, complete, recordCount, year2026, year2027, note]

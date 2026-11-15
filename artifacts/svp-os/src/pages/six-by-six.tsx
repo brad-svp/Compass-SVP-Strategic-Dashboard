@@ -75,7 +75,7 @@ function Board({ foundation, ws }: { foundation: Foundation; ws: SixWorkspace })
 
   function renderPeriod(slot: Slot, p: SixPeriod) {
     const items = ws.items.filter((i) => i.periodId === p.id);
-    const columns = columnsFor(foundation.staff, ws.items, p.id);
+    const columns = columnsFor(foundation.staff, ws.items, p.id, actor.role === 'staff' ? actor.id : undefined);
     return (
       <PeriodAccordion key={p.id} slot={slot} period={p} items={items} open={!!openMap[p.id]} onToggle={() => toggle(p.id)}
         isActual={p.startDate.slice(0, 10) <= today && today <= p.endDate.slice(0, 10)}
