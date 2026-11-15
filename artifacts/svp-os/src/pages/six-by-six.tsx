@@ -2,7 +2,6 @@ import { useState } from 'react';
 import type { Foundation } from '@workspace/api-client-react';
 import { WithFoundation } from '@/components/with-foundation';
 import { NextPhaseTag, PageHeader, Panel, StaffAvatar, StatusPill } from '@/components/ui-bits';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { areaById, fmtDate } from '@/lib/format';
 
 function Grid({ data }: { data: Foundation }) {
@@ -15,12 +14,15 @@ function Grid({ data }: { data: Foundation }) {
     <>
       <PageHeader eyebrow="6x6 · Read-only preview" title="Six weeks, six moments."
         actions={data.periods.length > 0 && (
-          <Select value={periodId} onValueChange={setPeriodId}>
-            <SelectTrigger className="w-60 bg-card" data-testid="select-period"><SelectValue placeholder="Choose period" /></SelectTrigger>
-            <SelectContent>
-              {data.periods.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <select
+            aria-label="Choose 6x6 period"
+            value={periodId}
+            onChange={(event) => setPeriodId(event.target.value)}
+            className="h-10 w-60 max-w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            data-testid="select-period"
+          >
+            {data.periods.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
         )}>
         Major moments for the period, with a column for each teammate. Editing cells arrives in the next phase.
       </PageHeader>

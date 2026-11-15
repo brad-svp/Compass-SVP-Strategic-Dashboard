@@ -1,1 +1,2 @@
 - [Safe OKR testing](testing-isolation.md) — isolate fixtures from real planning cycles; match the app’s frontend transform without bypassing auth.
+- [6x6 period picker](period-picker.md) — use a native browser select; the user repeatedly reported the custom popup closing in embedded preview.
