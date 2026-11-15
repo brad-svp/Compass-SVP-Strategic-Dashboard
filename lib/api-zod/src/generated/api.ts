@@ -8,6 +8,129 @@
 import * as zod from 'zod';
 
 
+export const getAccountabilityResponseOneTitleMax = 200;
+
+export const getAccountabilityResponseOnePersonNameMax = 160;
+
+export const getAccountabilityResponseOneRoleLabelMax = 200;
+
+export const getAccountabilityResponseOneCapacityMax = 100;
+
+export const getAccountabilityResponseOneResponsibilitiesItemMax = 1000;
+
+export const getAccountabilityResponseOneResponsibilitiesMax = 30;
+
+export const getAccountabilityResponseOneSortOrderMin = 0;
+export const getAccountabilityResponseOneSortOrderMax = 10000;
+
+
+
+export const GetAccountabilityResponseItem = zod.object({
+  "title": zod.string().min(1).max(getAccountabilityResponseOneTitleMax),
+  "kind": zod.enum(['board', 'leadership', 'function']),
+  "ownerId": zod.string().nullable(),
+  "personName": zod.string().max(getAccountabilityResponseOnePersonNameMax),
+  "roleLabel": zod.string().max(getAccountabilityResponseOneRoleLabelMax),
+  "capacity": zod.string().max(getAccountabilityResponseOneCapacityMax),
+  "responsibilities": zod.array(zod.string().min(1).max(getAccountabilityResponseOneResponsibilitiesItemMax)).max(getAccountabilityResponseOneResponsibilitiesMax),
+  "parentId": zod.string().nullable(),
+  "sharedSeat": zod.boolean(),
+  "sortOrder": zod.number().int().min(getAccountabilityResponseOneSortOrderMin).max(getAccountabilityResponseOneSortOrderMax)
+}).and(zod.object({
+  "id": zod.string()
+}))
+export const GetAccountabilityResponse = zod.array(GetAccountabilityResponseItem)
+
+
+export const createAccountabilitySeatBodyTitleMax = 200;
+
+export const createAccountabilitySeatBodyPersonNameMax = 160;
+
+export const createAccountabilitySeatBodyRoleLabelMax = 200;
+
+export const createAccountabilitySeatBodyCapacityMax = 100;
+
+export const createAccountabilitySeatBodyResponsibilitiesItemMax = 1000;
+
+export const createAccountabilitySeatBodyResponsibilitiesMax = 30;
+
+export const createAccountabilitySeatBodySortOrderMin = 0;
+export const createAccountabilitySeatBodySortOrderMax = 10000;
+
+
+
+export const CreateAccountabilitySeatBody = zod.object({
+  "title": zod.string().min(1).max(createAccountabilitySeatBodyTitleMax),
+  "kind": zod.enum(['board', 'leadership', 'function']),
+  "ownerId": zod.string().nullable(),
+  "personName": zod.string().max(createAccountabilitySeatBodyPersonNameMax),
+  "roleLabel": zod.string().max(createAccountabilitySeatBodyRoleLabelMax),
+  "capacity": zod.string().max(createAccountabilitySeatBodyCapacityMax),
+  "responsibilities": zod.array(zod.string().min(1).max(createAccountabilitySeatBodyResponsibilitiesItemMax)).max(createAccountabilitySeatBodyResponsibilitiesMax),
+  "parentId": zod.string().nullable(),
+  "sharedSeat": zod.boolean(),
+  "sortOrder": zod.number().int().min(createAccountabilitySeatBodySortOrderMin).max(createAccountabilitySeatBodySortOrderMax)
+})
+
+export const CreateAccountabilitySeatResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const UpdateAccountabilitySeatParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateAccountabilitySeatBodyTitleMax = 200;
+
+export const updateAccountabilitySeatBodyPersonNameMax = 160;
+
+export const updateAccountabilitySeatBodyRoleLabelMax = 200;
+
+export const updateAccountabilitySeatBodyCapacityMax = 100;
+
+export const updateAccountabilitySeatBodyResponsibilitiesItemMax = 1000;
+
+export const updateAccountabilitySeatBodyResponsibilitiesMax = 30;
+
+export const updateAccountabilitySeatBodySortOrderMin = 0;
+export const updateAccountabilitySeatBodySortOrderMax = 10000;
+
+
+
+export const UpdateAccountabilitySeatBody = zod.object({
+  "title": zod.string().min(1).max(updateAccountabilitySeatBodyTitleMax),
+  "kind": zod.enum(['board', 'leadership', 'function']),
+  "ownerId": zod.string().nullable(),
+  "personName": zod.string().max(updateAccountabilitySeatBodyPersonNameMax),
+  "roleLabel": zod.string().max(updateAccountabilitySeatBodyRoleLabelMax),
+  "capacity": zod.string().max(updateAccountabilitySeatBodyCapacityMax),
+  "responsibilities": zod.array(zod.string().min(1).max(updateAccountabilitySeatBodyResponsibilitiesItemMax)).max(updateAccountabilitySeatBodyResponsibilitiesMax),
+  "parentId": zod.string().nullable(),
+  "sharedSeat": zod.boolean(),
+  "sortOrder": zod.number().int().min(updateAccountabilitySeatBodySortOrderMin).max(updateAccountabilitySeatBodySortOrderMax)
+})
+
+export const UpdateAccountabilitySeatResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const DeleteAccountabilitySeatParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const DeleteAccountabilitySeatResponse = zod.object({
+  "id": zod.string()
+})
+
+
 export const GetDevAuthResponse = zod.object({
   "enabled": zod.boolean(),
   "signedIn": zod.boolean()

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ComponentType, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ClerkProvider, Show, useClerk } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
@@ -131,8 +131,6 @@ function Protected({ children }: { children: ReactNode }) {
   );
 }
 
-const page = (C: ComponentType) => () => <Protected><C /></Protected>;
-
 const SystemsPreview = () => (
   <PhasePreview eyebrow="Systems" title="How the work gets done." icon={Workflow} color="#49B949"
     intro="The recurring processes the team relies on, documented with owners."
@@ -158,15 +156,15 @@ function Routes() {
         <Route path="/" component={HomeRedirect} />
         <Route path="/sign-in/*?" component={SignInPage} />
         <Route path="/sign-up/*?" component={SignUpPage} />
-        <Route path="/dashboard" component={page(Dashboard)} />
-        <Route path="/okrs" component={page(Okrs)} />
-        <Route path="/okrs/:id" component={page(OkrDetail)} />
-        <Route path="/six-by-six" component={page(SixBySix)} />
-        <Route path="/team" component={page(Team)} />
-        <Route path="/systems" component={page(SystemsPreview)} />
-        <Route path="/learn" component={page(LearnPreview)} />
-        <Route path="/settings" component={page(Settings)} />
-        <Route path="/admin" component={page(Admin)} />
+        <Route path="/dashboard"><Protected><Dashboard /></Protected></Route>
+        <Route path="/okrs"><Protected><Okrs /></Protected></Route>
+        <Route path="/okrs/:id"><Protected><OkrDetail /></Protected></Route>
+        <Route path="/six-by-six"><Protected><SixBySix /></Protected></Route>
+        <Route path="/team"><Protected><Team /></Protected></Route>
+        <Route path="/systems"><Protected><SystemsPreview /></Protected></Route>
+        <Route path="/learn"><Protected><LearnPreview /></Protected></Route>
+        <Route path="/settings"><Protected><Settings /></Protected></Route>
+        <Route path="/admin"><Protected><Admin /></Protected></Route>
         <Route component={NotFound} />
       </Switch>
     </ErrorBoundary>

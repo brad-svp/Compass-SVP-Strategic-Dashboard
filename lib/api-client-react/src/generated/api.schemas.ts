@@ -5,6 +5,50 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type AccountabilitySeatInputKind = typeof AccountabilitySeatInputKind[keyof typeof AccountabilitySeatInputKind];
+
+
+export const AccountabilitySeatInputKind = {
+  board: 'board',
+  leadership: 'leadership',
+  function: 'function',
+} as const;
+
+export interface AccountabilitySeatInput {
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  title: string;
+  kind: AccountabilitySeatInputKind;
+  /** @nullable */
+  ownerId: string | null;
+  /** @maxLength 160 */
+  personName: string;
+  /** @maxLength 200 */
+  roleLabel: string;
+  /** @maxLength 100 */
+  capacity: string;
+  /**
+     * @maxItems 30
+     * @items.minLength 1
+     * @items.maxLength 1000
+     */
+  responsibilities: string[];
+  /** @nullable */
+  parentId: string | null;
+  sharedSeat: boolean;
+  /**
+     * @minimum 0
+     * @maximum 10000
+     */
+  sortOrder: number;
+}
+
+export type AccountabilitySeat = AccountabilitySeatInput & {
+  id: string;
+};
+
 export type DevLoginInputRole = typeof DevLoginInputRole[keyof typeof DevLoginInputRole];
 
 

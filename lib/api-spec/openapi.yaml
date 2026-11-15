@@ -11,6 +11,54 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /svp/accountability:
+    get:
+      operationId: getAccountability
+      responses:
+        "200":
+          description: Accountability chart
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AccountabilitySeat" }
+    post:
+      operationId: createAccountabilitySeat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AccountabilitySeatInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/accountability/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    patch:
+      operationId: updateAccountabilitySeat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AccountabilitySeatInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+    delete:
+      operationId: deleteAccountabilitySeat
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
   /dev-auth:
     get:
       operationId: getDevAuth
@@ -274,6 +322,31 @@ components:
         type: string
         enum: [staff, areas, cycles]
   schemas:
+    AccountabilitySeatInput:
+      type: object
+      additionalProperties: false
+      required: [title, kind, ownerId, personName, roleLabel, capacity, responsibilities, parentId, sharedSeat, sortOrder]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        kind: { type: string, enum: [board, leadership, function] }
+        ownerId: { type: [string, "null"] }
+        personName: { type: string, maxLength: 160 }
+        roleLabel: { type: string, maxLength: 200 }
+        capacity: { type: string, maxLength: 100 }
+        responsibilities:
+          type: array
+          maxItems: 30
+          items: { type: string, minLength: 1, maxLength: 1000 }
+        parentId: { type: [string, "null"] }
+        sharedSeat: { type: boolean }
+        sortOrder: { type: integer, minimum: 0, maximum: 10000 }
+    AccountabilitySeat:
+      allOf:
+        - $ref: "#/components/schemas/AccountabilitySeatInput"
+        - type: object
+          required: [id]
+          properties:
+            id: { type: string }
     DevLoginInput:
       type: object
       additionalProperties: false

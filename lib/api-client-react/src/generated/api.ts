@@ -25,6 +25,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AccountabilitySeat,
+  AccountabilitySeatInput,
   CheckInInput,
   CommentInput,
   CommentUpdate,
@@ -68,6 +70,334 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetAccountabilityUrl = () => {
+
+
+
+
+  return `/api/svp/accountability`
+}
+
+export const getAccountability = async ( options?: Parameters<typeof customFetch>[1]): Promise<AccountabilitySeat[]> => {
+
+  return customFetch<AccountabilitySeat[]>(getGetAccountabilityUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAccountabilityQueryKey = () => {
+    return [
+    `/api/svp/accountability`
+    ] as const;
+    }
+
+
+export const getGetAccountabilityQueryOptions = <TData = Awaited<ReturnType<typeof getAccountability>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccountability>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAccountabilityQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAccountability>>> = ({ signal }) => getAccountability({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAccountability>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAccountabilityQueryResult = NonNullable<Awaited<ReturnType<typeof getAccountability>>>
+export type GetAccountabilityQueryError = ErrorType<unknown>
+
+
+export function useGetAccountability<TData = Awaited<ReturnType<typeof getAccountability>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccountability>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAccountability>>,
+          TError,
+          Awaited<ReturnType<typeof getAccountability>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAccountability<TData = Awaited<ReturnType<typeof getAccountability>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccountability>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAccountability>>,
+          TError,
+          Awaited<ReturnType<typeof getAccountability>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAccountability<TData = Awaited<ReturnType<typeof getAccountability>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccountability>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetAccountability<TData = Awaited<ReturnType<typeof getAccountability>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccountability>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAccountabilityQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateAccountabilitySeatUrl = () => {
+
+
+
+
+  return `/api/svp/accountability`
+}
+
+export const createAccountabilitySeat = async (accountabilitySeatInput: AccountabilitySeatInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getCreateAccountabilitySeatUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(accountabilitySeatInput)
+  }
+);}
+
+
+
+
+
+export const getCreateAccountabilitySeatMutationKey = () => ['createAccountabilitySeat'] as const;
+
+export const getCreateAccountabilitySeatMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAccountabilitySeat>>, TError,CreateAccountabilitySeatMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAccountabilitySeat>>, TError,CreateAccountabilitySeatMutationVariables, TContext> => {
+
+const mutationKey = getCreateAccountabilitySeatMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAccountabilitySeat>>, CreateAccountabilitySeatMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAccountabilitySeat(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAccountabilitySeatMutationResult = NonNullable<Awaited<ReturnType<typeof createAccountabilitySeat>>>
+    export type CreateAccountabilitySeatMutationBody = BodyType<AccountabilitySeatInput>
+    export type CreateAccountabilitySeatMutationError = ErrorType<unknown>
+    export type CreateAccountabilitySeatMutationVariables = {data: BodyType<AccountabilitySeatInput>}
+
+    export const useCreateAccountabilitySeat = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAccountabilitySeat>>, TError,CreateAccountabilitySeatMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createAccountabilitySeat>>,
+        TError,
+        CreateAccountabilitySeatMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateAccountabilitySeatMutationOptions(options), queryClient);
+    }
+
+export const getUpdateAccountabilitySeatUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/accountability/${id}`
+}
+
+export const updateAccountabilitySeat = async (id: string,
+    accountabilitySeatInput: AccountabilitySeatInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getUpdateAccountabilitySeatUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(accountabilitySeatInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateAccountabilitySeatMutationKey = () => ['updateAccountabilitySeat'] as const;
+
+export const getUpdateAccountabilitySeatMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAccountabilitySeat>>, TError,UpdateAccountabilitySeatMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAccountabilitySeat>>, TError,UpdateAccountabilitySeatMutationVariables, TContext> => {
+
+const mutationKey = getUpdateAccountabilitySeatMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAccountabilitySeat>>, UpdateAccountabilitySeatMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateAccountabilitySeat(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAccountabilitySeatMutationResult = NonNullable<Awaited<ReturnType<typeof updateAccountabilitySeat>>>
+    export type UpdateAccountabilitySeatMutationBody = BodyType<AccountabilitySeatInput>
+    export type UpdateAccountabilitySeatMutationError = ErrorType<unknown>
+    export type UpdateAccountabilitySeatMutationVariables = {id: string;data: BodyType<AccountabilitySeatInput>}
+
+    export const useUpdateAccountabilitySeat = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAccountabilitySeat>>, TError,UpdateAccountabilitySeatMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateAccountabilitySeat>>,
+        TError,
+        UpdateAccountabilitySeatMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateAccountabilitySeatMutationOptions(options), queryClient);
+    }
+
+export const getDeleteAccountabilitySeatUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/accountability/${id}`
+}
+
+export const deleteAccountabilitySeat = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+  return customFetch<MutationResult>(getDeleteAccountabilitySeatUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteAccountabilitySeatMutationKey = () => ['deleteAccountabilitySeat'] as const;
+
+export const getDeleteAccountabilitySeatMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccountabilitySeat>>, TError,DeleteAccountabilitySeatMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAccountabilitySeat>>, TError,DeleteAccountabilitySeatMutationVariables, TContext> => {
+
+const mutationKey = getDeleteAccountabilitySeatMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAccountabilitySeat>>, DeleteAccountabilitySeatMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteAccountabilitySeat(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAccountabilitySeatMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAccountabilitySeat>>>
+
+    export type DeleteAccountabilitySeatMutationError = ErrorType<unknown>
+    export type DeleteAccountabilitySeatMutationVariables = {id: string}
+
+    export const useDeleteAccountabilitySeat = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccountabilitySeat>>, TError,DeleteAccountabilitySeatMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAccountabilitySeat>>,
+        TError,
+        DeleteAccountabilitySeatMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteAccountabilitySeatMutationOptions(options), queryClient);
+    }
 
 export const getGetDevAuthUrl = () => {
 

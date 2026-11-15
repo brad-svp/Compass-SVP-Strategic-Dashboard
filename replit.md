@@ -4,7 +4,7 @@ Internal strategic operating system for SVP Sacramento: annual alignment, six-we
 
 ## Delivery scope
 
-The user supplied a six-phase build brief in `attached_assets/SVP_OS_—_Replit_Build_Prompt_1794430137287.pdf`. **Foundation and Phase 2 OKRs** are implemented: branded welcome, Google sign-in, staff access checks, staff/areas/cycles administration, audit logging, company/individual OKRs, metric/confidence KRs, append-only check-ins, comments, and a live strategic dashboard. Editable 6x6, RACI, Systems, Learn, AI, CRM, and MCP remain subsequent phases. The seeded 6x6 remains a read-only preview.
+The user supplied a six-phase build brief in `attached_assets/SVP_OS_—_Replit_Build_Prompt_1794430137287.pdf`. **Foundation and Phase 2 OKRs** are implemented: branded welcome, Google sign-in, staff access checks, staff/areas/cycles administration, audit logging, company/individual OKRs, metric/confidence KRs, append-only check-ins, comments, and a live strategic dashboard. Team & Ownership also includes the user's editable 2027 accountability chart. Editable 6x6, RACI, Systems, Learn, AI, CRM, and MCP remain subsequent phases. The seeded 6x6 remains a read-only preview.
 
 ## Product rules
 
@@ -15,6 +15,7 @@ The user supplied a six-phase build brief in `attached_assets/SVP_OS_—_Replit_
 - People are the primary unit; areas remain separate records supporting multiple people.
 - All writes use shared server service/permission functions and transactional audit records, including future MCP writes.
 - The source brief defines the build order: Foundation; OKRs; 6x6; Team/Systems/Learn; AI; CRM/MCP.
+- Team & Ownership uses the supplied 2027 accountability chart (`attached_assets/image_1794780435602.png`): Board, Visionary, Integrator, and six functional seats. Drew holds the Integrator, Programs, and Operations & Finance seats. Admins edit the chart; all staff can read it. Accountability seats are separate from login permissions and department assignments, and importing the chart must not silently rename existing staff accounts.
 
 ## Branding
 

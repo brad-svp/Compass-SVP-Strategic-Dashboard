@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './accountabilitySeat';
+export * from './accountabilitySeatInput';
+export * from './accountabilitySeatInputKind';
 export * from './area';
 export * from './auditEntry';
 export * from './checkIn';
