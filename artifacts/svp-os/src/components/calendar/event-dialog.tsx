@@ -11,8 +11,8 @@ import { EventForm } from './event-form';
 
 export type EventTarget = { event: CalendarEvent | null; seed: EventDraft; editing: boolean; nonce: number };
 
-export function EventDialog({ target, staff, programs, isAdmin, actions, onClose, onEdit, onReopen }: {
-  target: EventTarget | null; staff: Staff[]; programs: CalendarProgram[]; isAdmin: boolean; actions: CalendarActions;
+export function EventDialog({ target, staff, programs, canManageEntries, actions, onClose, onEdit, onReopen }: {
+  target: EventTarget | null; staff: Staff[]; programs: CalendarProgram[]; canManageEntries: boolean; actions: CalendarActions;
   onClose: () => void; onEdit: () => void; onReopen: () => void;
 }) {
   const e = target?.event ?? null;
@@ -25,7 +25,7 @@ export function EventDialog({ target, staff, programs, isAdmin, actions, onClose
       {target && editing && (
         <EventForm key={`${e?.id ?? 'new'}-${target.nonce}`} event={e} seed={target.seed} staff={staff} programs={programs} actions={actions} onDone={onClose} onReopen={onReopen} />
       )}
-      {target && !editing && e && <EventDetails e={e} staff={staff} canEdit={isAdmin && e.canEdit} onEdit={onEdit} onClose={onClose} />}
+      {target && !editing && e && <EventDetails e={e} staff={staff} canEdit={canManageEntries && e.canEdit} onEdit={onEdit} onClose={onClose} />}
     </BrowserDialog>
   );
 }

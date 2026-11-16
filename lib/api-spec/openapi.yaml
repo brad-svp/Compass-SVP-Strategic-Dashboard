@@ -318,6 +318,41 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/staff/{id}/photo:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    post:
+      operationId: uploadProfilePhoto
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, format: binary }
+      responses:
+        "200":
+          description: Verified profile photo saved; self or administrator only
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+    delete:
+      operationId: removeProfilePhoto
+      responses:
+        "200":
+          description: Profile photo removed; initials displayed instead
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/profile-photos/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    get:
+      operationId: getProfilePhoto
+      responses:
+        "200":
+          description: Staff-readable current profile photo
+          content:
+            image/webp:
+              schema: { type: string, format: binary }
   /svp/calendar:
     get:
       operationId: getMasterCalendar
@@ -327,6 +362,22 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/MasterCalendar" }
+  /svp/calendar/history:
+    get:
+      operationId: getCalendarHistory
+      parameters:
+        - in: query
+          name: eventId
+          schema: { type: string, minLength: 1 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Staff-readable calendar change history, newest first, including removed entries
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CalendarHistory" }
   /svp/calendar/events:
     post:
       operationId: createCalendarEvent
@@ -1297,6 +1348,32 @@ components:
             imported: { type: boolean }
             canEdit: { type: boolean }
             updatedAt: { type: string, format: date-time }
+    CalendarHistory:
+      type: object
+      required: [entries, hasMore]
+      properties:
+        hasMore: { type: boolean }
+        entries:
+          type: array
+          items:
+            type: object
+            required: [id, eventId, title, action, actorName, at, changes]
+            properties:
+              id: { type: string }
+              eventId: { type: string }
+              title: { type: string }
+              action: { type: string }
+              actorName: { type: string }
+              at: { type: string, format: date-time }
+              changes:
+                type: array
+                items:
+                  type: object
+                  required: [field, before, after]
+                  properties:
+                    field: { type: string }
+                    before: { type: string, nullable: true }
+                    after: { type: string, nullable: true }
     MasterCalendar:
       type: object
       required: [events, timeZone, hasSubscription, isPublished]

@@ -554,6 +554,29 @@ export type CalendarEvent = CalendarEventInput & ({
   updatedAt: string;
 });
 
+export type CalendarHistoryEntriesItemChangesItem = {
+  field: string;
+  /** @nullable */
+  before: string | null;
+  /** @nullable */
+  after: string | null;
+};
+
+export type CalendarHistoryEntriesItem = {
+  id: string;
+  eventId: string;
+  title: string;
+  action: string;
+  actorName: string;
+  at: string;
+  changes: CalendarHistoryEntriesItemChangesItem[];
+};
+
+export interface CalendarHistory {
+  hasMore: boolean;
+  entries: CalendarHistoryEntriesItem[];
+}
+
 export interface CalendarImportInfo {
   sourceUrl: string;
   complete: boolean;
@@ -1412,6 +1435,17 @@ export type CompleteProgramLogoUpload200 = {
 
 export type GetSystemsOverview200 = {
   systems: SvpSystem[];
+};
+
+export type GetCalendarHistoryParams = {
+/**
+ * @minLength 1
+ */
+eventId?: string;
+/**
+ * @minimum 0
+ */
+offset?: number;
 };
 
 export type GetScorecardParams = {

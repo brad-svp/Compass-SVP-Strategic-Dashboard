@@ -13,6 +13,7 @@ import { Field } from './field';
 import { useFoundationWrite } from './use-foundation-write';
 import { useStaffSession } from '@/lib/session-context';
 import { areaById } from '@/lib/format';
+import { ProfilePhotoEditor } from '@/components/profile-photo-editor';
 
 type Draft = { name: string; email: string; role: 'admin' | 'staff'; areaId: string; roleDescription: string; active: boolean };
 
@@ -66,6 +67,8 @@ export function StaffPanel({ staff, areas }: { staff: Staff[]; areas: Area[] }) 
       <BrowserDialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}
         title={editing === 'new' ? 'Add teammate' : 'Edit teammate'} description="Manage this teammate's details and access." testId="staff-browser-dialog">
           <div className="grid gap-4">
+            {editing && editing !== 'new' && <ProfilePhotoEditor person={staff.find(s => s.id === editing.id) ?? editing} />}
+            {editing === 'new' && <p className="text-xs text-muted-foreground">Save the teammate first, then upload their profile photo.</p>}
             <Field label="Name"><Input value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} data-testid="input-staff-name" /></Field>
             {!isSelf && (
               <Field label="Google email" hint="Leave blank to keep sign-in disabled for this person.">

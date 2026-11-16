@@ -4,6 +4,7 @@ import { useHealthCheck } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader, Panel, StaffAvatar, StatusPill } from '@/components/ui-bits';
 import { useStaffSession } from '@/lib/session-context';
+import { ProfilePhotoEditor } from '@/components/profile-photo-editor';
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -33,6 +34,9 @@ export default function Settings() {
               <div className="font-display text-xl font-semibold text-[#0A2540]">{me.name}</div>
               <div className="text-sm text-muted-foreground">Signed in with Google</div>
             </div>
+          </div>
+          <div className="mb-4 border-y border-border py-4">
+            <ProfilePhotoEditor person={me} />
           </div>
           <dl>
             <Row label="Email" value={me.email ?? 'Not set'} testId="text-email" />

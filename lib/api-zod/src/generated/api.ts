@@ -887,6 +887,40 @@ export const DeleteSvpSystemResponse = zod.object({
 })
 
 
+
+
+
+export const UploadProfilePhotoParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const UploadProfilePhotoResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const RemoveProfilePhotoParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const RemoveProfilePhotoResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const GetProfilePhotoParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const GetProfilePhotoResponse = zod.unknown()
+
+
 export const getMasterCalendarResponseEventsItemOneTitleMax = 300;
 
 export const getMasterCalendarResponseEventsItemOneProgramMax = 120;
@@ -961,6 +995,35 @@ export const GetMasterCalendarResponse = zod.object({
   "eventCount": zod.number().int(),
   "updatedAt": zod.coerce.date()
 })).optional()
+})
+
+
+
+export const getCalendarHistoryQueryOffsetDefault = 0;
+export const getCalendarHistoryQueryOffsetMin = 0;
+
+
+
+export const GetCalendarHistoryQueryParams = zod.object({
+  "eventId": zod.coerce.string().min(1).optional(),
+  "offset": zod.coerce.number().int().min(getCalendarHistoryQueryOffsetMin).default(getCalendarHistoryQueryOffsetDefault)
+})
+
+export const GetCalendarHistoryResponse = zod.object({
+  "hasMore": zod.boolean(),
+  "entries": zod.array(zod.object({
+  "id": zod.string(),
+  "eventId": zod.string(),
+  "title": zod.string(),
+  "action": zod.string(),
+  "actorName": zod.string(),
+  "at": zod.coerce.date(),
+  "changes": zod.array(zod.object({
+  "field": zod.string(),
+  "before": zod.string().nullable(),
+  "after": zod.string().nullable()
+}))
+}))
 })
 
 

@@ -7,14 +7,14 @@ import { ITEM_STATUS, ITEM_STATUSES, type SixActions } from '@/lib/six-by-six';
 import { fmtDate } from '@/lib/format';
 import { Btn, ConflictNotice, Field, FormError, inputCls } from './form-kit';
 
-export type ItemTarget = { item: SixItem | null; momentId: string; ownerId: string; momentLabel: string; periodName: string; nonce: number };
+export type ItemTarget = { item: SixItem | null; momentId: string; ownerId: string; momentLabel: string; periodName: string; nonce: number; copyFrom?: Pick<SixItem, 'title' | 'description'> };
 
 export function ItemDialog({ target, staff, actor, actions, onClose, onReopen }: {
   target: ItemTarget | null; staff: Staff[]; actor: Staff; actions: SixActions; onClose: () => void; onReopen: () => void;
 }) {
   const owner = target ? staff.find((s) => s.id === (target.item?.ownerId ?? target.ownerId)) : undefined;
   const editable = target ? (target.item ? target.item.canEdit : true) : false;
-  const title = !target ? '' : !target.item ? 'Add item' : editable ? 'Edit item' : 'Item details';
+  const title = !target ? '' : target.copyFrom ? 'Copy to next 6x6' : !target.item ? 'Add item' : editable ? 'Edit item' : 'Item details';
   const desc = target ? `${target.momentLabel} · ${target.periodName}${owner ? ` · ${owner.name}` : ''}` : '';
   return (
     <BrowserDialog open={!!target} onOpenChange={(o) => { if (!o) onClose(); }} title={title} description={desc}>
@@ -46,8 +46,8 @@ function ItemForm({ target, staff, actor, actions, onClose, onReopen }: {
   const it = target.item;
   // Captured once per open; polling never touches the draft.
   const [version] = useState(it?.version ?? 0);
-  const [title, setTitle] = useState(it?.title ?? '');
-  const [description, setDescription] = useState(it?.description ?? '');
+  const [title, setTitle] = useState(it?.title ?? target.copyFrom?.title ?? '');
+  const [description, setDescription] = useState(it?.description ?? target.copyFrom?.description ?? '');
   const [status, setStatus] = useState<SixItemInputStatus>(it?.status ?? 'planned');
   const [ownerId, setOwnerId] = useState(it?.ownerId ?? target.ownerId);
   const [error, setError] = useState<string | null>(null);

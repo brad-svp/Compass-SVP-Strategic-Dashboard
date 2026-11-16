@@ -1,29 +1,17 @@
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { X } from 'lucide-react';
+import { ModalSurface } from './modal-surface';
 
-/** Browser-managed focus and modality, without a document-wide pointer-events lock. */
+/** Shared portalled form dialog, including embedded-preview-safe focus handling. */
 export function BrowserDialog({ open, onOpenChange, title, description, children, testId = 'form-browser-dialog' }: {
   open: boolean; onOpenChange: (open: boolean) => void; title: string; description: string; children: ReactNode; testId?: string;
 }) {
-  const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const descriptionId = useId();
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
-  }, [open]);
-  if (!open) return null;
   return (
-    <dialog
-      ref={ref}
-      aria-labelledby={titleId}
-      aria-describedby={descriptionId}
-      onCancel={(event) => { event.preventDefault(); onOpenChange(false); }}
-      onClose={() => onOpenChange(false)}
-      className="pointer-events-auto fixed inset-0 m-auto max-h-[92dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto rounded-xl border border-border bg-[#FBFAF6] p-6 text-foreground shadow-xl backdrop:bg-black/60"
-      data-testid={testId}
+    <ModalSurface open={open} onClose={() => onOpenChange(false)} labelledBy={titleId} describedBy={descriptionId}
+      className="pointer-events-auto relative max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-[#FBFAF6] p-6 text-foreground shadow-xl outline-none"
+      testId={testId}
     >
       <header className="mb-4 space-y-1.5 pr-7">
         <h2 id={titleId} className="font-display text-2xl font-semibold text-[#0A2540]">{title}</h2>
@@ -35,6 +23,6 @@ export function BrowserDialog({ open, onOpenChange, title, description, children
         aria-label="Close">
         <X className="h-4 w-4" />
       </button>
-    </dialog>
+    </ModalSurface>
   );
 }

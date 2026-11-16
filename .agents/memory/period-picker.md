@@ -20,3 +20,9 @@ Dropdowns must close on an outside pointer click, retain interaction within the 
 **Why:** The user explicitly requested normal outside-click dismissal after seeing a persistent manual dropdown over the Brain form.
 
 **How to apply:** Register outside-pointer handling after the opening click and exclude the trigger/list from dismissal; do not bring back blur-driven automatic dismissal.
+
+Native modal dialogs also failed to accept typing for this user in the embedded preview, despite a standalone pass. Use the shared controlled modal overlay rather than restoring native `showModal()` based on a standalone success.
+
+**Why:** Repeated QBO, Systems and narrative-form reports persisted after changing controls and modal implementations. A development banner also intercepted mobile modal headers during browser regression checks.
+
+**How to apply:** Keep forms isolated from page stacking contexts and development overlays, and verify real pointer/keyboard interaction in an embedded frame and reduced-height viewport. Chromium embedded checks are not proof of actual iPad Safari behavior.

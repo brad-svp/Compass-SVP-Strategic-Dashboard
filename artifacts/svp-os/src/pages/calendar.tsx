@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearch } from 'wouter';
-import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, GitCommitVertical, Layers, Rss, StickyNote } from 'lucide-react';
+import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, GitCommitVertical, History, Layers, Rss, StickyNote } from 'lucide-react';
 import type { CalendarEvent, Foundation, MasterCalendar } from '@workspace/api-client-react';
 import { WithFoundation } from '@/components/with-foundation';
 import { ErrorPanel, PageHeader, PageSkeleton, Panel } from '@/components/ui-bits';
@@ -18,6 +18,7 @@ import { MonthView } from '@/components/calendar/month-view';
 import { YearAgenda } from '@/components/calendar/year-agenda';
 import { EventDialog, type EventTarget } from '@/components/calendar/event-dialog';
 import { SubscribeDialog } from '@/components/calendar/subscribe-dialog';
+import { CalendarChangeHistory } from '@/components/calendar/change-history';
 
 const ghost = 'inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-[13px] font-semibold text-[#0A2540] transition-colors hover:bg-[#0A2540]/[0.04] disabled:opacity-40';
 
@@ -27,6 +28,7 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
   const actions = useCalendarActions();
   const programActions = useProgramActions();
   const [programsOpen, setProgramsOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const managedPrograms = useMemo(() => cal.programs ?? [], [cal.programs]);
   const programIndex = useMemo(() => indexPrograms(managedPrograms), [managedPrograms]);
   const today = todayInZone(cal.timeZone);
@@ -94,8 +96,9 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
         actions={<>
           {isAdmin && <button type="button" className={ghost} onClick={() => setProgramsOpen(true)} data-testid="button-manage-programs"><Layers className="h-4 w-4" /> Programs</button>}
           <button type="button" className={ghost} onClick={() => setSubOpen(true)} data-testid="button-subscribe"><Rss className="h-4 w-4" /> Subscribe</button>
-          {isAdmin && <button type="button" className={ghost} onClick={addNote} data-testid="button-new-note"><StickyNote className="h-4 w-4 text-[#2E7D7A]" /> Add planning note</button>}
-          {isAdmin && <button type="button" onClick={() => addNew()} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0A2540] px-3.5 text-[13px] font-semibold text-[#FBFAF6]" data-testid="button-new-event"><CalendarPlus className="h-4 w-4" /> New event</button>}
+          <button type="button" className={ghost} onClick={() => setHistoryOpen(true)} data-testid="button-calendar-history"><History className="h-4 w-4" /> Change log</button>
+          <button type="button" className={ghost} onClick={addNote} data-testid="button-new-note"><StickyNote className="h-4 w-4 text-[#2E7D7A]" /> Add planning note</button>
+          <button type="button" onClick={() => addNew()} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0A2540] px-3.5 text-[13px] font-semibold text-[#FBFAF6]" data-testid="button-new-event"><CalendarPlus className="h-4 w-4" /> New event</button>
         </>}>
         Think Tanks, 100x, Fast Pitch, AI for Good, Impact Tours, Board and partner socials. Times are Sacramento time. Hatched means proposed, solid means confirmed.
       </PageHeader>
@@ -132,13 +135,13 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
         <Panel className="flex flex-col items-start gap-3 py-10" >
           <CalendarDays className="h-8 w-8 text-[#1D8BC4]" />
           <div className="font-display text-2xl font-semibold text-[#0A2540]">The master calendar is empty.</div>
-          <p className="max-w-md text-sm text-muted-foreground">{isAdmin ? 'Import from Notion or add the first event.' : 'Events will appear here once an admin adds or imports them.'}</p>
-          {isAdmin && <button type="button" onClick={() => addNew()} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0A2540] px-3.5 text-[13px] font-semibold text-[#FBFAF6]" data-testid="button-first-event"><CalendarPlus className="h-4 w-4" /> Add first event</button>}
+          <p className="max-w-md text-sm text-muted-foreground">Add the first event. All staff can help keep the calendar up to date.</p>
+          <button type="button" onClick={() => addNew()} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0A2540] px-3.5 text-[13px] font-semibold text-[#FBFAF6]" data-testid="button-first-event"><CalendarPlus className="h-4 w-4" /> Add first event</button>
         </Panel>
       ) : (
         <Panel className="overflow-hidden p-0 md:p-0">
           {view === 'month'
-            ? <MonthView year={year} month={month} events={monthEvents} today={today} onOpen={open} onAddOn={isAdmin ? (d) => addNew(d) : undefined} />
+            ? <MonthView year={year} month={month} events={monthEvents} today={today} onOpen={open} onAddOn={(d) => addNew(d)} />
             : <YearAgenda events={filtered} today={today} onOpen={open} anchorKey={anchorKey} todayNonce={todayNonce} />}
           {view === 'month' && (tbdThisMonth.length > 0 || tbdThisYear.length > 0) && (
             <div className="space-y-3 border-t border-border bg-[#ECA519]/[0.06] px-4 py-3" data-testid="list-month-tbd">
@@ -164,7 +167,8 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
         </Panel>
       )}
 
-      <EventDialog target={target} staff={foundation.staff} programs={managedPrograms} isAdmin={isAdmin} actions={actions}
+      <CalendarChangeHistory open={historyOpen} onClose={() => setHistoryOpen(false)} />
+      <EventDialog target={target} staff={foundation.staff} programs={managedPrograms} canManageEntries actions={actions}
         onClose={() => setTarget(null)} onEdit={() => target && setTarget({ ...target, event: cal.events.find((x) => x.id === target.event?.id) ?? target.event, editing: true, nonce: target.nonce + 1 })} onReopen={reopen} />
       <SubscribeDialog open={subOpen} onClose={() => setSubOpen(false)} hasSubscription={cal.hasSubscription} isPublished={cal.isPublished} actions={actions} />
       {isAdmin && <ProgramManager open={programsOpen} onClose={() => setProgramsOpen(false)} programs={managedPrograms} actions={programActions} />}

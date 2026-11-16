@@ -72,9 +72,17 @@ try {
   // Drop the earlier ?event deep link; reloading it intentionally reopens its detail dialog.
   await page.goto(origin + "/calendar");
   await page.getByTestId(`row-note-${id}`).waitFor();
-  assert.equal(await page.getByTestId("button-new-note").count(), 0);
+  assert.equal(await page.getByTestId("button-new-note").count(), 1);
+  assert.equal(await page.getByTestId("button-manage-programs").count(), 0);
   await page.getByTestId(`row-note-${id}`).click();
-  assert.equal(await page.getByTestId("button-edit-event").count(), 0);
+  await page.getByTestId("button-edit-event").click();
+  await page.getByTestId("input-event-notes").fill("Staff updated these planning instructions.");
+  const staffEdit = page.waitForResponse(r => r.url().endsWith(`/api/svp/calendar/events/${id}`) && r.request().method() === "PATCH");
+  await page.getByTestId("button-save-event").click();
+  assert.equal((await staffEdit).status(), 200);
+  await page.getByTestId("button-calendar-history").click();
+  await page.getByTestId("list-calendar-history").getByText("Staff updated these planning instructions.", { exact: true }).waitFor();
+  await page.getByTestId("dialog-calendar-history").getByRole("button", { name: "Close", exact: true }).click();
   const adminAgain = await ctx.request.post(origin + "/api/dev-auth", { headers: { Origin: origin }, data: { role: "admin" } });
   assert.equal(adminAgain.status(), 200);
   await page.goto(`${origin}/calendar?event=${id}&year=2027`);
@@ -85,7 +93,7 @@ try {
   assert.equal((await removed).status(), 200);
   await page.getByTestId(`note-month-${id}`).waitFor({ state: "detached" });
   assert.deepEqual(errors, []);
-  console.log("PASS: admin create/edit/delete, note placement, larger cards, timeline/month, mobile scrolling and staff read-only access.");
+  console.log("PASS: admin create/delete, staff edit, attributed change log, note placement, larger cards, timeline/month, mobile scrolling; programs remain admin-only.");
 } finally {
   await browser.close();
   if (id) {

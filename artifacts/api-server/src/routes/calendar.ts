@@ -4,8 +4,10 @@ import {
   UpdateCalendarEventParams, UpdateCalendarEventBody, UpdateCalendarEventResponse,
   DeleteCalendarEventParams, DeleteCalendarEventBody, DeleteCalendarEventResponse,
   CreateCalendarSubscriptionResponse, RevokeCalendarSubscriptionResponse,
+  GetCalendarHistoryQueryParams, GetCalendarHistoryResponse,
 } from "@workspace/api-zod";
 import { getMasterCalendar, saveCalendarEvent, deleteCalendarEvent, createCalendarSubscription, revokeCalendarSubscription, getCalendarFeed } from "../lib/calendarService";
+import { getCalendarHistory } from "../lib/calendarHistoryService";
 
 export const calendarFeed: RequestHandler = async (req, res) => {
   const ics = await getCalendarFeed(req.query.key);
@@ -16,6 +18,10 @@ export const calendarFeed: RequestHandler = async (req, res) => {
 };
 const router: IRouter = Router();
 router.get("/calendar", async (_req, res) => res.json(GetMasterCalendarResponse.parse(await getMasterCalendar(res.locals.actor))));
+router.get("/calendar/history", async (req, res) => {
+  const { eventId, offset } = GetCalendarHistoryQueryParams.parse(req.query);
+  res.json(GetCalendarHistoryResponse.parse(await getCalendarHistory(res.locals.actor, eventId, offset ?? 0)));
+});
 router.post("/calendar/events", async (req, res) => {
   res.status(201).json(CreateCalendarEventResponse.parse(await saveCalendarEvent(res.locals.actor, CreateCalendarEventBody.strict().parse(req.body))));
 });

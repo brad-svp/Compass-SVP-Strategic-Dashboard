@@ -119,6 +119,16 @@ function ScorecardBody({ foundation }: { foundation: Foundation }) {
         Record a value whenever it changes. Every save is kept; open a metric to see its whole history against the targets in force.
       </PageHeader>
 
+      <div className="mb-3 inline-flex rounded-lg border border-border bg-muted/50 p-1" role="group" aria-label="Scorecard quick filters">
+        {[{ label: 'My Scorecards', value: me.id, id: 'my' }, { label: 'All Scorecards', value: ALL, id: 'all' }].map(choice => (
+          <button key={choice.id} type="button" aria-pressed={owner === choice.value}
+            onClick={() => go({ owner: choice.value })}
+            data-testid={`button-scorecards-${choice.id}`}
+            className={`rounded-md px-3 py-2 text-[13px] font-semibold transition-colors ${owner === choice.value ? 'bg-[#0A2540] text-white shadow-sm' : 'text-[#3A4E63] hover:bg-card'}`}>
+            {choice.label}
+          </button>
+        ))}
+      </div>
       <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-[200px_200px_auto] sm:items-center">
         <NativeSelect value={owner} onChange={(e) => go({ owner: e.target.value })} aria-label="Owner" data-testid="filter-scorecard-owner">
           <option value={ALL}>All owners</option>

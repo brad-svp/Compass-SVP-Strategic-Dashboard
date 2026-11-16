@@ -2,7 +2,7 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { db, usersTable, auditLogTable, calendarEventsTable as events, calendarSubscriptionsTable as subscriptions } from "@workspace/db";
 import { asc, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { AppError, requireAdmin, type StaffActor } from "./permissions";
+import { AppError, type StaffActor } from "./permissions";
 import { CALENDAR_ZONE, calendarDate, isCalendarDate } from "./calendarDates";
 import { renderCalendarIcs } from "./calendarIcs";
 import { calendarImportInfo } from "./calendarImportInfo";
@@ -62,7 +62,7 @@ export function validateCalendarEvent(raw: unknown) {
 export async function saveCalendarEvent(actor: StaffActor, raw: unknown, id?: string) {
   const { expectedVersion, ...data } = validateCalendarEvent(raw);
   return db.transaction(async tx => {
-    actor = await actorNow(tx, actor); requireAdmin(actor);
+    actor = await actorNow(tx, actor);
     const [before] = id ? await tx.select().from(events).where(eq(events.id, id)) : [];
     if (id && (!before || before.deletedAt)) throw new AppError(404, "Event not found.");
     versionMatches(expectedVersion, before?.version ?? 0);
@@ -85,7 +85,7 @@ export async function saveCalendarEvent(actor: StaffActor, raw: unknown, id?: st
 export async function deleteCalendarEvent(actor: StaffActor, id: string, raw: unknown) {
   const { expectedVersion } = z.object({ expectedVersion: z.number().int().min(1) }).strict().parse(raw);
   return db.transaction(async tx => {
-    actor = await actorNow(tx, actor); requireAdmin(actor);
+    actor = await actorNow(tx, actor);
     const [before] = await tx.select().from(events).where(eq(events.id, id));
     if (!before || before.deletedAt) throw new AppError(404, "Event not found.");
     versionMatches(expectedVersion, before.version);
@@ -103,7 +103,7 @@ export async function getMasterCalendar(actor: StaffActor) {
   return {
     events: all.map(event => ({
       ...event, startsAt: event.startsAt?.toISOString() ?? null, endsAt: event.endsAt?.toISOString() ?? null,
-      updatedAt: event.updatedAt.toISOString(), imported: !!event.sourceId, canEdit: actor.role === "admin", expectedVersion: event.version,
+      updatedAt: event.updatedAt.toISOString(), imported: !!event.sourceId, canEdit: true, expectedVersion: event.version,
     })),
     timeZone: CALENDAR_ZONE, hasSubscription: !!feeds.length, isPublished: !!process.env.REPLIT_DEPLOYMENT, sourceImport: calendarImportInfo, programs,
   };

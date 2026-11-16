@@ -117,7 +117,7 @@ export function NativeSelect({ className, wrapClassName, children, value, defaul
         onClick={() => { setExpanded(!expanded); setSearch(''); }}
         onKeyDown={event => {
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); setExpanded(true); focusChoice(); }
-          if (event.key === 'Escape') { setExpanded(false); setSearch(''); }
+          if (event.key === 'Escape' && expanded) { event.preventDefault(); event.stopPropagation(); setExpanded(false); setSearch(''); }
         }}
         className={cn(
           'flex min-h-9 w-full items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 py-2 text-left text-[13px] font-medium text-[#0A2540] shadow-sm transition-colors',

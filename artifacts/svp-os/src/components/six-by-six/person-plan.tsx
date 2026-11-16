@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react';
+import { CopyPlus, Plus } from 'lucide-react';
 import type { Area, SixItem, SixMoment, SixPeriod, Staff } from '@workspace/api-client-react';
 import { StaffAvatar } from '@/components/ui-bits';
 import { areaById } from '@/lib/format';
@@ -7,10 +7,12 @@ import { ITEM_STATUS, canCreateFor, summarize } from '@/lib/six-by-six';
 export const priorityLabel = (position: number) => `Priority ${position}`;
 
 /** One person's six independent priority slots. Slots map to internal moment ids; shared titles are never shown. */
-export function PersonPlan({ period, items, person, areas, actor, onOpenItem, onAddItem }: {
+export function PersonPlan({ period, items, person, areas, actor, onOpenItem, onAddItem, onCopyItem, copyDisabledReason }: {
   period: SixPeriod; items: SixItem[]; person: Staff; areas: Area[]; actor: Staff;
   onOpenItem: (item: SixItem, slot: SixMoment) => void;
   onAddItem: (slot: SixMoment) => void;
+  onCopyItem?: (item: SixItem, slot: SixMoment) => void;
+  copyDisabledReason?: string;
 }) {
   const slots = [...period.moments].sort((a, b) => a.position - b.position);
   const mine = items.filter((i) => i.ownerId === person.id);
@@ -36,7 +38,19 @@ export function PersonPlan({ period, items, person, areas, actor, onOpenItem, on
               <span className="mt-0.5 font-display text-[22px] font-semibold leading-none tabular-nums text-[#1D8BC4]/80">{s.position}</span>
               <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{priorityLabel(s.position)}{cell.length > 1 && <span className="ml-1 normal-case tracking-normal">· {cell.length} items</span>}</span>
-                {cell.map((it) => <ItemChip key={it.id} it={it} onClick={() => onOpenItem(it, s)} />)}
+                {cell.map((it) => (
+                  <div key={it.id} className="flex items-start gap-1">
+                    <ItemChip it={it} onClick={() => onOpenItem(it, s)} />
+                    {onCopyItem && it.canEdit && canAdd && (
+                      <button type="button" onClick={() => onCopyItem(it, s)} disabled={!!copyDisabledReason}
+                        aria-label={`Copy ${it.title} to next 6x6`} title={copyDisabledReason ?? 'Copy to next 6x6'}
+                        data-testid={`button-copy-item-${it.id}`}
+                        className="shrink-0 rounded-md p-2 text-[#125F88] hover:bg-[#1D8BC4]/10 disabled:cursor-not-allowed disabled:opacity-40">
+                        <CopyPlus className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
                 {canAdd && (
                   <button type="button" onClick={() => onAddItem(s)} aria-label={`Add to ${priorityLabel(s.position)}`}
                     className="flex h-8 items-center gap-1 rounded-md border border-dashed border-border px-2 text-[12px] font-semibold text-muted-foreground transition hover:border-[#1D8BC4]/60 hover:text-[#125F88]"

@@ -7,6 +7,9 @@ import { eq } from "drizzle-orm";
 import { GetMasterCalendarResponse } from "@workspace/api-zod";
 import { saveCalendarEvent, deleteCalendarEvent, getMasterCalendar, createCalendarSubscription, revokeCalendarSubscription, getCalendarFeed, calendarSubscriberAllowed } from "../src/lib/calendarService";
 import { foldIcsLine } from "../src/lib/calendarIcs";
+import { getCalendarHistory } from "../src/lib/calendarHistoryService";
+import { normalizeProfilePhoto, saveProfilePhoto, removeProfilePhoto } from "../src/lib/profilePhotoService";
+import sharp from "sharp";
 import type { StaffActor } from "../src/lib/permissions";
 import { seedCalendar } from "../src/lib/seedCalendar";
 import { saveObjective, saveKeyResult, getOkrWorkspace, addCheckIn } from "../src/lib/okrService";
@@ -40,12 +43,11 @@ after(async () => { await pool.query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`
 test("planning notes have one real date, preserve their type on edits, and share the read-only calendar feed", async () => {
   const note = { ...base, kind: "planning_note", title: "Fast Pitch applications open", startDate: "2027-04-05", endDate: "2027-04-05",
     dateStatus: "confirmed", locationStatus: "not_applicable", location: "", audience: [], notes: "Publish application instructions." };
-  await assert.rejects(saveCalendarEvent(staff, note), status(403));
   await assert.rejects(saveCalendarEvent(admin, { ...note, startDate: null, endDate: null }), status(400));
   await assert.rejects(saveCalendarEvent(admin, { ...note, endDate: "2027-04-06" }), status(400));
-  const created = await saveCalendarEvent(admin, note);
+  const created = await saveCalendarEvent(staff, note);
   const visible = GetMasterCalendarResponse.parse(await getMasterCalendar(staff)).events.find(e => e.id === created.id)!;
-  assert.equal(visible.kind, "planning_note"); assert.equal(visible.canEdit, false);
+  assert.equal(visible.kind, "planning_note"); assert.equal(visible.canEdit, true);
   assert.equal(visible.notes, note.notes);
   // Older callers omitting kind must not silently turn a note into an event.
   await saveCalendarEvent(admin, { ...note, kind: undefined, title: "Applications released", expectedVersion: 1 }, created.id);
@@ -57,13 +59,11 @@ test("planning notes have one real date, preserve their type on edits, and share
   assert.match(ics, /SUMMARY:\[Planning note\] Applications released/);
   assert.match(ics, /DTSTART;VALUE=DATE:20270405/);
   assert.match(ics, /TRANSP:TRANSPARENT/);
-  await assert.rejects(deleteCalendarEvent(staff, created.id, {expectedVersion:2}), status(403));
-  await deleteCalendarEvent(admin, created.id, {expectedVersion:2});
+  await deleteCalendarEvent(staff, created.id, {expectedVersion:2});
   assert.equal((await getMasterCalendar(staff)).events.some(e=>e.id===created.id), false);
   assert.match(await getCalendarFeed(key), /SUMMARY:Cancelled planning note/);
 });
-test("admin-managed events validate dates, ownership, timing and safe URLs", async () => {
-  await assert.rejects(saveCalendarEvent(staff, base), status(403));
+test("staff-managed events validate dates, ownership, timing and safe URLs", async () => {
   await assert.rejects(saveCalendarEvent(admin, { ...base, endDate: "2027-05-01" }), status(400));
   await assert.rejects(saveCalendarEvent(admin, { ...base, startDate: "2027-02-30" }));
   await assert.rejects(saveCalendarEvent(admin, { ...base, planningYear: 2026 }), status(400));
@@ -71,9 +71,46 @@ test("admin-managed events validate dates, ownership, timing and safe URLs", asy
   await assert.rejects(saveCalendarEvent(admin, { ...base, wixUrl: "javascript:alert(1)" }));
   ({ id } = await saveCalendarEvent(admin, base));
   const workspace = GetMasterCalendarResponse.parse(await getMasterCalendar(staff));
-  assert.equal(workspace.events[0].canEdit, false);
+  assert.equal(workspace.events[0].canEdit, true);
   assert.equal(workspace.events[0].version, 1);
   assert.equal(workspace.events[0].endDate, "2027-05-21");
+});
+test("staff changes retain attributed before/after history, including removal; inactive users cannot write", async () => {
+  const created = await saveCalendarEvent(staff, { ...base, title: "History fixture" });
+  await saveCalendarEvent(admin, { ...base, title: "Renamed fixture", notes: "New details", expectedVersion: 1 }, created.id);
+  await assert.rejects(saveCalendarEvent(staff, { ...base, expectedVersion: 1 }, created.id), status(409));
+  await deleteCalendarEvent(staff, created.id, { expectedVersion: 2 });
+  const history = await getCalendarHistory(staff, created.id);
+  assert.equal(history.entries.length, 3);
+  assert.deepEqual(new Set(history.entries.map(e => e.actorName)), new Set(["Staff", "Admin"]));
+  assert.ok(history.entries.some(e => e.action === "remove"));
+  const edit = history.entries.find(e => e.action === "update")!;
+  assert.ok(edit.changes.some(c => c.field === "Title" && c.before === "History fixture" && c.after === "Renamed fixture"));
+  assert.ok(edit.changes.some(c => c.field === "Details" && c.after === "New details"));
+  assert.ok(history.entries.every(e => !e.changes.some(c => /sourceData|wixUrl|tokenHash/.test(c.field))));
+  await db.update(usersTable).set({ active: false }).where(eq(usersTable.id, staff.id));
+  await assert.rejects(saveCalendarEvent(staff, base), status(403));
+  await assert.rejects(deleteCalendarEvent(staff, id, { expectedVersion: 1 }), status(403));
+  await assert.rejects(getCalendarHistory(staff), status(403));
+  await db.update(usersTable).set({ active: true }).where(eq(usersTable.id, staff.id));
+});
+test("profile photo decoding and self/admin permission boundaries", async () => {
+  const bytes = await sharp({ create: { width: 16, height: 24, channels: 3, background: "#1D8BC4" } }).png().toBuffer();
+  const normalized = await normalizeProfilePhoto(bytes);
+  const meta = await sharp(normalized).metadata();
+  assert.equal(meta.format, "webp"); assert.equal(meta.width, 512); assert.equal(meta.height, 512);
+  await assert.rejects(normalizeProfilePhoto(Buffer.from("<svg></svg>")), status(400));
+  await assert.rejects(normalizeProfilePhoto(Buffer.alloc(5 * 1024 * 1024 + 1)), status(400));
+  await assert.rejects(saveProfilePhoto(staff, admin.id, bytes), status(403));
+  await assert.rejects(removeProfilePhoto(staff, admin.id), status(403));
+  const fakeStore = async (_bytes: Buffer) => ({ id: crypto.randomUUID(), discard: async () => {} });
+  await saveProfilePhoto(staff, staff.id, bytes, fakeStore, async () => {});
+  const [saved] = await db.select().from(usersTable).where(eq(usersTable.id, staff.id));
+  assert.match(saved.avatarUrl!, /^\/api\/svp\/profile-photos\//);
+  await saveProfilePhoto(admin, staff.id, bytes, fakeStore, async () => {});
+  await removeProfilePhoto(staff, staff.id, async () => {});
+  const [cleared] = await db.select().from(usersTable).where(eq(usersTable.id, staff.id));
+  assert.equal(cleared.avatarUrl, null);
 });
 test("Pacific winter and summer instants preserve civil dates; undated events are kept without guessed dates", async () => {
   const timed = { ...base, title: "Winter evening", startDate: "2027-01-28", endDate: "2027-01-28", allDay: false, startsAt: "2027-01-29T01:30:00Z", endsAt: "2027-01-29T03:30:00Z" };
@@ -131,9 +168,8 @@ test("rotation and revocation invalidate old links; inactive staff cannot expose
   assert.equal((await getMasterCalendar(staff)).hasSubscription, false);
 });
 test("removed events leave cancellation tombstones with stable UID and incremented sequence", async () => {
-  await assert.rejects(deleteCalendarEvent(staff, id, { expectedVersion: 2 }), status(403));
   await assert.rejects(deleteCalendarEvent(admin, id, { expectedVersion: 1 }), status(409));
-  await deleteCalendarEvent(admin, id, { expectedVersion: 2 });
+  await deleteCalendarEvent(staff, id, { expectedVersion: 2 });
   assert.equal((await getMasterCalendar(admin)).events.some(e => e.id === id), false);
   const { path } = await createCalendarSubscription(admin);
   const ics = await getCalendarFeed(new URL(path, "https://example.com").searchParams.get("key"));

@@ -38,6 +38,7 @@ import type {
   BrainUploadInput,
   BrainWorkspace,
   CalendarEventInput,
+  CalendarHistory,
   CalendarProgramInput,
   CalendarSubscription,
   CheckInInput,
@@ -49,6 +50,7 @@ import type {
   Foundation,
   FoundationInput,
   GetBrainParams,
+  GetCalendarHistoryParams,
   GetDevAuth200,
   GetScorecardParams,
   GetScorecardTrendParams,
@@ -2752,6 +2754,252 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       return useMutation(getDeleteSvpSystemMutationOptions(options), queryClient);
     }
 
+export const getUploadProfilePhotoUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/staff/${id}/photo`
+}
+
+export const uploadProfilePhoto = async (id: string,
+    uploadProfilePhotoBody: Blob, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getUploadProfilePhotoUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/octet-stream', ...getHeaders(options?.headers) },
+    body: uploadProfilePhotoBody
+  }
+);}
+
+
+
+
+
+export const getUploadProfilePhotoMutationKey = () => ['uploadProfilePhoto'] as const;
+
+export const getUploadProfilePhotoMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadProfilePhoto>>, TError,UploadProfilePhotoMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadProfilePhoto>>, TError,UploadProfilePhotoMutationVariables, TContext> => {
+
+const mutationKey = getUploadProfilePhotoMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadProfilePhoto>>, UploadProfilePhotoMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  uploadProfilePhoto(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadProfilePhotoMutationResult = NonNullable<Awaited<ReturnType<typeof uploadProfilePhoto>>>
+    export type UploadProfilePhotoMutationBody = BodyType<Blob>
+    export type UploadProfilePhotoMutationError = ErrorType<unknown>
+    export type UploadProfilePhotoMutationVariables = {id: string;data: BodyType<Blob>}
+
+    export const useUploadProfilePhoto = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadProfilePhoto>>, TError,UploadProfilePhotoMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof uploadProfilePhoto>>,
+        TError,
+        UploadProfilePhotoMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUploadProfilePhotoMutationOptions(options), queryClient);
+    }
+
+export const getRemoveProfilePhotoUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/staff/${id}/photo`
+}
+
+export const removeProfilePhoto = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+  return customFetch<MutationResult>(getRemoveProfilePhotoUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getRemoveProfilePhotoMutationKey = () => ['removeProfilePhoto'] as const;
+
+export const getRemoveProfilePhotoMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeProfilePhoto>>, TError,RemoveProfilePhotoMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof removeProfilePhoto>>, TError,RemoveProfilePhotoMutationVariables, TContext> => {
+
+const mutationKey = getRemoveProfilePhotoMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof removeProfilePhoto>>, RemoveProfilePhotoMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  removeProfilePhoto(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RemoveProfilePhotoMutationResult = NonNullable<Awaited<ReturnType<typeof removeProfilePhoto>>>
+
+    export type RemoveProfilePhotoMutationError = ErrorType<unknown>
+    export type RemoveProfilePhotoMutationVariables = {id: string}
+
+    export const useRemoveProfilePhoto = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeProfilePhoto>>, TError,RemoveProfilePhotoMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof removeProfilePhoto>>,
+        TError,
+        RemoveProfilePhotoMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRemoveProfilePhotoMutationOptions(options), queryClient);
+    }
+
+export const getGetProfilePhotoUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/profile-photos/${id}`
+}
+
+export const getProfilePhoto = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetProfilePhotoUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetProfilePhotoQueryKey = (id: string,) => {
+    return [
+    `/api/svp/profile-photos/${id}`
+    ] as const;
+    }
+
+
+export const getGetProfilePhotoQueryOptions = <TData = Awaited<ReturnType<typeof getProfilePhoto>>, TError = ErrorType<unknown>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfilePhoto>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProfilePhotoQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProfilePhoto>>> = ({ signal }) => getProfilePhoto(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProfilePhoto>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProfilePhotoQueryResult = NonNullable<Awaited<ReturnType<typeof getProfilePhoto>>>
+export type GetProfilePhotoQueryError = ErrorType<unknown>
+
+
+export function useGetProfilePhoto<TData = Awaited<ReturnType<typeof getProfilePhoto>>, TError = ErrorType<unknown>>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfilePhoto>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProfilePhoto>>,
+          TError,
+          Awaited<ReturnType<typeof getProfilePhoto>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProfilePhoto<TData = Awaited<ReturnType<typeof getProfilePhoto>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfilePhoto>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProfilePhoto>>,
+          TError,
+          Awaited<ReturnType<typeof getProfilePhoto>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProfilePhoto<TData = Awaited<ReturnType<typeof getProfilePhoto>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfilePhoto>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetProfilePhoto<TData = Awaited<ReturnType<typeof getProfilePhoto>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfilePhoto>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProfilePhotoQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getGetMasterCalendarUrl = () => {
 
 
@@ -2835,6 +3083,108 @@ export function useGetMasterCalendar<TData = Awaited<ReturnType<typeof getMaster
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetMasterCalendarQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetCalendarHistoryUrl = (params?: GetCalendarHistoryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/svp/calendar/history?${stringifiedParams}` : `/api/svp/calendar/history`
+}
+
+export const getCalendarHistory = async (params?: GetCalendarHistoryParams, options?: Parameters<typeof customFetch>[1]): Promise<CalendarHistory> => {
+
+  return customFetch<CalendarHistory>(getGetCalendarHistoryUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCalendarHistoryQueryKey = (params?: GetCalendarHistoryParams,) => {
+    return [
+    `/api/svp/calendar/history`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetCalendarHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getCalendarHistory>>, TError = ErrorType<unknown>>(params?: GetCalendarHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCalendarHistory>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCalendarHistoryQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCalendarHistory>>> = ({ signal }) => getCalendarHistory(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCalendarHistory>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetCalendarHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getCalendarHistory>>>
+export type GetCalendarHistoryQueryError = ErrorType<unknown>
+
+
+export function useGetCalendarHistory<TData = Awaited<ReturnType<typeof getCalendarHistory>>, TError = ErrorType<unknown>>(
+ params: undefined |  GetCalendarHistoryParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCalendarHistory>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCalendarHistory>>,
+          TError,
+          Awaited<ReturnType<typeof getCalendarHistory>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCalendarHistory<TData = Awaited<ReturnType<typeof getCalendarHistory>>, TError = ErrorType<unknown>>(
+ params?: GetCalendarHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCalendarHistory>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCalendarHistory>>,
+          TError,
+          Awaited<ReturnType<typeof getCalendarHistory>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCalendarHistory<TData = Awaited<ReturnType<typeof getCalendarHistory>>, TError = ErrorType<unknown>>(
+ params?: GetCalendarHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCalendarHistory>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetCalendarHistory<TData = Awaited<ReturnType<typeof getCalendarHistory>>, TError = ErrorType<unknown>>(
+ params?: GetCalendarHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCalendarHistory>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetCalendarHistoryQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

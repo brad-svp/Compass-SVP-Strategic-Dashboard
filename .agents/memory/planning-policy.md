@@ -22,3 +22,15 @@ The Master Calendar also includes date-specific planning notes, not just events:
 **Why:** The user explicitly chose independent personal priorities and asked to separate the current-work dashboard from historical/future navigation. They corrected a misunderstanding: viewing teammates is never restricted to administrators; only editing is role-restricted.
 
 **How to apply:** Preserve these distinctions when changing planning models, dashboard widgets, calendar navigation or MCP explanations. Do not reintroduce shared company priority titles or home date selectors.
+
+All signed-in staff may manage Master Calendar events and planning notes; a shared change log must identify what changed, when and by whom. Program configuration stays administrator-controlled. MCP calendar access remains read-only.
+
+**Why:** The user explicitly expanded calendar editing from administrators to all users while requesting visible accountability for changes.
+
+**How to apply:** Do not restore admin-only event editing when adjusting calendar permissions or confuse web editing with MCP write access.
+
+Only the actual current 6x6 should offer copy-forward to the next period. Keep the original priority; respect the same owner/admin editing boundaries.
+
+**Why:** The user requested a quick carry-forward action specifically from the Current 6x6, not arbitrary historical/future plans.
+
+**How to apply:** Keep this action tied to the period containing today rather than whichever period is currently selected for browsing.

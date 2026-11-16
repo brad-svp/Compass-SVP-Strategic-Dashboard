@@ -6,6 +6,7 @@ import {
   CreateFoundationItemResponse, UpdateFoundationItemParams, UpdateFoundationItemBody, UpdateFoundationItemResponse,
 } from "@workspace/api-zod";
 import { staffAuth } from "../middlewares/staffAuth";
+import profilePhotosRouter from "./profile-photos";
 import { saveFoundation } from "../lib/foundationService";
 import { getClerkProxyHost } from "../middlewares/clerkProxyMiddleware";
 import okrsRouter from "./okrs";
@@ -42,6 +43,7 @@ router.use("/svp", accountabilityRouter);
 router.use("/svp", scorecardRouter);
 router.use("/svp", sixBySixRouter);
 router.use("/svp", calendarRouter);
+router.use("/svp", profilePhotosRouter);
 router.use("/svp", systemsRouter);
 router.use("/svp", purposeRouter);
 router.use("/svp", calendarProgramsRouter);
