@@ -3,3 +3,4 @@
 - [Database check constraints](database-checks.md) — verify live constraint definitions after changing them; a successful schema push can leave old checks in place.
 - [Object Storage compatibility](object-storage-compatibility.md) — the supplied sidecar client needs the compatible SDK major; verify an actual upload before upgrading it.
 - [Organizational brain policy](organizational-brain-policy.md) — contributions are searchable unreviewed; admins review periodically; Claude reads operations and writes knowledge only.
+- [SVP Compass identity](product-identity.md) — the user selected SVP Compass as the app's new name and requested a compass-based logo and brand.
