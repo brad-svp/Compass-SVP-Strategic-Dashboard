@@ -12,7 +12,7 @@ export const systemInput = z.object({
       return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password && !/[\r\n]/.test(value);
     } catch { return false; }
   }, "Use an HTTP or HTTPS link without embedded credentials."),
-  purpose: z.string().max(4000), howUsed: z.string().max(8000), audience: z.string().max(2000),
+  purpose: z.string().max(12002), howUsed: z.string().max(8000), audience: z.string().max(2000),
   usedByIds: z.array(z.string().min(1)).max(100).transform(ids => [...new Set(ids)]),
   ownerId: z.string().min(1).nullable(), category: z.string().trim().max(100), cadence: z.string().trim().max(200),
   accessInstructions: z.string().max(4000), status: z.enum(["active", "retired"]),

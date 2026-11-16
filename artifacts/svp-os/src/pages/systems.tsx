@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useStaffSession } from '@/lib/session-context';
 import { errorMessage, errorStatus, fmtDate } from '@/lib/format';
-import { LIMITS, blankSystem, categoriesOf, draftFrom, filterSystems, hostOf, toInput, validateSystem, type SystemDraft } from '@/lib/systems';
+import { LIMITS, blankSystem, categoriesOf, draftFrom, filterSystems, hostOf, howWhy, toInput, validateSystem, type SystemDraft } from '@/lib/systems';
 import { cn } from '@/lib/utils';
 
 type Staff = Foundation['staff'][number];
@@ -75,18 +75,6 @@ function ExtLink({ url, className, testId }: { url: string; className?: string; 
   );
 }
 
-function People({ ids, staffById, colorOf, max = 5 }: { ids: string[]; staffById: Map<string, Staff>; colorOf: (s?: Staff) => string | undefined; max?: number }) {
-  if (!ids.length) return <span className="text-[12px] text-muted-foreground">--</span>;
-  return (
-    <span className="flex items-center">
-      <span className="flex -space-x-1.5">
-        {ids.slice(0, max).map((id) => { const s = staffById.get(id); return <span key={id} title={s?.name ?? 'Former staff'}><StaffAvatar name={s?.name ?? '?'} url={s?.avatarUrl} color={colorOf(s)} size="h-6 w-6" /></span>; })}
-      </span>
-      {ids.length > max && <span className="ml-1.5 font-mono text-[11px] text-muted-foreground">+{ids.length - max}</span>}
-    </span>
-  );
-}
-
 /* ---------- form ---------- */
 
 function SystemForm({ open, onOpenChange, editing, staff, categories, writes }: {
@@ -112,12 +100,9 @@ function SystemForm({ open, onOpenChange, editing, staff, categories, writes }: 
   const set = <K extends keyof SystemDraft>(k: K, v: SystemDraft[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const errors = validateSystem(draft);
   const valid = Object.keys(errors).length === 0;
-  const original = editing ? new Set([...editing.usedByIds, editing.ownerId ?? '']) : new Set<string>();
-  const selectable = staff.filter((s) => s.active || original.has(s.id) || draft.usedByIds.includes(s.id));
   const ownerChoices = staff.filter((s) => s.active || s.id === draft.ownerId || s.id === editing?.ownerId);
   const show = (k: keyof SystemDraft) => (touched || (k !== 'name' && k !== 'url') ? errors[k] : undefined);
 
-  const toggleUser = (id: string) => set('usedByIds', draft.usedByIds.includes(id) ? draft.usedByIds.filter((x) => x !== id) : [...draft.usedByIds, id]);
 
   const submit = async () => {
     setTouched(true);
@@ -161,41 +146,14 @@ function SystemForm({ open, onOpenChange, editing, staff, categories, writes }: 
         <Field label="Link" error={show('url')} hint="The address people open. No usernames or passwords in the link.">
           <Input value={draft.url} onChange={(e) => set('url', e.target.value)} inputMode="url" placeholder="https://" className="font-mono text-[13px]" data-testid="input-system-url" />
         </Field>
-        <Field label="Why we use it" error={show('purpose')} count={draft.purpose.length} max={LIMITS.purpose}>
-          <Textarea rows={2} value={draft.purpose} onChange={(e) => set('purpose', e.target.value)} placeholder="Our record of every donor, partner and gift." data-testid="input-system-purpose" />
+        <Field label="How/why we use it" error={show('purpose')} count={draft.purpose.length} max={LIMITS.purpose}>
+          <Textarea rows={5} value={draft.purpose} onChange={(e) => set('purpose', e.target.value)} placeholder="Our record of every donor, partner and gift. Log every gift within two days." data-testid="input-system-purpose" />
         </Field>
-        <Field label="How we use it" error={show('howUsed')} count={draft.howUsed.length} max={LIMITS.howUsed}>
-          <Textarea rows={3} value={draft.howUsed} onChange={(e) => set('howUsed', e.target.value)} placeholder="Log every gift within two days. Partner notes go on the contact, not in email." data-testid="input-system-how" />
-        </Field>
-        <Field label="Who uses it" hint="Roles or teams, in words." error={show('audience')} count={draft.audience.length} max={LIMITS.audience}>
-          <Input value={draft.audience} onChange={(e) => set('audience', e.target.value)} placeholder="Development team, ED, board treasurer" data-testid="input-system-audience" />
-        </Field>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Owner">
-            <NativeSelect value={draft.ownerId ?? ''} onChange={(e) => set('ownerId', e.target.value || null)} data-testid="select-system-owner">
-              <option value="">No owner yet</option>
-              {ownerChoices.map((s) => <option key={s.id} value={s.id} disabled={!s.active && s.id !== editing?.ownerId}>{s.name}{s.active ? '' : ' (inactive)'}</option>)}
-            </NativeSelect>
-          </Field>
-          <Field label="How often" error={show('cadence')} count={draft.cadence.length} max={LIMITS.cadence}>
-            <Input value={draft.cadence} onChange={(e) => set('cadence', e.target.value)} placeholder="Daily" data-testid="input-system-cadence" />
-          </Field>
-        </div>
-        <Field label={`Used by · ${draft.usedByIds.length} selected`} error={errors.usedByIds}>
-          <div className="grid max-h-44 grid-cols-1 gap-0.5 overflow-y-auto rounded-lg border border-border bg-white/60 p-1.5 sm:grid-cols-2" data-testid="list-system-users">
-            {selectable.length === 0 && <p className="px-2 py-1.5 text-[12px] text-muted-foreground">No staff yet.</p>}
-            {selectable.map((s) => {
-              const on = draft.usedByIds.includes(s.id);
-              const locked = !s.active && !on;
-              return (
-                <label key={s.id} className={cn('flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-[13px] transition-colors hover:bg-[#1D8BC4]/8', on && 'bg-[#1D8BC4]/[0.07]', locked && 'cursor-not-allowed opacity-50')}>
-                  <input type="checkbox" checked={on} disabled={locked} onChange={() => toggleUser(s.id)} className="h-3.5 w-3.5 accent-[#1D8BC4]" data-testid={`check-system-user-${s.id}`} />
-                  <span className="truncate text-[#0A2540]">{s.name}</span>
-                  {!s.active && <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">inactive</span>}
-                </label>
-              );
-            })}
-          </div>
+        <Field label="Owner">
+          <NativeSelect value={draft.ownerId ?? ''} onChange={(e) => set('ownerId', e.target.value || null)} data-testid="select-system-owner">
+            <option value="">No owner yet</option>
+            {ownerChoices.map((s) => <option key={s.id} value={s.id} disabled={!s.active && s.id !== editing?.ownerId}>{s.name}{s.active ? '' : ' (inactive)'}</option>)}
+          </NativeSelect>
         </Field>
         <Field label="Access notes" error={errors.accessInstructions} hint="How to get an account. Never write passwords here; point to the password manager." count={draft.accessInstructions.length} max={LIMITS.accessInstructions}>
           <Textarea rows={2} value={draft.accessInstructions} onChange={(e) => set('accessInstructions', e.target.value)} placeholder="Ask the owner for an invite. Shared login lives in the team password vault." data-testid="input-system-access" />
@@ -244,26 +202,16 @@ function SystemDetails({ sys, onClose, staffById, colorOf, onEdit }: { sys: SvpS
   const none = <span className="text-muted-foreground">Not written yet.</span>;
   return (
     <BrowserDialog open onOpenChange={(o) => { if (!o) onClose(); }} testId="system-details-dialog" title={sys.name}
-      description={[sys.category || 'Uncategorized', sys.cadence, sys.status === 'retired' ? 'Retired' : ''].filter(Boolean).join(' · ')}>
+      description={[sys.category || 'Uncategorized', sys.status === 'retired' ? 'Retired' : ''].filter(Boolean).join(' · ')}>
       <div className="space-y-4">
         <a href={sys.url} target="_blank" rel="noopener noreferrer" data-testid="link-system-open"
           className="group flex items-center justify-between gap-3 rounded-xl border border-[#1D8BC4]/30 bg-[#1D8BC4]/[0.06] px-4 py-3 transition-colors hover:bg-[#1D8BC4]/12">
           <span className="min-w-0"><span className="block text-[13px] font-semibold text-[#0A2540]">Open {sys.name}</span><span className="block truncate font-mono text-[12px] text-[#125F88]">{sys.url}</span></span>
           <ArrowUpRight className="h-4 w-4 shrink-0 text-[#125F88] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </a>
-        <Block label="Why we use it">{sys.purpose || none}</Block>
-        <Block label="How we use it">{sys.howUsed || none}</Block>
-        <Block label="Who uses it">{sys.audience || none}</Block>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Block label="Owner">
-            {owner ? <span className="flex items-center gap-2"><StaffAvatar name={owner.name} url={owner.avatarUrl} color={colorOf(owner)} size="h-6 w-6" />{owner.name}{!owner.active && <span className="text-[11px] text-muted-foreground">(inactive)</span>}</span> : sys.ownerId ? 'Former staff' : none}
-          </Block>
-          <Block label="How often">{sys.cadence || none}</Block>
-        </div>
-        <Block label={`Used by (${sys.usedByIds.length})`}>
-          {sys.usedByIds.length ? (
-            <span className="flex flex-wrap gap-1.5">{sys.usedByIds.map((id) => { const s = staffById.get(id); return <span key={id} className="rounded-full bg-[#0A2540]/6 px-2 py-0.5 text-[12px]">{s?.name ?? 'Former staff'}</span>; })}</span>
-          ) : none}
+        <Block label="How/why we use it">{howWhy(sys) || none}</Block>
+        <Block label="Owner">
+          {owner ? <span className="flex items-center gap-2"><StaffAvatar name={owner.name} url={owner.avatarUrl} color={colorOf(owner)} size="h-6 w-6" />{owner.name}{!owner.active && <span className="text-[11px] text-muted-foreground">(inactive)</span>}</span> : sys.ownerId ? 'Former staff' : none}
         </Block>
         <div className="rounded-xl bg-[#ECA519]/10 px-4 py-3">
           <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8A5A00]"><KeyRound className="h-3 w-3" />Getting access</div>
@@ -373,7 +321,7 @@ function Directory({ foundation }: { foundation: Foundation }) {
         <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Search names, purpose, people, access notes" className="pl-9" data-testid="input-search-systems" />
+            <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Search names, how/why, owner, access notes" className="pl-9" data-testid="input-search-systems" />
           </div>
           {categories.length > 0 && (
             <NativeSelect value={category} onChange={(e) => setCategory(e.target.value)} wrapClassName="md:w-52" data-testid="select-system-category">
@@ -400,15 +348,15 @@ function Directory({ foundation }: { foundation: Foundation }) {
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-card-border bg-card">
-            <div className="hidden grid-cols-[minmax(0,1.3fr)_minmax(0,2fr)_minmax(0,1.3fr)_7rem_auto] gap-4 border-b border-border/70 bg-[#0A2540]/[0.03] px-4 py-2 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[#3A4E63] lg:grid">
-              <span>System</span><span>Why and how</span><span>Who</span><span>Owner</span><span className="w-[5.5rem]" />
+            <div className="hidden grid-cols-[minmax(0,1.3fr)_minmax(0,2.6fr)_8rem_auto] gap-4 border-b border-border/70 bg-[#0A2540]/[0.03] px-4 py-2 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[#3A4E63] lg:grid">
+              <span>System</span><span>How/why we use it</span><span>Owner</span><span className="w-[5.5rem]" />
             </div>
             <ul className="divide-y divide-border/70">
               {shown.map((s) => {
                 const owner = s.ownerId ? staffById.get(s.ownerId) : undefined;
                 const retired = s.status === 'retired';
                 return (
-                  <li key={s.id} className={cn('group relative grid cursor-pointer gap-x-4 gap-y-2 px-4 py-3.5 transition-colors hover:bg-[#1D8BC4]/[0.045] lg:grid-cols-[minmax(0,1.3fr)_minmax(0,2fr)_minmax(0,1.3fr)_7rem_auto] lg:items-start', retired && 'bg-[#0A2540]/[0.02]', busyId === s.id && 'opacity-60')}
+                  <li key={s.id} className={cn('group relative grid cursor-pointer gap-x-4 gap-y-2 px-4 py-3.5 transition-colors hover:bg-[#1D8BC4]/[0.045] lg:grid-cols-[minmax(0,1.3fr)_minmax(0,2.6fr)_8rem_auto] lg:items-start', retired && 'bg-[#0A2540]/[0.02]', busyId === s.id && 'opacity-60')}
                     onClick={() => setDetailsId(s.id)} data-testid={`row-system-${s.id}`}>
                     <span className="absolute inset-y-3 left-0 w-[3px] rounded-r bg-[#1D8BC4] opacity-0 transition-opacity group-hover:opacity-100" />
                     <div className="min-w-0">
@@ -422,15 +370,7 @@ function Directory({ foundation }: { foundation: Foundation }) {
                       </div>
                     </div>
                     <div className="min-w-0 text-[13px] leading-snug">
-                      {s.purpose ? <p className="line-clamp-2 text-[#1E3349]">{s.purpose}</p> : <p className="italic text-muted-foreground">No purpose written yet.</p>}
-                      {s.howUsed && <p className="mt-0.5 line-clamp-1 text-[12px] text-muted-foreground">{s.howUsed}</p>}
-                    </div>
-                    <div className="min-w-0 space-y-1">
-                      {s.audience && <p className="line-clamp-1 text-[12.5px] text-[#3A4E63]">{s.audience}</p>}
-                      <div className="flex items-center gap-2">
-                        <People ids={s.usedByIds} staffById={staffById} colorOf={colorOf} />
-                        {s.cadence && <span className="truncate text-[11.5px] text-muted-foreground">{s.cadence}</span>}
-                      </div>
+                      {howWhy(s) ? <p className="line-clamp-3 whitespace-pre-line text-[#1E3349]">{howWhy(s)}</p> : <p className="italic text-muted-foreground">Not written yet.</p>}
                     </div>
                     <div className="flex min-w-0 items-center gap-1.5 text-[12.5px] text-[#1E3349]">
                       <span className="text-[11px] uppercase tracking-wider text-muted-foreground lg:hidden">Owner</span>

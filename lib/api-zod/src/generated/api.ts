@@ -734,7 +734,7 @@ export const getSystemsOverviewResponseSystemsItemOneNameMax = 200;
 
 export const getSystemsOverviewResponseSystemsItemOneUrlMax = 2000;
 
-export const getSystemsOverviewResponseSystemsItemOnePurposeMax = 4000;
+export const getSystemsOverviewResponseSystemsItemOnePurposeMax = 12002;
 
 export const getSystemsOverviewResponseSystemsItemOneHowUsedMax = 8000;
 
@@ -780,7 +780,7 @@ export const createSvpSystemBodyNameMax = 200;
 
 export const createSvpSystemBodyUrlMax = 2000;
 
-export const createSvpSystemBodyPurposeMax = 4000;
+export const createSvpSystemBodyPurposeMax = 12002;
 
 export const createSvpSystemBodyHowUsedMax = 8000;
 
@@ -829,7 +829,7 @@ export const updateSvpSystemBodyNameMax = 200;
 
 export const updateSvpSystemBodyUrlMax = 2000;
 
-export const updateSvpSystemBodyPurposeMax = 4000;
+export const updateSvpSystemBodyPurposeMax = 12002;
 
 export const updateSvpSystemBodyHowUsedMax = 8000;
 

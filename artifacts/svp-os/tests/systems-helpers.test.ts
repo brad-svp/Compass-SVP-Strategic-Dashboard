@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { SvpSystem } from '@workspace/api-client-react';
-import { blankSystem, categoriesOf, filterSystems, toInput, urlError, validateSystem } from '../src/lib/systems';
+import { LIMITS, blankSystem, categoriesOf, draftFrom, howWhy, filterSystems, toInput, urlError, validateSystem } from '../src/lib/systems';
 
 const sys = (p: Partial<SvpSystem>): SvpSystem => ({ ...blankSystem(), id: 'x', version: 1, canEdit: false, createdAt: '', updatedAt: '', expectedVersion: 1, name: 'A', url: 'https://a.org', ...p });
 
@@ -31,4 +31,35 @@ test('filter hides retired by default, searches people, sorts by name', () => {
   assert.deepEqual(filterSystems(list, { text: '', category: '', showRetired: true }).map((s) => s.id), ['2', '3', '1']);
   assert.deepEqual(filterSystems(list, { text: 'dana', category: '', showRetired: true }, (id) => (id === 's1' ? 'Dana' : '')).map((s) => s.id), ['3']);
   assert.deepEqual(categoriesOf(list), ['Files']);
+});
+
+test('howWhy combines unique trimmed purpose and howUsed', () => {
+  assert.equal(howWhy({ purpose: ' Why ', howUsed: 'How\n' }), 'Why\n\nHow');
+  assert.equal(howWhy({ purpose: 'Same', howUsed: ' Same ' }), 'Same');
+  assert.equal(howWhy({ purpose: '', howUsed: 'Only how' }), 'Only how');
+  assert.equal(howWhy({ purpose: ' ', howUsed: '' }), '');
+});
+test('draftFrom consolidates and preserves hidden fields', () => {
+  const d = draftFrom(sys({ purpose: 'Why', howUsed: 'How', audience: 'Dev team', cadence: 'Daily', usedByIds: ['a', 'b'] }));
+  assert.equal(d.purpose, 'Why\n\nHow');
+  assert.equal(d.howUsed, '');
+  assert.equal(d.audience, 'Dev team');
+  assert.equal(d.cadence, 'Daily');
+  assert.deepEqual(d.usedByIds, ['a', 'b']);
+});
+test('toInput sends canonical empty howUsed, keeps hidden values, and re-edit does not repeat text', () => {
+  const d = draftFrom(sys({ purpose: 'Why', howUsed: 'How', audience: ' Board ', cadence: 'Weekly', usedByIds: ['a'] }));
+  const input = toInput(d, 3);
+  assert.equal(input.howUsed, '');
+  assert.equal(input.purpose, 'Why\n\nHow');
+  assert.equal(input.audience, ' Board ');
+  assert.equal(input.cadence, 'Weekly');
+  assert.deepEqual(input.usedByIds, ['a']);
+  assert.equal(draftFrom(sys({ ...input })).purpose, 'Why\n\nHow');
+});
+test('combined field accepts 12002 characters and rejects more', () => {
+  assert.equal(LIMITS.purpose, 12002);
+  const ok = { ...blankSystem(), name: 'A', url: 'https://a.org', purpose: 'x'.repeat(12002) };
+  assert.equal(validateSystem(ok).purpose, undefined);
+  assert.ok(validateSystem({ ...ok, purpose: 'x'.repeat(12003) }).purpose);
 });

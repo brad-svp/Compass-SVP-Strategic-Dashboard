@@ -18,7 +18,7 @@ export interface SvpSystemInput {
      * @maxLength 2000
      */
   url: string;
-  /** @maxLength 4000 */
+  /** @maxLength 12002 */
   purpose: string;
   /** @maxLength 8000 */
   howUsed: string;

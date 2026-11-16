@@ -1,6 +1,6 @@
 import type { SvpSystem, SvpSystemInput } from '@workspace/api-client-react';
 
-export const LIMITS = { name: 200, url: 2000, purpose: 4000, howUsed: 8000, audience: 2000, category: 100, cadence: 200, accessInstructions: 4000, usedByIds: 100 } as const;
+export const LIMITS = { name: 200, url: 2000, purpose: 12002, howUsed: 8000, audience: 2000, category: 100, cadence: 200, accessInstructions: 4000, usedByIds: 100 } as const;
 
 export type SystemDraft = Omit<SvpSystemInput, 'expectedVersion'>;
 
@@ -8,8 +8,16 @@ export function blankSystem(): SystemDraft {
   return { name: '', url: '', purpose: '', howUsed: '', audience: '', usedByIds: [], ownerId: null, category: '', cadence: '', accessInstructions: '', status: 'active' };
 }
 
+/** Combined "how/why we use it": unique non-empty trimmed purpose and howUsed, joined by a blank line. */
+export function howWhy(s: Pick<SvpSystemInput, 'purpose' | 'howUsed'>) {
+  const parts: string[] = [];
+  for (const t of [s.purpose.trim(), s.howUsed.trim()]) if (t && !parts.includes(t)) parts.push(t);
+  return parts.join('\n\n');
+}
+
+/** Editing consolidates how+why into purpose; audience/cadence/usedByIds pass through untouched. */
 export function draftFrom(s: SvpSystem): SystemDraft {
-  return { name: s.name, url: s.url, purpose: s.purpose, howUsed: s.howUsed, audience: s.audience, usedByIds: [...s.usedByIds], ownerId: s.ownerId, category: s.category, cadence: s.cadence, accessInstructions: s.accessInstructions, status: s.status };
+  return { name: s.name, url: s.url, purpose: howWhy(s), howUsed: '', audience: s.audience, usedByIds: [...s.usedByIds], ownerId: s.ownerId, category: s.category, cadence: s.cadence, accessInstructions: s.accessInstructions, status: s.status };
 }
 
 /** Returns an error message, or null when the URL is a credential-free http(s) URL. */
@@ -42,8 +50,8 @@ export function validateSystem(d: SystemDraft): Partial<Record<keyof SystemDraft
 
 export function toInput(d: SystemDraft, expectedVersion: number): SvpSystemInput {
   return {
-    ...d, name: d.name.trim(), url: d.url.trim(), purpose: d.purpose.trim(), howUsed: d.howUsed.trim(), audience: d.audience.trim(),
-    category: d.category.trim(), cadence: d.cadence.trim(), accessInstructions: d.accessInstructions.trim(), expectedVersion,
+    ...d, name: d.name.trim(), url: d.url.trim(), purpose: d.purpose.trim(), howUsed: '', audience: d.audience,
+    category: d.category.trim(), cadence: d.cadence, accessInstructions: d.accessInstructions.trim(), expectedVersion,
   };
 }
 

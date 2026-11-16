@@ -120,10 +120,15 @@ try {
   await page.getByTestId("input-system-purpose").click();
   await page.keyboard.type("A real pointer click and keyboard entry.");
   assert.match(await page.getByTestId("input-system-purpose").inputValue(),/real pointer click/);
-  await page.getByTestId("list-system-users").getByRole("checkbox").first().click();
-  assert.equal(await page.getByTestId("list-system-users").getByRole("checkbox").first().isChecked(),true);
+  assert.equal(await page.getByTestId("list-system-users").count(),0);
+  assert.equal(await page.getByTestId("input-system-audience").count(),0);
+  assert.equal(await page.getByTestId("input-system-cadence").count(),0);
+  assert.equal(await page.getByTestId("input-system-how").count(),0);
+  assert.ok(await page.getByText("How/why we use it",{exact:true}).count()>0);
+  assert.ok(await page.getByText("Access notes",{exact:true}).count()>0);
   await page.getByTestId("select-system-owner").click();
   await page.getByRole("listbox").getByRole("option").filter({hasText:other.name}).click();
+  await page.screenshot({path:`${out}/systems-form.jpg`,fullPage:true});
   await page.getByTestId("button-cancel-system").click();
   await page.evaluate(()=>{document.body.style.pointerEvents="";});
   await page.goto(`${origin}/qbos`);
@@ -140,7 +145,7 @@ try {
   await qboDialog.getByRole("button",{name:"Cancel",exact:true}).click();
   await page.evaluate(()=>{document.body.style.pointerEvents="";});
   assert.deepEqual(errors,[]);
-  process.stdout.write("PASS: staff sees all plans but edits own; admin edits all; custom view survives new login on full 6x6; home shows own plan and one long link, without removed row/filters; timeline navigates; dropdown choices work; Systems fields, checkboxes and owner selection remain clickable under a page pointer lock.\n");
+  process.stdout.write("PASS: staff sees all plans but edits own; admin edits all; full-page custom view persists; home is own-only; timeline and outside-click menus work; simplified Systems form and QBO typing remain clickable under a page pointer lock.\n");
 } finally {
   // Restore each development account's original viewing choice, never its content.
   if(original){await login("staff");await context.request.put(`${origin}/api/svp/six-by-six/view-preferences`,{headers:{Origin:origin},data:original});}
