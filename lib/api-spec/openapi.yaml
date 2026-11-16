@@ -11,6 +11,132 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /svp/brain:
+    get:
+      operationId: getBrain
+      parameters:
+        - { in: query, name: q, schema: { type: string, maxLength: 500 } }
+        - { in: query, name: kind, schema: { type: string } }
+        - { in: query, name: programId, schema: { type: string } }
+        - { in: query, name: areaId, schema: { type: string } }
+        - { in: query, name: status, schema: { type: string, enum: [all, unreviewed, reviewed, overdue, conflicts, retired] } }
+        - { in: query, name: offset, schema: { type: integer, minimum: 0, maximum: 100000 } }
+      responses:
+        "200":
+          description: Permission-filtered knowledge and search results
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BrainWorkspace" }
+  /svp/brain/entries:
+    post:
+      operationId: createBrainEntry
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BrainEntryInput" } } } }
+      responses:
+        "201": { description: Saved as unreviewed, content: { application/json: { schema: { $ref: "#/components/schemas/MutationResult" } } } }
+  /svp/brain/entries/{id}:
+    parameters: [ { $ref: "#/components/parameters/EntityId" } ]
+    get:
+      operationId: getBrainEntry
+      responses:
+        "200": { description: Knowledge with history and files, content: { application/json: { schema: { $ref: "#/components/schemas/BrainDetail" } } } }
+    patch:
+      operationId: updateBrainEntry
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BrainEntryInput" } } } }
+      responses:
+        "200": { description: New unreviewed version, content: { application/json: { schema: { $ref: "#/components/schemas/MutationResult" } } } }
+  /svp/brain/entries/{id}/action:
+    parameters: [ { $ref: "#/components/parameters/EntityId" } ]
+    post:
+      operationId: actOnBrainEntry
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BrainActionInput" } } } }
+      responses:
+        "200": { description: Knowledge action recorded, content: { application/json: { schema: { $ref: "#/components/schemas/MutationResult" } } } }
+  /svp/brain/uploads:
+    post:
+      operationId: requestBrainUpload
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BrainUploadInput" } } } }
+      responses:
+        "201":
+          description: Direct private upload URL
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, uploadURL]
+                properties: { id: { type: string }, uploadURL: { type: string } }
+  /svp/brain/files/{id}/complete:
+    parameters: [ { $ref: "#/components/parameters/EntityId" } ]
+    post:
+      operationId: completeBrainUpload
+      responses:
+        "200": { description: Source preserved and queued for extraction, content: { application/json: { schema: { $ref: "#/components/schemas/MutationResult" } } } }
+  /svp/brain/files/{id}:
+    parameters: [ { $ref: "#/components/parameters/EntityId" } ]
+    get:
+      operationId: downloadBrainFile
+      responses:
+        "200": { description: Authenticated original attachment, content: { application/octet-stream: { schema: { type: string, format: binary } } } }
+    delete:
+      operationId: removeBrainFile
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/SixVersionInput" } } } }
+      responses:
+        "200": { description: Attachment removed from current version, content: { application/json: { schema: { $ref: "#/components/schemas/MutationResult" } } } }
+  /svp/brain/admin:
+    get:
+      operationId: getBrainAdmin
+      responses:
+        "200": { description: Admin review and indexing diagnostics, content: { application/json: { schema: { $ref: "#/components/schemas/BrainAdmin" } } } }
+  /svp/brain/settings:
+    patch:
+      operationId: updateBrainSettings
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BrainSettingsInput" } } } }
+      responses:
+        "200": { description: Default review interval updated, content: { application/json: { schema: { $ref: "#/components/schemas/MutationResult" } } } }
+  /svp/brain/jobs/{id}/retry:
+    parameters: [ { $ref: "#/components/parameters/EntityId" } ]
+    post:
+      operationId: retryBrainJob
+      responses:
+        "200": { description: Current content queued again, content: { application/json: { schema: { $ref: "#/components/schemas/MutationResult" } } } }
+  /svp/brain/reindex:
+    post:
+      operationId: reindexBrain
+      responses:
+        "200": { description: Active content queued, content: { application/json: { schema: { $ref: "#/components/schemas/MutationResult" } } } }
+  /svp/brain/connections:
+    get:
+      operationId: getBrainConnections
+      responses:
+        "200": { description: Personal Claude setup and grants, content: { application/json: { schema: { $ref: "#/components/schemas/BrainConnections" } } } }
+  /svp/brain/connections/{id}:
+    parameters: [ { $ref: "#/components/parameters/EntityId" } ]
+    delete:
+      operationId: revokeBrainConnection
+      responses:
+        "200": { description: Connection revoked, content: { application/json: { schema: { $ref: "#/components/schemas/MutationResult" } } } }
+  /svp/brain/oauth/requests/{id}:
+    parameters: [ { $ref: "#/components/parameters/EntityId" } ]
+    get:
+      operationId: getBrainConsent
+      responses:
+        "200": { description: OAuth consent request, content: { application/json: { schema: { $ref: "#/components/schemas/BrainConsent" } } } }
+    post:
+      operationId: decideBrainConsent
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BrainConsentInput" } } } }
+      responses:
+        "200":
+          description: Validated callback
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [redirectUrl]
+                properties: { redirectUrl: { type: string } }
+  /svp/brain/skill.zip:
+    get:
+      operationId: downloadBrainSkill
+      responses:
+        "200": { description: Importable Claude skill, content: { application/zip: { schema: { type: string, format: binary } } } }
   /svp/calendar/programs:
     post:
       operationId: createCalendarProgram
@@ -708,6 +834,208 @@ components:
         type: string
         enum: [staff, areas, cycles]
   schemas:
+    BrainLink:
+      type: object
+      required: [domain, id, label]
+      properties:
+        domain: { type: string, maxLength: 60 }
+        id: { type: string, maxLength: 100 }
+        label: { type: string, maxLength: 200 }
+    BrainEntryInput:
+      type: object
+      additionalProperties: false
+      required: [title, summary, content, kind, programId, areaId, ownerId, tags, sourceUrls, links, visibility, reviewIntervalDays, expectedVersion]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 240 }
+        summary: { type: string, maxLength: 2000 }
+        content: { type: string, maxLength: 80000 }
+        kind: { type: string, enum: [playbook, procedure, strategy, decision, lesson, reference] }
+        programId: { type: [string, "null"] }
+        areaId: { type: [string, "null"] }
+        ownerId: { type: string }
+        tags: { type: array, maxItems: 20, items: { type: string, minLength: 1, maxLength: 60 } }
+        sourceUrls: { type: array, maxItems: 20, items: { type: string, maxLength: 2000 } }
+        links: { type: array, maxItems: 30, items: { $ref: "#/components/schemas/BrainLink" } }
+        visibility: { type: string, enum: [staff, admin] }
+        reviewIntervalDays: { type: integer, minimum: 7, maximum: 730 }
+        expectedVersion: { type: integer, minimum: 0 }
+        requestKey: { type: string, minLength: 1, maxLength: 100 }
+    BrainEntry:
+      allOf:
+        - $ref: "#/components/schemas/BrainEntryInput"
+        - type: object
+          required: [id, authorId, reviewStatus, retired, conflict, version, via, reviewedAt, reviewerId, reviewDueAt, overdue, indexStatus, createdAt, updatedAt, canEdit, mergedIntoId]
+          properties:
+            id: { type: string }
+            authorId: { type: string }
+            reviewStatus: { type: string, enum: [unreviewed, reviewed] }
+            retired: { type: boolean }
+            conflict: { type: string }
+            mergedIntoId: { type: [string, "null"] }
+            version: { type: integer }
+            via: { type: string }
+            reviewedAt: { type: [string, "null"] }
+            reviewerId: { type: [string, "null"] }
+            reviewDueAt: { type: [string, "null"] }
+            overdue: { type: boolean }
+            indexStatus: { type: string }
+            createdAt: { type: string }
+            updatedAt: { type: string }
+            canEdit: { type: boolean }
+    BrainHit:
+      type: object
+      required: [entryId, title, reviewStatus, overdue, conflict, excerpt, sourceLabel, fileId, page, score, href]
+      properties:
+        entryId: { type: string }
+        title: { type: string }
+        reviewStatus: { type: string }
+        overdue: { type: boolean }
+        conflict: { type: string }
+        excerpt: { type: string }
+        sourceLabel: { type: string }
+        fileId: { type: [string, "null"] }
+        page: { type: [integer, "null"] }
+        score: { type: number }
+        href: { type: string }
+    BrainWorkspace:
+      type: object
+      required: [entries, hits, total, semanticReady, semanticMessage, defaultReviewDays]
+      properties:
+        entries: { type: array, items: { $ref: "#/components/schemas/BrainEntry" } }
+        hits: { type: array, items: { $ref: "#/components/schemas/BrainHit" } }
+        total: { type: integer }
+        semanticReady: { type: boolean }
+        semanticMessage: { type: string }
+        defaultReviewDays: { type: integer }
+    BrainFile:
+      type: object
+      required: [id, name, contentType, size, status, error, downloadUrl, createdAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        contentType: { type: string }
+        size: { type: integer }
+        status: { type: string }
+        error: { type: [string, "null"] }
+        downloadUrl: { type: [string, "null"] }
+        createdAt: { type: string }
+    BrainVersion:
+      type: object
+      required: [id, version, actorId, action, note, createdAt, title, content, summary, fileIds]
+      properties:
+        id: { type: string }
+        version: { type: integer }
+        actorId: { type: string }
+        action: { type: string }
+        note: { type: string }
+        createdAt: { type: string }
+        title: { type: string }
+        content: { type: string }
+        summary: { type: string }
+        fileIds: { type: array, items: { type: string } }
+    BrainDetail:
+      type: object
+      required: [entry, files, versions]
+      properties:
+        entry: { $ref: "#/components/schemas/BrainEntry" }
+        files: { type: array, items: { $ref: "#/components/schemas/BrainFile" } }
+        versions: { type: array, items: { $ref: "#/components/schemas/BrainVersion" } }
+    BrainActionInput:
+      type: object
+      additionalProperties: false
+      required: [action, expectedVersion]
+      properties:
+        action: { type: string, enum: [approve, retire, restore, restore_version, flag_conflict, clear_conflict, merge, propose_amendment] }
+        expectedVersion: { type: integer, minimum: 1 }
+        versionId: { type: string }
+        targetId: { type: string }
+        note: { type: string, maxLength: 8000 }
+    BrainUploadInput:
+      type: object
+      additionalProperties: false
+      required: [entryId, name, size, contentType, expectedVersion]
+      properties:
+        entryId: { type: string }
+        name: { type: string, minLength: 1, maxLength: 240 }
+        size: { type: integer, minimum: 1, maximum: 20971520 }
+        contentType: { type: string, minLength: 1, maxLength: 150 }
+        expectedVersion: { type: integer, minimum: 1 }
+        replacesId: { type: string }
+    BrainSettingsInput:
+      type: object
+      additionalProperties: false
+      required: [reviewIntervalDays, expectedVersion]
+      properties:
+        reviewIntervalDays: { type: integer, minimum: 7, maximum: 730 }
+        expectedVersion: { type: integer, minimum: 1 }
+    BrainJob:
+      type: object
+      required: [id, entryId, title, version, status, attempts, error]
+      properties:
+        id: { type: string }
+        entryId: { type: string }
+        title: { type: string }
+        version: { type: integer }
+        status: { type: string }
+        attempts: { type: integer }
+        error: { type: [string, "null"] }
+    BrainDuplicate:
+      type: object
+      required: [title, ids]
+      properties:
+        title: { type: string }
+        ids: { type: array, items: { type: string } }
+    BrainAdmin:
+      type: object
+      required: [settingsVersion, reviewIntervalDays, unreviewed, overdue, conflicts, failed, jobs, duplicates, model, modelState, modelMessage]
+      properties:
+        settingsVersion: { type: integer }
+        reviewIntervalDays: { type: integer }
+        unreviewed: { type: integer }
+        overdue: { type: integer }
+        conflicts: { type: integer }
+        failed: { type: integer }
+        jobs: { type: array, items: { $ref: "#/components/schemas/BrainJob" } }
+        duplicates: { type: array, items: { $ref: "#/components/schemas/BrainDuplicate" } }
+        model: { type: string }
+        modelState: { type: string }
+        modelMessage: { type: string }
+    BrainGrant:
+      type: object
+      required: [id, clientName, scopes, createdAt, lastUsedAt, revokedAt]
+      properties:
+        id: { type: string }
+        clientName: { type: string }
+        scopes: { type: array, items: { type: string } }
+        createdAt: { type: string }
+        lastUsedAt: { type: [string, "null"] }
+        revokedAt: { type: [string, "null"] }
+    BrainConnections:
+      type: object
+      required: [mcpUrl, published, clientId, scopes, grants, skillUrl, message]
+      properties:
+        mcpUrl: { type: string }
+        published: { type: boolean }
+        clientId: { type: string }
+        scopes: { type: array, items: { type: string } }
+        grants: { type: array, items: { $ref: "#/components/schemas/BrainGrant" } }
+        skillUrl: { type: string }
+        message: { type: string }
+    BrainConsent:
+      type: object
+      required: [id, clientName, scopes, resource, redirectUri, expiresAt]
+      properties:
+        id: { type: string }
+        clientName: { type: string }
+        scopes: { type: array, items: { type: string } }
+        resource: { type: string }
+        redirectUri: { type: string }
+        expiresAt: { type: string }
+    BrainConsentInput:
+      type: object
+      additionalProperties: false
+      required: [allow]
+      properties: { allow: { type: boolean } }
     ProgramLogoUploadRequest:
       type: object
       additionalProperties: false

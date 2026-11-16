@@ -9,8 +9,8 @@ New contributions must be searchable immediately, clearly marked **Unreviewed**.
 
 **Why:** The user explicitly selected “Searchable immediately, marked unreviewed” and requested periodic review/amendments.
 
-Claude may read permitted operating data and save knowledge, but must not change operational records.
+Claude may read permitted operating data and save knowledge, but must not change operational records. Calendar, QBOs and 6x6 must all be available through MCP as read-only data.
 
-**Why:** The user explicitly selected “Save knowledge only” rather than allowing operational updates.
+**Why:** The user explicitly selected “Save knowledge only” rather than allowing operational updates, and reiterated read-only MCP access for Calendar, QBOs and 6x6.
 
 **How to apply:** Preserve these boundaries in the web editor, retrieval responses, Claude skill, OAuth scopes and MCP tool set. This records the agreed requirements, not a claim that the feature has been implemented.
