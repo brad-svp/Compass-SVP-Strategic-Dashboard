@@ -57,7 +57,7 @@ function EventDetails({ e, staff, canEdit, onEdit, onClose }: { e: CalendarEvent
         <Row label="Source">
           {e.imported ? (
             <span>Imported once from the Notion master calendar{e.sourceUrl && isHttpUrl(e.sourceUrl) && <> (<a href={e.sourceUrl} target="_blank" rel="noreferrer noopener" className="text-[#125F88] underline" data-testid="link-event-source">Source calendar</a>)</>}. Not a live sync; edits here do not change Notion.</span>
-          ) : 'Created in SVP OS'}
+          ) : 'Created in SVP Compass'}
           <span className="block text-[12px] text-muted-foreground">Last updated {fmtDate(e.updatedAt)}</span>
         </Row>
       </dl>

@@ -153,7 +153,7 @@ function LegacyOkrRedirect() {
 
 const LearnPreview = () => (
   <PhasePreview eyebrow="Learn" title="Getting better on purpose." icon={GraduationCap} color="#ECA519"
-    intro="Guides for working in SVP OS, plus what the team learns cycle to cycle."
+    intro="Guides for working in SVP Compass, plus what the team learns cycle to cycle."
     items={[
       { title: 'How we use QBOs', body: 'A short guide to writing good quarterly objectives.' },
       { title: 'Cycle retrospectives', body: 'What worked, what we changed.' },
@@ -202,8 +202,8 @@ function ClerkProviderWithRoutes() {
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
       localization={{
-        signIn: { start: { title: 'Sign in to SVP OS', subtitle: 'Continue with your SVP Google account' } },
-        signUp: { start: { title: 'Sign in to SVP OS', subtitle: 'Continue with your SVP Google account' } },
+        signIn: { start: { title: 'Sign in to SVP Compass', subtitle: 'Continue with your SVP Google account' } },
+        signUp: { start: { title: 'Sign in to SVP Compass', subtitle: 'Continue with your SVP Google account' } },
       }}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}

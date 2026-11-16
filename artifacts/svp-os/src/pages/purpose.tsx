@@ -91,7 +91,7 @@ function PurposeEditor({ open, onOpenChange, purpose }: { open: boolean; onOpenC
   const label = 'text-[12px] font-semibold uppercase tracking-wider text-[#3A4E63]';
   return (
     <BrowserDialog open={open} onOpenChange={onOpenChange} testId="purpose-editor-dialog" title="Edit mission, vision and values"
-      description="Changes apply inside SVP OS only. They do not update the public website.">
+      description="Changes apply inside SVP Compass only. They do not update the public website.">
       <div className="space-y-5">
         <div className="space-y-1.5">
           <div className="flex items-baseline justify-between"><Label className={label}>Mission</Label><Counter n={draft.mission.length} max={PURPOSE_LIMITS.statement} /></div>
@@ -239,7 +239,7 @@ export default function PurposePage() {
         </section>
 
         <footer className="flex flex-col gap-2 border-t border-[#0A2540]/10 pt-4 text-[12px] text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <span data-testid="text-purpose-updated">Updated {fmtDate(p.updatedAt, 'MMM d, yyyy')} · Edited inside SVP OS, not synced with the website</span>
+          <span data-testid="text-purpose-updated">Updated {fmtDate(p.updatedAt, 'MMM d, yyyy')} · Edited inside SVP Compass, not synced with the website</span>
           {sources.length > 0 && (
             <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span>Originally drawn from</span>

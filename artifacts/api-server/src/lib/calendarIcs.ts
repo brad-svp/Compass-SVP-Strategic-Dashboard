@@ -16,8 +16,8 @@ export function foldIcsLine(line: string) {
 }
 export function renderCalendarIcs(events: Event[]) {
   const lines = [
-    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//SVP OS//Master Calendar//EN", "CALSCALE:GREGORIAN",
-    "METHOD:PUBLISH", "X-WR-CALNAME:SVP Master Calendar", "X-WR-TIMEZONE:America/Los_Angeles",
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//SVP Compass//Master Calendar//EN", "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH", "X-WR-CALNAME:SVP Compass Master Calendar", "X-WR-TIMEZONE:America/Los_Angeles",
     "REFRESH-INTERVAL;VALUE=DURATION:PT1H", "X-PUBLISHED-TTL:PT1H",
   ];
   for (const event of events) {

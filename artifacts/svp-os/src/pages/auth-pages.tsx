@@ -7,6 +7,7 @@ import { BrandLockup, LogoMark } from '@/components/brand-logo';
 import { createDevAuth } from '@workspace/api-client-react';
 import { useDevAuth } from '@/lib/dev-auth';
 import { errorMessage } from '@/lib/format';
+import { useDocumentTitle } from '@/components/home/community';
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 const origin = window.location.origin;
@@ -79,7 +80,7 @@ function GoogleCard() {
   return (
     <div className="rise w-[420px] max-w-full rounded-3xl bg-[#FBFAF6] p-8 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)] md:p-10">
       <LogoMark className="h-12 w-12" />
-      <h1 className="mt-6 font-display text-3xl font-semibold text-[#0A2540]">Sign in to SVP OS</h1>
+      <h1 className="mt-6 font-display text-3xl font-semibold text-[#0A2540]">Sign in to SVP Compass</h1>
       <p className="mt-2 text-[15px] leading-relaxed text-[#3A4E63]">
         The staff workspace for SVP Sacramento. Use your SVP Google Workspace account.
       </p>
@@ -122,9 +123,9 @@ function GoogleCard() {
 function CallbackCard() {
   return (
     <div className="flex flex-col items-center gap-4 text-center" data-testid="status-sso-callback">
-      <LogoMark className="h-14 w-14 animate-pulse" />
+      <LogoMark light className="h-14 w-14 animate-pulse" />
       <div className="font-display text-2xl text-[#F6F3EC]">Finishing sign-in</div>
-      <p className="text-sm text-[#9FB3C8]">Confirming your Google account with SVP OS.</p>
+      <p className="text-sm text-[#9FB3C8]">Confirming your Google account with SVP Compass.</p>
       <AuthenticateWithRedirectCallback
         signInUrl={`${basePath}/sign-in`}
         signUpUrl={`${basePath}/sign-up`}
@@ -141,13 +142,14 @@ function ContinueCard() {
   return (
     <div className="rise w-[420px] max-w-full rounded-3xl bg-[#FBFAF6] p-8 md:p-10" data-testid="status-signup-incomplete">
       <h1 className="font-display text-2xl font-semibold text-[#0A2540]">We couldn't finish that sign-in</h1>
-      <p className="mt-2 text-[15px] text-[#3A4E63]">Google didn't return everything SVP OS needs. Try again with your SVP Google Workspace account.</p>
+      <p className="mt-2 text-[15px] text-[#3A4E63]">Google didn't return everything SVP Compass needs. Try again with your SVP Google Workspace account.</p>
       <Link href="/sign-in" className="mt-6 inline-flex h-11 items-center rounded-xl bg-[#0A2540] px-5 text-sm font-semibold text-white" data-testid="link-retry-signin">Back to sign in</Link>
     </div>
   );
 }
 
 function AuthRoute() {
+  useDocumentTitle('Sign in · SVP Compass');
   const dev = useDevAuth();
   const [location] = useLocation();
   if (dev.signedIn) return <Redirect to="/dashboard" />;

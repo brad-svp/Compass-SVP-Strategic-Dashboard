@@ -29,7 +29,7 @@ router.use("/svp", (req, res, next) => {
     const origin = req.get("origin");
     // Browser writes must be same-origin; non-browser MCP will use its own authenticated transport.
     if (!origin || (() => { try { return new URL(origin).host !== getClerkProxyHost(req); } catch { return true; } })()) {
-      res.status(403).json({ error: "This request must come from SVP OS." }); return;
+      res.status(403).json({ error: "This request must come from SVP Compass." }); return;
     }
   }
   next();

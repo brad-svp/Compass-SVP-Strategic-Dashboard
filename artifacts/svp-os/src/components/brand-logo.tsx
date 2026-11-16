@@ -1,27 +1,30 @@
 import { cn } from '@/lib/utils';
 
-export function LogoMark({ className }: { className?: string }) {
+/** True North mark: ring + two-part northeast needle + hub. Matches public/brand/svp-compass-mark*.svg. */
+export function LogoMark({ className, light = false }: { className?: string; light?: boolean }) {
+  const ring = light ? '#F6F3EC' : '#0A2540';
+  const north = light ? '#5FB6E3' : '#1D8BC4';
+  const south = light ? '#F6F3EC' : '#0A2540';
+  const hub = light ? '#0A2540' : '#F6F3EC';
   return (
     <svg viewBox="0 0 64 64" className={cn('h-9 w-9 shrink-0', className)} aria-hidden="true">
-      <rect width="64" height="64" rx="16" fill="#0A2540" />
-      <rect x="13" y="13" width="17" height="17" rx="4" fill="#1D8BC4" />
-      <rect x="34" y="13" width="17" height="17" rx="8.5" fill="#49B949" />
-      <rect x="13" y="34" width="17" height="17" rx="8.5" fill="#ECA519" />
-      <rect x="34" y="34" width="17" height="17" rx="4" fill="#B03E71" />
-      <circle cx="32" cy="32" r="4" fill="#F6F3EC" />
+      <circle cx="32" cy="32" r="25" fill="none" stroke={ring} strokeWidth="5" />
+      <path d="M46.5 17.5 36.6 36.6 27.4 27.4Z" fill={north} />
+      <path d="M17.5 46.5 27.4 27.4 36.6 36.6Z" fill={south} />
+      <circle cx="32" cy="32" r="4.2" fill={hub} />
     </svg>
   );
 }
 
 export function BrandLockup({ light = false, className }: { light?: boolean; className?: string }) {
   return (
-    <div className={cn('flex items-center gap-3', className)}>
-      <LogoMark className={light ? 'ring-1 ring-white/15 rounded-[10px]' : undefined} />
-      <div className="leading-none">
-        <div className={cn('font-display text-lg font-semibold', light ? 'text-[#F6F3EC]' : 'text-[#0A2540]')}>
-          SVP OS
+    <div className={cn('flex min-w-0 items-center gap-2.5', className)} aria-label="SVP Compass, Sacramento" role="img">
+      <LogoMark light={light} />
+      <div className="min-w-0 leading-none" aria-hidden="true">
+        <div className={cn('font-display truncate text-lg font-semibold', light ? 'text-[#F6F3EC]' : 'text-[#0A2540]')}>
+          SVP Compass
         </div>
-        <div className={cn('mt-1 text-[10px] font-semibold uppercase tracking-[0.18em]', light ? 'text-[#8FC6E4]' : 'text-[#1D8BC4]')}>
+        <div className={cn('mt-1 text-[10px] font-semibold uppercase tracking-[0.18em]', light ? 'text-[#8FC6E4]' : 'text-[#006AB6]')}>
           Sacramento
         </div>
       </div>

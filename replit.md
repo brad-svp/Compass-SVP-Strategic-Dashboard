@@ -1,4 +1,4 @@
-# SVP OS
+# SVP Compass
 
 Internal strategic operating system for SVP Sacramento: quarterly alignment, weekly measures, six-week planning, team ownership, and the master events calendar.
 

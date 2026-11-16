@@ -74,6 +74,8 @@ test("private subscriptions work without a session, store hashes only, and prese
   assert.notEqual(record.tokenHash, key);
   const ics = await getCalendarFeed(key);
   assert.match(ics, /BEGIN:VCALENDAR\r\n/);
+  assert.match(ics, /PRODID:-\/\/SVP Compass\/\/Master Calendar\/\/EN\r\n/);
+  assert.match(ics, /X-WR-CALNAME:SVP Compass Master Calendar\r\n/);
   assert.match(ics, /DTSTART;VALUE=DATE:20270517/);
   assert.match(ics, /DTEND;VALUE=DATE:20270522/);
   assert.match(ics, /DTSTART:20270129T013000Z/);

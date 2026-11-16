@@ -7,11 +7,11 @@ The user selected **SVP Compass** as the new name for the existing SVP OS app an
 
 **Why:** The user said, “I like SVP compass -- les rename this and create a new logo and brand around compass.”
 
-The user authorized choosing the preferred logo direction and building it without another concept-selection approval: “Just go ahead and pick your favorite - and build.”
+The user approved **True North** after reviewing three compass identity directions: a simple circular compass with a bold two-part northeast needle, retaining navy, blue and warm cream with Fraunces and Inter.
 
-**Why:** The user explicitly delegated the design selection.
+**Why:** The user selected “True North (recommended)” in the direction-selection form.
 
-**How to apply:** Use SVP Compass in new user-facing product material, including the organizational brain and Claude connection. Choose and implement the compass identity without requiring the user to review three concepts first. Do not treat this as a request to replace the SVP Sacramento organization's corporate identity.
+**How to apply:** Use SVP Compass in new user-facing product material, including the organizational brain and Claude connection. Keep future brand work consistent with the approved True North direction. Do not treat this as a request to replace the SVP Sacramento organization's corporate identity.
 
 The home experience should feel intended for internal staff rather than a public marketing audience, with more emphasis on SVP's mission and authentic community photos from its photo library.
 

@@ -98,7 +98,7 @@ export default function Landing() {
       </main>
 
       <footer className="mx-auto flex max-w-6xl flex-col justify-between gap-1 border-t border-[#0A2540]/10 px-5 py-5 text-[12px] text-[#3A4E63] md:flex-row md:px-8">
-        <span>Social Venture Partners Sacramento</span>
+        <span>Social Venture Partners Sacramento · <a className="underline underline-offset-4" href={`${import.meta.env.BASE_URL}brand/brand-guide.html`}>SVP Compass brand guide</a></span>
         <span>Internal tool for SVP staff. Access limited to active staff accounts.</span>
       </footer>
     </div>

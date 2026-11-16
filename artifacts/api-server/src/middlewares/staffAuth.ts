@@ -20,7 +20,7 @@ export const staffAuth: RequestHandler = async (req, res, next) => {
     account.provider === "oauth_google" && account.emailAddress?.toLowerCase() === email &&
     account.verification?.status === "verified");
   if (!google || primary?.verification?.status !== "verified" || !email?.endsWith("@svpsacramento.org")) {
-    res.status(403).json({ error: "SVP OS is for invited staff using their svpsacramento.org Google account. Please switch accounts." }); return;
+    res.status(403).json({ error: "SVP Compass is for invited staff using their svpsacramento.org Google account. Please switch accounts." }); return;
   }
   const [staff] = await db.select().from(usersTable).where(eq(usersTable.email, email));
   if (!staff?.active || (staff.clerkId && staff.clerkId !== userId)) {

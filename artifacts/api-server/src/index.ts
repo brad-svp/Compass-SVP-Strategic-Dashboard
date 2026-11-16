@@ -29,4 +29,4 @@ seedFoundation().then(seedAccountability).then(seedCalendar).then(seedCalendarPr
 
   logger.info({ port }, "Server listening");
   startBrainWorker();
-})).catch((err) => { logger.error({ err }, "Unable to initialize SVP OS"); process.exit(1); });
+})).catch((err) => { logger.error({ err }, "Unable to initialize SVP Compass"); process.exit(1); });

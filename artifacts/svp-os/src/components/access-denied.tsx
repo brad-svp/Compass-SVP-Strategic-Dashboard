@@ -17,10 +17,10 @@ export function AccessDenied({ status, inline = false }: { status?: number; inli
       </h1>
       <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
         {inline
-          ? 'This space is for SVP OS administrators. Ask an admin if you need a change to staff, areas, or cycles.'
+          ? 'This space is for SVP Compass administrators. Ask an admin if you need a change to staff, areas, or cycles.'
           : isAuth
             ? 'We could not confirm your sign-in. Sign out and sign back in with your SVP Google account.'
-            : 'SVP OS is open to active SVP Sacramento staff signing in with their work Google account. If you think this is a mistake, ask an admin to add your email.'}
+            : 'SVP Compass is open to active SVP Sacramento staff signing in with their work Google account. If you think this is a mistake, ask an admin to add your email.'}
       </p>
       <div className="mt-7 flex flex-wrap justify-center gap-3">
         {inline ? (

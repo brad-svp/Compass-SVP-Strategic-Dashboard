@@ -1,0 +1,30 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "o7j0llf489ptiazabqbGS"
+uri = "file://artifacts/svp-os/public/brand/svp-compass-brand-kit.zip"
+type = "unspecified"
+title = "SVP Compass brand kit — corrected"
+description = "Final 52-file package with validated outlined SVG wordmarks, transparent PNGs, light/dark and single-color marks, favicons, tokens and offline guide."
+logical_id = "d1606110-d488-4422-a09f-535062a69568"
+content_hash = "sha256:a4de8debade11153c7b77cbbb2c05a32096398e9eecfe14f39fe858c33aa8fc6"
+size = 647650
+mtime_ms = 1794835952167
+storage_uri = "gcs://replit-rams-assets-picard/rams/assets/repl:e6671409-08d1-4e4b-8127-3be27c736a83/d1606110-d488-4422-a09f-535062a69568/206c374a-6b7e-435d-92e1-7a4bd5844c38"
+storage_version_token = "1794835973270372"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "IVQNC03DIz3gZVm4pn9Ow"
+uri = "file://artifacts/svp-os/public/brand/brand-guide.html"
+type = "html"
+title = "SVP Compass brand guide"
+description = "Updated offline guide displaying the actual corrected vector wordmarks, with colors, typography and accessibility guidance."
+logical_id = "bde6ff87-07d2-4738-b189-ffe673a6023e"
+content_hash = "sha256:20bdd49824d20b8ccb0999084da221e18f763fcaffe8357d9c504e4556bbbed2"
+size = 589975
+mtime_ms = 1794835951855
+storage_uri = "gcs://replit-rams-assets-picard/rams/assets/repl:e6671409-08d1-4e4b-8127-3be27c736a83/bde6ff87-07d2-4738-b189-ffe673a6023e/942efdf4-ae4d-47a5-a7ac-82043466e6b3"
+storage_version_token = "1794835973892869"
+content_type = "text/html"
