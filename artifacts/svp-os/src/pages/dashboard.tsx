@@ -12,8 +12,11 @@ import { CheckInDialog } from '@/components/okr/dialogs';
 import { useStaffSession } from '@/lib/session-context';
 import { avgProgress, bySort, krValueLabel, useOkrActions, useOkrWorkspace } from '@/lib/okr';
 import { errorMessage, fmtDate, pickCurrentCycle } from '@/lib/format';
+import { MissionPanel } from '@/components/home/mission-panel';
+import { useDocumentTitle } from '@/components/home/community';
 
 function DashboardBody({ data }: { data: Foundation }) {
+  useDocumentTitle('Dashboard · SVP Compass');
   const me = useStaffSession();
   const q = useOkrWorkspace();
   const actions = useOkrActions();
@@ -67,6 +70,8 @@ function DashboardBody({ data }: { data: Foundation }) {
           {QUARTERS.map((qq) => <option key={qq} value={qq}>{qq}</option>)}
         </NativeSelect>
       </div>
+
+      <MissionPanel />
 
       {myKrs.length > 0 && (
         <Panel className="rise mb-5 border-[#1D8BC4]/30 bg-[#1D8BC4]/[0.04]">
