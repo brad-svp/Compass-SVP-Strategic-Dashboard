@@ -5,9 +5,13 @@ import {
   UpdateSixMomentParams, UpdateSixMomentBody, UpdateSixMomentResponse,
   CreateSixItemBody, CreateSixItemResponse, UpdateSixItemParams, UpdateSixItemBody, UpdateSixItemResponse,
   DeleteSixItemParams, DeleteSixItemBody, DeleteSixItemResponse,
+  GetSixViewPreferencesResponse,SaveSixViewPreferencesBody,SaveSixViewPreferencesResponse,
 } from "@workspace/api-zod";
 import { getSixBySix, saveSixPeriod, saveSixMoment, saveSixItem, deleteSixItem } from "../lib/sixBySixService";
+import { getSixViewPreferences,saveSixViewPreferences } from "../lib/staffViewPreferencesService";
 const router: IRouter = Router();
+router.get("/six-by-six/view-preferences",async(_req,res)=>res.json(GetSixViewPreferencesResponse.parse(await getSixViewPreferences(res.locals.actor))));
+router.put("/six-by-six/view-preferences",async(req,res)=>res.json(SaveSixViewPreferencesResponse.parse(await saveSixViewPreferences(res.locals.actor,SaveSixViewPreferencesBody.strict().parse(req.body)))));
 router.get("/six-by-six", async (_req, res) => res.json(GetSixBySixResponse.parse(await getSixBySix(res.locals.actor))));
 router.post("/six-by-six/periods", async (req, res) => {
   res.status(201).json(CreateSixPeriodResponse.parse(await saveSixPeriod(res.locals.actor, CreateSixPeriodBody.strict().parse(req.body))));

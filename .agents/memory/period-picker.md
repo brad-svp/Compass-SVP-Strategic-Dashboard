@@ -8,3 +8,15 @@ Treat the user's embedded-preview failure reports as unresolved by a successful 
 **Why:** Custom popup choices and their native-select replacements both immediately closed for the user in the actual Replit preview. Standalone and simulated same-origin iframe checks had passed, so those checks did not establish that the user's environment was fixed.
 
 **How to apply:** Report the exact verification context and do not claim cross-origin embedded-preview behavior was tested without matching evidence. Follow the current interaction rules in replit.md rather than restoring a popup on the strength of a standalone pass.
+
+Mobile option lists can contain all expected records but render at zero height. Check the visible list's bounding box, not just its option count. A soft keyboard changes `visualViewport` independently of `innerHeight`; reserve actual space for the list beside its search and close controls.
+
+**Why:** The user's iPad screenshot showed a populated program selector with no visible choices. Browser checks must cover rendering and actual selection, not just correct data.
+
+**How to apply:** Include a reduced-height viewport and real selection interaction in regression checks. A Chromium check remains distinct from the user's actual iPad embedded Safari environment.
+
+Dropdowns must close on an outside pointer click, retain interaction within the list, and have no "Close choices" button. Outside dismissal must not prevent the clicked form field from receiving focus.
+
+**Why:** The user explicitly requested normal outside-click dismissal after seeing a persistent manual dropdown over the Brain form.
+
+**How to apply:** Register outside-pointer handling after the opening click and exclude the trigger/list from dismissal; do not bring back blur-driven automatic dismissal.

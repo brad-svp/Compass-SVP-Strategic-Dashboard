@@ -7,6 +7,7 @@ import { clerkMiddleware } from "@clerk/express";
 import { publishableKeyFromHost } from "@clerk/shared/keys";
 import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware";
 import { AppError } from "./lib/permissions";
+import brainMcpRouter from "./routes/brain-mcp";
 
 const app: Express = express();
 
@@ -31,12 +32,13 @@ app.use(
 );
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 app.use(cors({ credentials: true, origin: false }));
-app.use(express.json({ limit: "128kb" }));
+app.use(express.json({ limit: "512kb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(clerkMiddleware((req) => ({
   publishableKey: publishableKeyFromHost(getClerkProxyHost(req) ?? "", process.env.CLERK_PUBLISHABLE_KEY),
 })));
 
+app.use(brainMcpRouter);
 app.use("/api", router);
 app.use(((err, req, res, _next) => {
   if (err instanceof AppError) { res.status(err.status).json({ error: err.message }); return; }

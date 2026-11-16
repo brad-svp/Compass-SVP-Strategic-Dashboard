@@ -1,5 +1,5 @@
 import type { CalendarEvent, CalendarEventInput, CalendarEventInputDateStatus, CalendarEventInputLocationStatus } from '@workspace/api-client-react';
-import { CAL_TZ, addDaysIso, dayOfWeek, fmtDay, fmtTime, isValidIsoDate, utcToZoned, zonedToUtc } from '@/lib/calendar-time';
+import { CAL_TZ, MONTHS, addDaysIso, dayOfWeek, fmtDay, fmtTime, isValidIsoDate, utcToZoned, zonedToUtc } from './calendar-time';
 
 export const DATE_STATUS: Record<string, { label: string; cls: string }> = {
   confirmed: { label: 'Confirmed', cls: 'bg-[#49B949]/14 text-[#22702A] ring-[#49B949]/40' },
@@ -30,6 +30,11 @@ export function spanOf(e: Pick<CalendarEvent, 'startDate' | 'endDate'>) {
   if (!e.startDate) return null;
   const end = e.endDate && e.endDate >= e.startDate ? e.endDate : e.startDate;
   return { start: e.startDate.slice(0, 10), end: end.slice(0, 10) };
+}
+/** Known planning month (1..12) for an undated event, else null. Dated events never use it. */
+export function planningMonthOf(e: Pick<CalendarEvent, 'startDate' | 'planningMonth'>) {
+  const m = e.startDate ? null : e.planningMonth;
+  return typeof m === 'number' && Number.isInteger(m) && m >= 1 && m <= 12 ? m : null;
 }
 export function overlaps(e: Pick<CalendarEvent, 'startDate' | 'endDate'>, from: string, to: string) {
   const s = spanOf(e);
@@ -95,7 +100,7 @@ export function timedOn(day: string, events: CalendarEvent[]) {
 
 export function whenLabel(e: CalendarEvent, tz = CAL_TZ) {
   const s = spanOf(e);
-  if (!s) return `Date TBD · ${e.planningYear}`;
+  if (!s) { const m = planningMonthOf(e); return m ? `${MONTHS[m - 1]} ${e.planningYear} · Day TBD` : `Date TBD · ${e.planningYear}`; }
   const sameYear = s.start.slice(0, 4) === s.end.slice(0, 4);
   const d1 = fmtDay(s.start, { weekday: 'short', month: 'short', day: 'numeric', year: sameYear && s.start === s.end ? 'numeric' : sameYear ? undefined : 'numeric' });
   if (e.allDay) {
@@ -113,20 +118,20 @@ export function isTentative(e: CalendarEvent) { return e.dateStatus === 'propose
 
 export type DateMode = 'allday' | 'timed' | 'tbd';
 export type EventDraft = {
-  title: string; program: string; planningYear: string; mode: DateMode;
+  title: string; program: string; planningYear: string; planningMonth: string; mode: DateMode;
   startDate: string; endDate: string; startTime: string; endTime: string;
   location: string; dateStatus: CalendarEventInputDateStatus; locationStatus: CalendarEventInputLocationStatus;
   audience: string; wixUrl: string; notes: string; ownerId: string;
 };
 
 export function blankDraft(year: number, day?: string): EventDraft {
-  return { title: '', program: '', planningYear: String(year), mode: day ? 'allday' : 'tbd', startDate: day ?? '', endDate: day ?? '',
+  return { title: '', program: '', planningYear: String(year), planningMonth: '', mode: day ? 'allday' : 'tbd', startDate: day ?? '', endDate: day ?? '',
     startTime: '09:00', endTime: '10:00', location: '', dateStatus: 'proposed', locationStatus: 'tbd', audience: '', wixUrl: '', notes: '', ownerId: '' };
 }
 export function eventToDraft(e: CalendarEvent, tz = CAL_TZ): EventDraft {
   const mode: DateMode = !e.startDate ? 'tbd' : e.allDay ? 'allday' : 'timed';
   return {
-    title: e.title, program: e.program, planningYear: String(e.planningYear), mode,
+    title: e.title, program: e.program, planningYear: String(e.planningYear), planningMonth: planningMonthOf(e) ? String(planningMonthOf(e)) : '', mode,
     startDate: e.startDate?.slice(0, 10) ?? '', endDate: (e.endDate ?? e.startDate)?.slice(0, 10) ?? '',
     startTime: e.startsAt ? utcToZoned(Date.parse(e.startsAt), tz).time : '09:00',
     endTime: e.endsAt ? utcToZoned(Date.parse(e.endsAt), tz).time : '10:00',
@@ -150,14 +155,16 @@ export function buildInput(d: EventDraft, expectedVersion: number, tz = CAL_TZ):
   if (d.mode === 'tbd') {
     const y = Number(d.planningYear);
     if (!Number.isInteger(y) || y < 1900 || y > 9999) return { ok: false, error: 'Planning year must be between 1900 and 9999.' };
-    return { ok: true, notice: null, input: { ...base, planningYear: y, startDate: null, endDate: null, allDay: true, startsAt: null, endsAt: null } };
+    const pm = d.planningMonth ? Number(d.planningMonth) : null;
+    if (pm !== null && (!Number.isInteger(pm) || pm < 1 || pm > 12)) return { ok: false, error: 'Planning month must be January to December, or Month TBD.' };
+    return { ok: true, notice: null, input: { ...base, planningYear: y, planningMonth: pm, startDate: null, endDate: null, allDay: true, startsAt: null, endsAt: null } };
   }
   if (!isValidIsoDate(d.startDate)) return { ok: false, error: 'Pick a valid start date (years 1900 to 9999).' };
   if (!isValidIsoDate(d.endDate)) return { ok: false, error: 'Pick a valid end date (years 1900 to 9999).' };
   if (d.endDate < d.startDate) return { ok: false, error: 'End date cannot be before the start date.' };
   const planningYear = Number(d.startDate.slice(0, 4));
   if (d.mode === 'allday') {
-    return { ok: true, notice: null, input: { ...base, planningYear, startDate: d.startDate, endDate: d.endDate, allDay: true, startsAt: null, endsAt: null } };
+    return { ok: true, notice: null, input: { ...base, planningYear, planningMonth: null, startDate: d.startDate, endDate: d.endDate, allDay: true, startsAt: null, endsAt: null } };
   }
   const a = zonedToUtc(d.startDate, d.startTime, tz), b = zonedToUtc(d.endDate, d.endTime, tz);
   for (const [r, w] of [[a, 'Start'], [b, 'End']] as const) {
@@ -166,5 +173,5 @@ export function buildInput(d: EventDraft, expectedVersion: number, tz = CAL_TZ):
   if (!a.ok || !b.ok) return { ok: false, error: 'Invalid time.' };
   if (Date.parse(b.iso) <= Date.parse(a.iso)) return { ok: false, error: 'End must be after the start.' };
   const notice = a.ambiguous || b.ambiguous ? 'That time happens twice when clocks fall back; the earlier (daylight time) occurrence is used.' : null;
-  return { ok: true, notice, input: { ...base, planningYear, startDate: d.startDate, endDate: d.endDate, allDay: false, startsAt: a.iso, endsAt: b.iso } };
+  return { ok: true, notice, input: { ...base, planningYear, planningMonth: null, startDate: d.startDate, endDate: d.endDate, allDay: false, startsAt: a.iso, endsAt: b.iso } };
 }

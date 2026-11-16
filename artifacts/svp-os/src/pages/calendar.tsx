@@ -8,7 +8,7 @@ import { NativeSelect } from '@/components/native-select';
 import { useStaffSession } from '@/lib/session-context';
 import { errorMessage } from '@/lib/format';
 import { MONTHS, todayInZone } from '@/lib/calendar-time';
-import { EMPTY_FILTERS, blankDraft, distinct, inYear, matches, overlaps, sortEvents, spanOf, type Filters } from '@/lib/calendar';
+import { EMPTY_FILTERS, blankDraft, distinct, inYear, matches, overlaps, planningMonthOf, sortEvents, spanOf, type Filters } from '@/lib/calendar';
 import { useCalendarActions, useMasterCalendar, useProgramActions } from '@/lib/calendar-hooks';
 import { filterProgramNames, indexPrograms } from '@/lib/calendar-programs';
 import { ProgramIndexContext } from '@/components/calendar/program-mark';
@@ -38,6 +38,7 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [target, setTarget] = useState<EventTarget | null>(null);
   const [subOpen, setSubOpen] = useState(false);
+  const [todayNonce, setTodayNonce] = useState(0);
 
   // Deep link (?event=&year=): honoured once per event id, only when that event exists, so polling never overrides navigation.
   const search = useSearch();
@@ -69,11 +70,14 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
   const mm = String(month + 1).padStart(2, '0');
   const monthLast = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
   const monthEvents = filtered.filter((e) => overlaps(e, `${year}-${mm}-01`, `${year}-${mm}-${monthLast}`));
-  const tbdThisYear = sortEvents(yearEvents.filter((e) => !spanOf(e)));
-  const counts = { total: yearEvents.length, confirmed: yearEvents.filter((e) => e.dateStatus === 'confirmed').length, tentative: yearEvents.filter((e) => e.dateStatus === 'proposed' || e.dateStatus === 'tbd').length };
+  const tbdThisMonth = sortEvents(yearEvents.filter((e) => !spanOf(e) && planningMonthOf(e) === month + 1));
+  const tbdThisYear = sortEvents(yearEvents.filter((e) => !spanOf(e) && !planningMonthOf(e)));
+  const countBase = view === 'year' ? filtered : yearEvents;
+  const counts = { total: countBase.length, confirmed: countBase.filter((e) => e.dateStatus === 'confirmed').length, tentative: countBase.filter((e) => e.dateStatus === 'proposed' || e.dateStatus === 'tbd').length };
+  const anchorKey = JSON.stringify(filters);
 
   const shiftMonth = (n: number) => { const m = month + n; setYear(year + Math.floor(m / 12)); setMonth(((m % 12) + 12) % 12); };
-  const goToday = () => { setYear(thisYear); setMonth(Number(today.slice(5, 7)) - 1); };
+  const goToday = () => { setYear(thisYear); setMonth(Number(today.slice(5, 7)) - 1); setTodayNonce((n) => n + 1); };
   const open = (e: CalendarEvent) => setTarget({ event: e, seed: blankDraft(year), editing: false, nonce: 0 });
   const addNew = (day?: string) => setTarget({ event: null, seed: blankDraft(day ? Number(day.slice(0, 4)) : year, day), editing: true, nonce: 0 });
   const reopen = () => {
@@ -84,7 +88,7 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
 
   return (
     <ProgramIndexContext.Provider value={programIndex}>
-      <PageHeader eyebrow="Master calendar" title="Every SVP gathering, one calendar."
+      <PageHeader eyebrow="Master Calendar" title="Every SVP gathering, one calendar."
         actions={<>
           {isAdmin && <button type="button" className={ghost} onClick={() => setProgramsOpen(true)} data-testid="button-manage-programs"><Layers className="h-4 w-4" /> Programs</button>}
           <button type="button" className={ghost} onClick={() => setSubOpen(true)} data-testid="button-subscribe"><Rss className="h-4 w-4" /> Subscribe</button>
@@ -107,16 +111,16 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
               </button>
             ))}
           </div>
-          <NativeSelect aria-label="Year" wrapClassName="w-28" value={String(year)} onChange={(e) => setYear(Number(e.target.value))} data-testid="select-year">
+          {view === 'month' ? <NativeSelect aria-label="Year" wrapClassName="w-28" value={String(year)} onChange={(e) => setYear(Number(e.target.value))} data-testid="select-year">
             {years.map((y) => <option key={y} value={y}>{y}</option>)}
-          </NativeSelect>
+          </NativeSelect> : <span className="inline-flex h-9 items-center rounded-lg border border-dashed border-border px-3 text-[13px] font-semibold text-[#3A4E63]" data-testid="text-all-years">All years</span>}
           {view === 'month' && (<>
             <button type="button" className={ghost} onClick={() => shiftMonth(-1)} aria-label="Previous month" data-testid="button-month-back"><ChevronLeft className="h-4 w-4" /></button>
             <span className="min-w-[9rem] text-center font-display text-lg font-semibold text-[#0A2540]" data-testid="text-month">{MONTHS[month]} {year}</span>
             <button type="button" className={ghost} onClick={() => shiftMonth(1)} aria-label="Next month" data-testid="button-month-next"><ChevronRight className="h-4 w-4" /></button>
           </>)}
           <button type="button" className={ghost} onClick={goToday} data-testid="button-today">Today</button>
-          <span className="ml-auto text-[12px] text-muted-foreground" data-testid="text-year-counts">{year}: {counts.total} events · {counts.confirmed} confirmed · {counts.tentative} tentative</span>
+          <span className="ml-auto text-[12px] text-muted-foreground" data-testid="text-year-counts">{view === 'year' ? 'All years' : year}: {counts.total} events · {counts.confirmed} confirmed · {counts.tentative} tentative</span>
         </div>
         <FiltersBar value={filters} onChange={setFilters} programs={programs} audiences={audiences} />
       </Panel>
@@ -132,17 +136,26 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
         <Panel className="overflow-hidden p-0 md:p-0">
           {view === 'month'
             ? <MonthView year={year} month={month} events={monthEvents} today={today} onOpen={open} onAddOn={isAdmin ? addNew : undefined} />
-            : <YearAgenda year={year} events={yearEvents} onOpen={open} />}
-          {view === 'month' && tbdThisYear.length > 0 && (
-            <div className="border-t border-border bg-[#ECA519]/[0.06] px-4 py-3" data-testid="list-month-tbd">
-              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8A5A00]">{year} events with no date yet</div>
-              <div className="flex flex-wrap gap-1.5">
-                {tbdThisYear.map((e) => (
+            : <YearAgenda events={filtered} today={today} onOpen={open} anchorKey={anchorKey} todayNonce={todayNonce} />}
+          {view === 'month' && (tbdThisMonth.length > 0 || tbdThisYear.length > 0) && (
+            <div className="space-y-3 border-t border-border bg-[#ECA519]/[0.06] px-4 py-3" data-testid="list-month-tbd">
+              {tbdThisMonth.length > 0 && <div data-testid="list-month-daytbd">
+                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8A5A00]">{MONTHS[month]} {year} · Day TBD</div>
+                <p className="mb-1.5 text-[12px] text-muted-foreground">Planned for this month; the day is not set, so they are not placed on the grid.</p>
+                <div className="flex flex-wrap gap-1.5">{tbdThisMonth.map((e) => (
+                  <button key={e.id} type="button" onClick={() => open(e)} className="rounded-md border border-dashed border-[#ECA519]/60 bg-card px-2 py-1 text-[12px] font-semibold text-[#0A2540] hover:border-[#ECA519]" data-testid={`chip-daytbd-${e.id}`}>
+                    {e.title}{e.program && <span className="font-normal text-muted-foreground"> · {e.program}</span>}
+                  </button>
+                ))}</div>
+              </div>}
+              {tbdThisYear.length > 0 && <div>
+                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8A5A00]">{year} · Month TBD</div>
+                <div className="flex flex-wrap gap-1.5">{tbdThisYear.map((e) => (
                   <button key={e.id} type="button" onClick={() => open(e)} className="rounded-md border border-dashed border-[#ECA519]/60 bg-card px-2 py-1 text-[12px] font-semibold text-[#0A2540] hover:border-[#ECA519]" data-testid={`chip-tbd-${e.id}`}>
                     {e.title}{e.program && <span className="font-normal text-muted-foreground"> · {e.program}</span>}
                   </button>
-                ))}
-              </div>
+                ))}</div>
+              </div>}
             </div>
           )}
         </Panel>

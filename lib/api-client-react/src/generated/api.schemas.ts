@@ -5,6 +5,333 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface QuarterNarrativeInput {
+  /** @maxLength 12000 */
+  narrative: string;
+  /** @minimum 0 */
+  expectedVersion: number;
+}
+
+export type QuarterNarrativeQuarter = typeof QuarterNarrativeQuarter[keyof typeof QuarterNarrativeQuarter];
+
+
+export const QuarterNarrativeQuarter = {
+  Q1: 'Q1',
+  Q2: 'Q2',
+  Q3: 'Q3',
+  Q4: 'Q4',
+} as const;
+
+export interface QuarterNarrative {
+  cycleId: string;
+  quarter: QuarterNarrativeQuarter;
+  narrative: string;
+  version: number;
+  canEdit: boolean;
+  /** @nullable */
+  updatedAt: string | null;
+}
+
+export interface BrainLink {
+  /** @maxLength 60 */
+  domain: string;
+  /** @maxLength 100 */
+  id: string;
+  /** @maxLength 200 */
+  label: string;
+}
+
+export type BrainEntryInputKind = typeof BrainEntryInputKind[keyof typeof BrainEntryInputKind];
+
+
+export const BrainEntryInputKind = {
+  playbook: 'playbook',
+  procedure: 'procedure',
+  strategy: 'strategy',
+  decision: 'decision',
+  lesson: 'lesson',
+  reference: 'reference',
+} as const;
+
+export type BrainEntryInputVisibility = typeof BrainEntryInputVisibility[keyof typeof BrainEntryInputVisibility];
+
+
+export const BrainEntryInputVisibility = {
+  staff: 'staff',
+  admin: 'admin',
+} as const;
+
+export interface BrainEntryInput {
+  /**
+     * @minLength 1
+     * @maxLength 240
+     */
+  title: string;
+  /** @maxLength 2000 */
+  summary: string;
+  /** @maxLength 80000 */
+  content: string;
+  kind: BrainEntryInputKind;
+  /** @nullable */
+  programId: string | null;
+  /** @nullable */
+  areaId: string | null;
+  ownerId: string;
+  /**
+     * @maxItems 20
+     * @items.minLength 1
+     * @items.maxLength 60
+     */
+  tags: string[];
+  /**
+     * @maxItems 20
+     * @items.maxLength 2000
+     */
+  sourceUrls: string[];
+  /** @maxItems 30 */
+  links: BrainLink[];
+  visibility: BrainEntryInputVisibility;
+  /**
+     * @minimum 7
+     * @maximum 730
+     */
+  reviewIntervalDays: number;
+  /** @minimum 0 */
+  expectedVersion: number;
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  requestKey?: string;
+}
+
+export type BrainEntryReviewStatus = typeof BrainEntryReviewStatus[keyof typeof BrainEntryReviewStatus];
+
+
+export const BrainEntryReviewStatus = {
+  unreviewed: 'unreviewed',
+  reviewed: 'reviewed',
+} as const;
+
+export type BrainEntry = BrainEntryInput & ({
+  id: string;
+  authorId: string;
+  reviewStatus: BrainEntryReviewStatus;
+  retired: boolean;
+  conflict: string;
+  /** @nullable */
+  mergedIntoId: string | null;
+  version: number;
+  via: string;
+  /** @nullable */
+  reviewedAt: string | null;
+  /** @nullable */
+  reviewerId: string | null;
+  /** @nullable */
+  reviewDueAt: string | null;
+  overdue: boolean;
+  indexStatus: string;
+  createdAt: string;
+  updatedAt: string;
+  canEdit: boolean;
+});
+
+export interface BrainHit {
+  entryId: string;
+  title: string;
+  reviewStatus: string;
+  overdue: boolean;
+  conflict: string;
+  excerpt: string;
+  sourceLabel: string;
+  /** @nullable */
+  fileId: string | null;
+  /** @nullable */
+  page: number | null;
+  score: number;
+  href: string;
+}
+
+export interface BrainWorkspace {
+  entries: BrainEntry[];
+  hits: BrainHit[];
+  total: number;
+  semanticReady: boolean;
+  semanticMessage: string;
+  defaultReviewDays: number;
+}
+
+export type SixViewPreferencesMode = typeof SixViewPreferencesMode[keyof typeof SixViewPreferencesMode];
+
+
+export const SixViewPreferencesMode = {
+  mine: 'mine',
+  all: 'all',
+  custom: 'custom',
+} as const;
+
+export interface SixViewPreferences {
+  mode: SixViewPreferencesMode;
+  /**
+     * @maxItems 200
+     * @items.minLength 1
+     * @items.maxLength 200
+     */
+  staffIds: string[];
+}
+
+export interface BrainFile {
+  id: string;
+  name: string;
+  contentType: string;
+  size: number;
+  status: string;
+  /** @nullable */
+  error: string | null;
+  /** @nullable */
+  downloadUrl: string | null;
+  createdAt: string;
+}
+
+export interface BrainVersion {
+  id: string;
+  version: number;
+  actorId: string;
+  action: string;
+  note: string;
+  createdAt: string;
+  title: string;
+  content: string;
+  summary: string;
+  fileIds: string[];
+}
+
+export interface BrainDetail {
+  entry: BrainEntry;
+  files: BrainFile[];
+  versions: BrainVersion[];
+}
+
+export type BrainActionInputAction = typeof BrainActionInputAction[keyof typeof BrainActionInputAction];
+
+
+export const BrainActionInputAction = {
+  approve: 'approve',
+  retire: 'retire',
+  restore: 'restore',
+  restore_version: 'restore_version',
+  flag_conflict: 'flag_conflict',
+  clear_conflict: 'clear_conflict',
+  merge: 'merge',
+  propose_amendment: 'propose_amendment',
+} as const;
+
+export interface BrainActionInput {
+  action: BrainActionInputAction;
+  /** @minimum 1 */
+  expectedVersion: number;
+  versionId?: string;
+  targetId?: string;
+  /** @maxLength 8000 */
+  note?: string;
+}
+
+export interface BrainUploadInput {
+  entryId: string;
+  /**
+     * @minLength 1
+     * @maxLength 240
+     */
+  name: string;
+  /**
+     * @minimum 1
+     * @maximum 20971520
+     */
+  size: number;
+  /**
+     * @minLength 1
+     * @maxLength 150
+     */
+  contentType: string;
+  /** @minimum 1 */
+  expectedVersion: number;
+  replacesId?: string;
+}
+
+export interface BrainSettingsInput {
+  /**
+     * @minimum 7
+     * @maximum 730
+     */
+  reviewIntervalDays: number;
+  /** @minimum 1 */
+  expectedVersion: number;
+}
+
+export interface BrainJob {
+  id: string;
+  entryId: string;
+  title: string;
+  version: number;
+  status: string;
+  attempts: number;
+  /** @nullable */
+  error: string | null;
+}
+
+export interface BrainDuplicate {
+  title: string;
+  ids: string[];
+}
+
+export interface BrainAdmin {
+  settingsVersion: number;
+  reviewIntervalDays: number;
+  unreviewed: number;
+  overdue: number;
+  conflicts: number;
+  failed: number;
+  jobs: BrainJob[];
+  duplicates: BrainDuplicate[];
+  model: string;
+  modelState: string;
+  modelMessage: string;
+}
+
+export interface BrainGrant {
+  id: string;
+  clientName: string;
+  scopes: string[];
+  createdAt: string;
+  /** @nullable */
+  lastUsedAt: string | null;
+  /** @nullable */
+  revokedAt: string | null;
+}
+
+export interface BrainConnections {
+  mcpUrl: string;
+  published: boolean;
+  clientId: string;
+  scopes: string[];
+  grants: BrainGrant[];
+  skillUrl: string;
+  message: string;
+}
+
+export interface BrainConsent {
+  id: string;
+  clientName: string;
+  scopes: string[];
+  resource: string;
+  redirectUri: string;
+  expiresAt: string;
+}
+
+export interface BrainConsentInput {
+  allow: boolean;
+}
+
 export type ProgramLogoUploadRequestContentType = typeof ProgramLogoUploadRequestContentType[keyof typeof ProgramLogoUploadRequestContentType];
 
 
@@ -172,6 +499,12 @@ export interface CalendarEventInput {
      * @maximum 9999
      */
   planningYear: number;
+  /**
+     * @minimum 1
+     * @maximum 12
+     * @nullable
+     */
+  planningMonth?: number | null;
   /** @nullable */
   startDate: string | null;
   /** @nullable */
@@ -965,6 +1298,43 @@ export interface FoundationInput {
 export interface HealthStatus {
   status: string;
 }
+
+export type GetBrainParams = {
+/**
+ * @maxLength 500
+ */
+q?: string;
+kind?: string;
+programId?: string;
+areaId?: string;
+status?: GetBrainStatus;
+/**
+ * @minimum 0
+ * @maximum 100000
+ */
+offset?: number;
+};
+
+export type GetBrainStatus = typeof GetBrainStatus[keyof typeof GetBrainStatus];
+
+
+export const GetBrainStatus = {
+  all: 'all',
+  unreviewed: 'unreviewed',
+  reviewed: 'reviewed',
+  overdue: 'overdue',
+  conflicts: 'conflicts',
+  retired: 'retired',
+} as const;
+
+export type RequestBrainUpload201 = {
+  id: string;
+  uploadURL: string;
+};
+
+export type DecideBrainConsent200 = {
+  redirectUrl: string;
+};
 
 export type RequestProgramLogoUpload201 = {
   id: string;

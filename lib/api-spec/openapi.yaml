@@ -11,6 +11,31 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /svp/qbos/narratives/{cycleId}/{quarter}:
+    parameters:
+      - { in: path, name: cycleId, required: true, schema: { type: string } }
+      - { in: path, name: quarter, required: true, schema: { type: string, enum: [Q1, Q2, Q3, Q4] } }
+    get:
+      operationId: getQuarterNarrative
+      responses:
+        "200":
+          description: Optional direction for this cycle and quarter
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QuarterNarrative" }
+    put:
+      operationId: saveQuarterNarrative
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/QuarterNarrativeInput" }
+      responses:
+        "200":
+          description: Saved quarterly direction
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QuarterNarrative" }
   /svp/brain:
     get:
       operationId: getBrain
@@ -371,6 +396,28 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/SixWorkspace" }
+  /svp/six-by-six/view-preferences:
+    get:
+      operationId: getSixViewPreferences
+      responses:
+        "200":
+          description: The signed-in person's saved 6x6 viewing choice
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SixViewPreferences" }
+    put:
+      operationId: saveSixViewPreferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SixViewPreferences" }
+      responses:
+        "200":
+          description: Saved only for the signed-in person
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SixViewPreferences" }
   /svp/six-by-six/periods:
     post:
       operationId: createSixPeriod
@@ -834,6 +881,22 @@ components:
         type: string
         enum: [staff, areas, cycles]
   schemas:
+    QuarterNarrativeInput:
+      type: object
+      required: [narrative, expectedVersion]
+      properties:
+        narrative: { type: string, maxLength: 12000 }
+        expectedVersion: { type: integer, minimum: 0 }
+    QuarterNarrative:
+      type: object
+      required: [cycleId, quarter, narrative, version, canEdit, updatedAt]
+      properties:
+        cycleId: { type: string }
+        quarter: { type: string, enum: [Q1, Q2, Q3, Q4] }
+        narrative: { type: string }
+        version: { type: integer }
+        canEdit: { type: boolean }
+        updatedAt: { type: [string, "null"] }
     BrainLink:
       type: object
       required: [domain, id, label]
@@ -907,6 +970,15 @@ components:
         semanticReady: { type: boolean }
         semanticMessage: { type: string }
         defaultReviewDays: { type: integer }
+    SixViewPreferences:
+      type: object
+      required: [mode, staffIds]
+      properties:
+        mode: { type: string, enum: [mine, all, custom] }
+        staffIds:
+          type: array
+          maxItems: 200
+          items: { type: string, minLength: 1, maxLength: 200 }
     BrainFile:
       type: object
       required: [id, name, contentType, size, status, error, downloadUrl, createdAt]
@@ -1140,6 +1212,7 @@ components:
         title: { type: string, minLength: 1, maxLength: 300 }
         program: { type: string, maxLength: 120 }
         planningYear: { type: integer, minimum: 1900, maximum: 9999 }
+        planningMonth: { type: [integer, "null"], minimum: 1, maximum: 12 }
         startDate: { type: [string, "null"] }
         endDate: { type: [string, "null"] }
         allDay: { type: boolean }

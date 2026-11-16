@@ -57,6 +57,34 @@
       "when": 1794786170753,
       "tag": "0007_purpose_calendar_programs",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794835932055,
+      "tag": "0008_organizational_brain",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794836158088,
+      "tag": "0009_quarterly_narratives",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794837574179,
+      "tag": "0010_staff_view_preferences",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794839272545,
+      "tag": "0011_calendar_planning_month",
+      "breakpoints": true
     }
   ]
 }

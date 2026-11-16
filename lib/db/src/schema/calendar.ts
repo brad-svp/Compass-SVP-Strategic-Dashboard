@@ -6,7 +6,8 @@ import { calendarProgramsTable } from "./calendar-programs";
 export const calendarEventsTable = pgTable("calendar_events", {
   id: text("id").primaryKey(), title: text("title").notNull(), program: text("program").notNull().default(""),
   programId: text("program_id").references(() => calendarProgramsTable.id),
-  planningYear: integer("planning_year").notNull(), startDate: date("start_date"), endDate: date("end_date"),
+  planningYear: integer("planning_year").notNull(), planningMonth: integer("planning_month"),
+  startDate: date("start_date"), endDate: date("end_date"),
   allDay: boolean("all_day").notNull().default(true),
   startsAt: timestamp("starts_at", { withTimezone: true }), endsAt: timestamp("ends_at", { withTimezone: true }),
   location: text("location").notNull().default(""),
@@ -20,6 +21,7 @@ export const calendarEventsTable = pgTable("calendar_events", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, t => [
+  check("calendar_month_check", sql`${t.planningMonth} is null or ${t.planningMonth} between 1 and 12`),
   uniqueIndex("calendar_source_id_idx").on(t.sourceId),
   check("calendar_dates_check", sql`(${t.startDate} is null and ${t.endDate} is null and ${t.startsAt} is null and ${t.endsAt} is null) or (${t.startDate} is not null and ${t.endDate} >= ${t.startDate} and ((${t.allDay} and ${t.startsAt} is null and ${t.endsAt} is null) or (not ${t.allDay} and ${t.startsAt} is not null and ${t.endsAt} > ${t.startsAt})))`),
   check("calendar_date_status_check", sql`${t.dateStatus} in ('proposed','confirmed','tbd','cancelled')`),

@@ -1,9 +1,16 @@
 import { Router, type IRouter } from "express";
 import * as contract from "@workspace/api-zod";
 import { addCheckIn, getOkrWorkspace, removeOkr, saveComment, saveKeyResult, saveObjective } from "../lib/okrService";
+import { getQuarterNarrative, saveQuarterNarrative } from "../lib/quarterNarrativeService";
 
 // Mounted inside the staff-authenticated, same-origin /svp router.
 const router: IRouter = Router();
+router.get("/qbos/narratives/:cycleId/:quarter",async(req,res)=>{
+  res.json(contract.GetQuarterNarrativeResponse.parse(await getQuarterNarrative(res.locals.actor,req.params.cycleId!,req.params.quarter!)));
+});
+router.put("/qbos/narratives/:cycleId/:quarter",async(req,res)=>{
+  res.json(contract.SaveQuarterNarrativeResponse.parse(await saveQuarterNarrative(res.locals.actor,req.params.cycleId!,req.params.quarter!,contract.SaveQuarterNarrativeBody.strict().parse(req.body))));
+});
 router.get("/okrs", async (_req, res): Promise<void> => {
   res.json(contract.GetOkrWorkspaceResponse.parse(await getOkrWorkspace(res.locals.actor)));
 });

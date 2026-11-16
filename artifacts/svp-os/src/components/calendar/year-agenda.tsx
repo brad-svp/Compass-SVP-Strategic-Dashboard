@@ -1,16 +1,17 @@
-import { CalendarX2, MapPin, Users } from 'lucide-react';
+import { Fragment, useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import { ArrowDown, ArrowUp, CalendarX2, MapPin, Users } from 'lucide-react';
 import type { CalendarEvent } from '@workspace/api-client-react';
 import { MONTHS, fmtDay } from '@/lib/calendar-time';
-import { LOCATION_STATUS, overlaps, programColor, sortEvents, spanOf, whenLabel } from '@/lib/calendar';
+import { LOCATION_STATUS, programColor, spanOf, whenLabel } from '@/lib/calendar';
+import { buildTimeline, scrollDeltaTo, type TimelineMonth } from '@/lib/calendar-timeline';
 import { DateStatusBadge, ProgramTag } from './calendar-bits';
 import { EventProgramMark } from './program-mark';
 
-/** Day marker on the axis: the first day of the event visible in this month (continuations say so). */
-function Marker({ e, monthFrom }: { e: CalendarEvent; monthFrom?: string }) {
+function Marker({ e, from }: { e: CalendarEvent; from?: string }) {
   const s = spanOf(e);
   const c = programColor(e.program);
   const confirmed = e.dateStatus === 'confirmed';
-  const day = s ? (monthFrom && s.start < monthFrom ? monthFrom : s.start) : null;
+  const day = s ? (from && s.start < from ? from : s.start) : null;
   return (
     <div className="relative z-10 flex w-12 shrink-0 flex-col items-center pt-3 md:w-16">
       <span className={`grid h-9 w-9 place-items-center rounded-full border-2 text-[13px] font-semibold tabular-nums md:h-10 md:w-10 ${confirmed ? 'text-[#FBFAF6]' : 'border-dashed bg-[#FBFAF6] text-[#0A2540]'}`}
@@ -37,7 +38,7 @@ function Card({ e, onOpen, continued }: { e: CalendarEvent; onOpen: (e: Calendar
         <DateStatusBadge status={e.dateStatus} />
       </span>
       <span className={`mt-1 block text-[12.5px] tabular-nums ${e.startDate ? 'text-[#3A4E63]' : 'italic text-muted-foreground'}`}>
-        {continued && 'Continues · '}{whenLabel(e)}
+        {continued && 'In progress · '}{whenLabel(e)}
       </span>
       <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
         <ProgramTag e={e} />
@@ -49,72 +50,133 @@ function Card({ e, onOpen, continued }: { e: CalendarEvent; onOpen: (e: Calendar
   );
 }
 
-function MonthMarker({ label, count, tone = 'month' }: { label: string; count: number; tone?: 'month' | 'tbd' }) {
+function MonthMarker({ label, count, tone = 'month', past }: { label: string; count: number; tone?: 'month' | 'tbd'; past?: boolean }) {
   return (
-    <div className="relative z-10 flex items-center gap-3 pb-2 pt-6 first:pt-2">
+    <div className="relative z-10 flex items-center gap-3 pb-2 pt-6">
       <span className="flex w-12 justify-center md:w-16">
-        <span className={`h-3 w-3 rotate-45 ${tone === 'tbd' ? 'border-2 border-dashed border-[#ECA519] bg-[#FBFAF6]' : 'bg-[#0A2540]'}`} />
+        <span className={`h-3 w-3 rotate-45 ${tone === 'tbd' ? 'border-2 border-dashed border-[#ECA519] bg-[#FBFAF6]' : past ? 'bg-[#0A2540]/40' : 'bg-[#0A2540]'}`} />
       </span>
-      <span className={`font-display text-xl font-semibold ${tone === 'tbd' ? 'text-[#8A5A00]' : 'text-[#0A2540]'}`}>{label}</span>
+      <span className={`font-display text-xl font-semibold ${tone === 'tbd' ? 'text-[#8A5A00]' : past ? 'text-[#0A2540]/65' : 'text-[#0A2540]'}`}>{label}</span>
       <span className="text-[12px] text-muted-foreground">{count} {count === 1 ? 'event' : 'events'}</span>
     </div>
   );
 }
 
-export function YearAgenda({ year, events, onOpen }: { year: number; events: CalendarEvent[]; onOpen: (e: CalendarEvent) => void }) {
-  const dated = sortEvents(events.filter((e) => spanOf(e)));
-  const undated = sortEvents(events.filter((e) => !spanOf(e)));
-  const months = MONTHS.map((name, i) => {
-    const mm = String(i + 1).padStart(2, '0');
-    const from = `${year}-${mm}-01`;
-    const to = `${year}-${mm}-${new Date(Date.UTC(year, i + 1, 0)).getUTCDate()}`;
-    const list = dated.filter((e) => overlaps(e, from, to))
-      .sort((a, b) => { const sa = spanOf(a)!.start, sb = spanOf(b)!.start; return (sa < from ? from : sa).localeCompare(sb < from ? from : sb); });
-    return { name, from, list };
-  }).filter((m) => m.list.length);
+function YearRule({ year }: { year: number }) {
+  return (
+    <li className="relative z-10 mt-8 flex items-center gap-3 first:mt-2" data-testid={`timeline-year-${year}`} aria-label={`Year ${year}`}>
+      <span className="w-12 md:w-16" />
+      <span className="rounded-md bg-[#0A2540] px-2 py-0.5 font-mono text-[12px] font-medium tracking-wider text-[#FBFAF6]">{year}</span>
+      <span className="h-px flex-1 bg-[#0A2540]/15" />
+    </li>
+  );
+}
 
-  if (!months.length && !undated.length) {
+function MonthBlock({ m, onOpen, past, lastYear }: { m: TimelineMonth; onOpen: (e: CalendarEvent) => void; past?: boolean; lastYear: { v: number | null } }) {
+  const showYear = lastYear.v !== m.year;
+  lastYear.v = m.year;
+  return (
+    <Fragment>
+      {showYear && <YearRule year={m.year} />}
+      <li data-testid={`timeline-month-${m.key}`} className={past ? 'opacity-[0.88]' : undefined}>
+        <MonthMarker label={`${MONTHS[m.month]} ${m.year}`} count={m.events.length} past={past} />
+        <ul className="space-y-2.5">
+          {m.events.map((e) => (
+            <li key={e.id} className="flex gap-2 md:gap-3"><Marker e={e} /><Card e={e} onOpen={onOpen} /></li>
+          ))}
+        </ul>
+      </li>
+    </Fragment>
+  );
+}
+
+const ctrl = 'inline-flex h-7 items-center gap-1 rounded-md border border-border bg-card px-2 text-[12px] font-semibold text-[#0A2540] hover:bg-[#0A2540]/[0.04]';
+
+/**
+ * Continuous timeline across every year of the given (already filtered) events. Opens at today
+ * inside its own scroll pane. Re-anchors only when `anchorKey` or `todayNonce` changes, never on refetch.
+ */
+export function YearAgenda({ events, today, onOpen, anchorKey, todayNonce }: {
+  events: CalendarEvent[]; today: string; onOpen: (e: CalendarEvent) => void; anchorKey: string; todayNonce: number;
+}) {
+  const t = useMemo(() => buildTimeline(events, today), [events, today]);
+  const paneRef = useRef<HTMLDivElement>(null);
+  const todayRef = useRef<HTMLLIElement>(null);
+
+  const toToday = useCallback((smooth: boolean) => {
+    const pane = paneRef.current, mark = todayRef.current;
+    if (!pane || !mark) return;
+    const d = scrollDeltaTo(pane.getBoundingClientRect().top, mark.getBoundingClientRect().top, 12);
+    pane.scrollTo({ top: pane.scrollTop + d, behavior: smooth ? 'smooth' : 'auto' });
+  }, []);
+
+  // Anchor on mount, filter change; not on data refresh.
+  useLayoutEffect(() => { toToday(false); }, [anchorKey, toToday]);
+  const firstNonce = useRef(todayNonce);
+  useLayoutEffect(() => { if (todayNonce !== firstNonce.current) toToday(true); }, [todayNonce, toToday]);
+
+  const page = (dir: 1 | -1) => { const p = paneRef.current; if (p) p.scrollBy({ top: dir * p.clientHeight * 0.8, behavior: 'smooth' }); };
+
+  if (!t.total) {
     return (
       <div className="flex flex-col items-center gap-2 px-6 py-16 text-center" data-testid="empty-year">
         <CalendarX2 className="h-7 w-7 text-[#1D8BC4]" />
-        <div className="font-display text-xl font-semibold text-[#0A2540]">Nothing on the {year} timeline here.</div>
-        <p className="text-sm text-muted-foreground">No events match this year and these filters.</p>
+        <div className="font-display text-xl font-semibold text-[#0A2540]">Nothing on the timeline here.</div>
+        <p className="text-sm text-muted-foreground">No events in any year match these filters.</p>
       </div>
     );
   }
 
+  const lastYear = { v: null as number | null };
+  const todayYear = Number(today.slice(0, 4));
+  const pastCount = t.past.reduce((n, m) => n + m.events.length, 0);
+  const upCount = t.upcoming.reduce((n, m) => n + m.events.length, 0);
+
   return (
-    <div className="relative px-3 py-4 md:px-6" data-testid="view-year">
-      <span aria-hidden className="absolute bottom-6 top-6 left-[calc(0.75rem+1.5rem-1px)] w-[2px] rounded bg-gradient-to-b from-[#0A2540]/25 via-[#0A2540]/12 to-[#0A2540]/5 md:left-[calc(1.5rem+2rem-1px)]" />
-      <ol className="relative">
-        {months.map((m) => (
-          <li key={m.name} data-testid={`timeline-month-${m.from.slice(5, 7)}`}>
-            <MonthMarker label={`${m.name} ${year}`} count={m.list.length} />
-            <ul className="space-y-2.5">
-              {m.list.map((e) => (
-                <li key={e.id} className="flex gap-2 md:gap-3">
-                  <Marker e={e} monthFrom={m.from} />
-                  <Card e={e} onOpen={onOpen} continued={spanOf(e)!.start < m.from} />
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-        {undated.length > 0 && (
-          <li data-testid="timeline-tbd">
-            <MonthMarker label={`Date to be decided · ${year}`} count={undated.length} tone="tbd" />
-            <p className="mb-2 ml-14 text-[12px] text-muted-foreground md:ml-[4.75rem]">Planned for {year} with no date yet. Nothing is placed on a guessed day.</p>
-            <ul className="space-y-2.5">
-              {undated.map((e) => (
-                <li key={e.id} className="flex gap-2 md:gap-3">
-                  <Marker e={e} />
-                  <Card e={e} onOpen={onOpen} />
-                </li>
-              ))}
-            </ul>
-          </li>
-        )}
-      </ol>
+    <div data-testid="view-year">
+      <div className="flex flex-wrap items-center gap-2 border-b border-border bg-[#0A2540]/[0.025] px-3 py-2 md:px-6">
+        <button type="button" className={ctrl} onClick={() => page(-1)} data-testid="button-timeline-earlier"><ArrowUp className="h-3.5 w-3.5" /> Earlier</button>
+        <button type="button" className={ctrl} onClick={() => page(1)} data-testid="button-timeline-later"><ArrowDown className="h-3.5 w-3.5" /> Later</button>
+        <span className="text-[12px] text-muted-foreground">Scroll up for older, down for newer · {pastCount} past · {t.ongoing.length} in progress · {upCount} upcoming</span>
+      </div>
+      <div ref={paneRef} tabIndex={0} role="region" aria-label="Event timeline, all years. Scroll up for older events, down for newer."
+        className="relative max-h-[min(72vh,900px)] min-h-[360px] overflow-y-auto overscroll-contain focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#1D8BC4]"
+        data-testid="pane-timeline">
+        <div className="relative px-3 pb-[50vh] pt-4 md:px-6">
+          <span aria-hidden className="absolute bottom-6 top-6 left-[calc(0.75rem+1.5rem-1px)] w-[2px] rounded bg-[#0A2540]/12 md:left-[calc(1.5rem+2rem-1px)]" />
+          {pastCount === 0 && <p className="mb-2 ml-14 text-[12px] text-muted-foreground md:ml-[4.75rem]">No earlier events match these filters.</p>}
+          <ol className="relative">
+            {t.past.map((m) => <MonthBlock key={`p-${m.key}`} m={m} onOpen={onOpen} past lastYear={lastYear} />)}
+            {lastYear.v !== todayYear && (() => { lastYear.v = todayYear; return <YearRule year={todayYear} />; })()}
+            <li ref={todayRef} className="relative z-10 scroll-mt-3 pt-6" data-testid="timeline-today" aria-label={`Today, ${fmtDay(today, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`}>
+              <div className="flex items-center gap-3">
+                <span className="flex w-12 justify-center md:w-16"><span className="h-3.5 w-3.5 rounded-full bg-[#B03E71] ring-4 ring-[#B03E71]/20" /></span>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#B03E71]">Today</span>
+                <span className="text-[13px] font-semibold text-[#0A2540]">{fmtDay(today, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                <span className="h-px flex-1 bg-[#B03E71]/40" />
+              </div>
+              {t.ongoing.length > 0 && (
+                <ul className="mt-2.5 space-y-2.5" data-testid="timeline-ongoing">
+                  {t.ongoing.map((e) => (
+                    <li key={e.id} className="flex gap-2 md:gap-3"><Marker e={e} from={today} /><Card e={e} onOpen={onOpen} continued /></li>
+                  ))}
+                </ul>
+              )}
+            </li>
+            {t.upcoming.map((m) => <MonthBlock key={`u-${m.key}`} m={m} onOpen={onOpen} lastYear={lastYear} />)}
+            {upCount === 0 && <li className="ml-14 pt-4 text-[12px] text-muted-foreground md:ml-[4.75rem]">No upcoming dated events match these filters.</li>}
+            {t.undated.map((g) => (
+              <li key={`tbd-${g.year}`} data-testid={`timeline-tbd-${g.year}`}>
+                <MonthMarker label={`${g.year} · Month TBD`} count={g.events.length} tone="tbd" />
+                <p className="mb-2 ml-14 text-[12px] text-muted-foreground md:ml-[4.75rem]">Planned for {g.year}; month and day not set yet. Nothing is placed on a guessed day.</p>
+                <ul className="space-y-2.5">
+                  {g.events.map((e) => <li key={e.id} className="flex gap-2 md:gap-3"><Marker e={e} /><Card e={e} onOpen={onOpen} /></li>)}
+                </ul>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
     </div>
   );
 }

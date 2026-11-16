@@ -5,6 +5,7 @@ import { seedAccountability } from "./lib/seedAccountability";
 import { seedCalendar } from "./lib/seedCalendar";
 import { seedPurpose } from "./lib/purposeService";
 import { seedCalendarPrograms } from "./lib/calendarProgramsService";
+import { startBrainWorker } from "./lib/brain/indexer";
 
 const rawPort = process.env["PORT"];
 
@@ -27,4 +28,5 @@ seedFoundation().then(seedAccountability).then(seedCalendar).then(seedCalendarPr
   }
 
   logger.info({ port }, "Server listening");
+  startBrainWorker();
 })).catch((err) => { logger.error({ err }, "Unable to initialize SVP OS"); process.exit(1); });

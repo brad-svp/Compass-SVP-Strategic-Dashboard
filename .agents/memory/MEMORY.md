@@ -4,3 +4,5 @@
 - [Object Storage compatibility](object-storage-compatibility.md) — the supplied sidecar client needs the compatible SDK major; verify an actual upload before upgrading it.
 - [Organizational brain policy](organizational-brain-policy.md) — contributions are searchable unreviewed; admins review periodically; Claude reads operations and writes knowledge only.
 - [SVP Compass identity](product-identity.md) — the user selected SVP Compass as the app's new name and requested a compass-based logo and brand.
+- [Planning policy](planning-policy.md) — personal 6x6s, optional admin quarterly direction, current-only home dashboard and a cross-year calendar timeline.
+- [Scorecard policy](scorecard-policy.md) — requested append-only metric updates, author-attributed history and dated milestone targets; status rule needs confirmation.

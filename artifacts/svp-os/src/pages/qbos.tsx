@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { WithFoundation } from '@/components/with-foundation';
 import { ErrorPanel, PageHeader, PageSkeleton, Panel, StaffAvatar } from '@/components/ui-bits';
 import { NativeSelect } from '@/components/native-select';
+import { QuarterNarrativePanel } from '@/components/okr/quarter-narrative';
 import { ObjectiveDialog } from '@/components/okr/dialogs';
 import { ObjectiveRow, type Ctx } from '@/components/okr/objective-row';
 import { useStaffSession } from '@/lib/session-context';
@@ -85,6 +86,8 @@ function QbosBody({ foundation }: { foundation: Foundation }) {
           </button>
         </div>
       </div>
+
+      {!legacyView && <QuarterNarrativePanel cycleId={cycleId} quarter={quarter} cycleName={cycle?.name} className="rise mb-4" />}
 
       {!legacyView ? (
         inQuarter.length === 0 ? (

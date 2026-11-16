@@ -13,7 +13,7 @@ const date = z.string().refine(isCalendarDate, "Enter a valid YYYY-MM-DD date.")
 const time = z.string().datetime({ offset: true }).nullable();
 const input = z.object({
   title: z.string().trim().min(1).max(300), program: z.string().trim().max(120),
-  planningYear: z.number().int().min(1900).max(9999), startDate: date, endDate: date,
+  planningYear: z.number().int().min(1900).max(9999), planningMonth:z.number().int().min(1).max(12).nullable().optional(), startDate: date, endDate: date,
   allDay: z.boolean(), startsAt: time, endsAt: time,
   location: z.string().trim().max(1000), dateStatus: z.enum(["proposed", "confirmed", "tbd", "cancelled"]),
   locationStatus: z.enum(["proposed", "confirmed", "tbd", "not_applicable"]),
@@ -38,6 +38,7 @@ export function validateCalendarEvent(raw: unknown) {
   if (data.startDate === null || data.endDate === null) {
     if (data.startDate !== null || data.endDate !== null || !data.allDay || data.startsAt || data.endsAt) throw new AppError(400, "An unscheduled event must have no dates or times.");
   } else {
+    data.planningMonth=null; // A real date supersedes the earlier planning month.
     if (data.endDate < data.startDate) throw new AppError(400, "End date must be on or after start date.");
     if (Number(data.startDate.slice(0, 4)) !== data.planningYear) throw new AppError(400, "Planning year must match the start date.");
     if (data.allDay) {

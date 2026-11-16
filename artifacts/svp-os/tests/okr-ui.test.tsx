@@ -61,11 +61,13 @@ test('empty dashboard renders honest QBO empty state and no My OKRs framing', ()
   assert.match(html, /No QBOs for Q\d yet/);
   assert.match(html, /href="\/qbos\?cycle=cycle&amp;q=Q\d"/);
   assert.doesNotMatch(html, /My OKRs/);
+  assert.doesNotMatch(html, /data-testid="filter-cycle"|data-testid="filter-quarter"/);
+  assert.doesNotMatch(html, /aria-label="Cycle"|aria-label="Quarter"/);
 });
 test('dashboard shows quarter QBOs, not legacy annual objectives', () => {
   const html = render('/dashboard', qboWs);
   assert.doesNotMatch(html, /Shared company goal/);
-  assert.match(html, /legacy objective/);
+  assert.doesNotMatch(html, /Who carries|Recent check-ins|legacy objective/);
 });
 test('staff cannot see QBO creation controls; admins can', () => {
   assert.doesNotMatch(render('/qbos?q=Q2', empty), /data-testid="button-empty-new-qbo"/);

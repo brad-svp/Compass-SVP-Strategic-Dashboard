@@ -6,6 +6,7 @@ import { NativeSelect } from '@/components/native-select';
 import { Btn, ConflictNotice, Field, FormError, inputCls } from '@/components/six-by-six/form-kit';
 import { DATE_STATUS, LOCATION_STATUS, buildInput, eventToDraft, type DateMode, type EventDraft } from '@/lib/calendar';
 import type { CalendarActions } from '@/lib/calendar-hooks';
+import { MONTHS } from '@/lib/calendar-time';
 
 const MODES: { id: DateMode; label: string }[] = [
   { id: 'allday', label: 'All day' }, { id: 'timed', label: 'Timed' }, { id: 'tbd', label: 'Date TBD' },
@@ -73,9 +74,17 @@ export function EventForm({ event, seed, staff, programs, actions, onDone, onReo
           ))}
         </div>
         {d.mode === 'tbd' ? (
-          <Field label="Planning year" hint="Shown in that year's list as Date TBD. No date is invented.">
-            <input type="number" min={1900} max={9999} className={inputCls} value={d.planningYear} onChange={(e) => set({ planningYear: e.target.value })} data-testid="input-event-year" />
-          </Field>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="Planning year" hint="No day is invented.">
+              <input type="number" min={1900} max={9999} className={inputCls} value={d.planningYear} onChange={(e) => set({ planningYear: e.target.value })} data-testid="input-event-year" />
+            </Field>
+            <Field label="Month (optional)" hint="If known, it shows under that month with Day TBD.">
+              <NativeSelect aria-label="Planning month" value={d.planningMonth} onChange={(e) => set({ planningMonth: e.target.value })} data-testid="select-event-month">
+                <option value="">Month TBD</option>
+                {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
+              </NativeSelect>
+            </Field>
+          </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label={d.mode === 'timed' ? 'Starts (date)' : 'First day'}>
@@ -108,7 +117,6 @@ export function EventForm({ event, seed, staff, programs, actions, onDone, onReo
         <input className={inputCls} value={d.audience} onChange={(e) => set({ audience: e.target.value })} data-testid="input-event-audience" />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Wix page URL"><input type="url" className={inputCls} maxLength={2000} placeholder="https://" value={d.wixUrl} onChange={(e) => set({ wixUrl: e.target.value })} data-testid="input-event-wix" /></Field>
         <Field label="Owner (optional)">
           <NativeSelect value={d.ownerId} onChange={(e) => set({ ownerId: e.target.value })} data-testid="select-event-owner">
             <option value="">No owner</option>

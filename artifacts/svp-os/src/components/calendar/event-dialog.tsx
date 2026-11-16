@@ -53,7 +53,6 @@ function EventDetails({ e, staff, canEdit, onEdit, onClose }: { e: CalendarEvent
         <Row label="Where"><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5 text-muted-foreground" />{e.location || 'Not set'}</span> <span className="text-muted-foreground">· {LOCATION_STATUS[e.locationStatus]}</span></Row>
         <Row label="Audience"><span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5 text-muted-foreground" />{e.audience.length ? e.audience.join(', ') : 'Not set'}</span></Row>
         <Row label="Owner">{owner ? owner.name : 'No owner'}</Row>
-        {e.wixUrl && <Row label="Wix page">{isHttpUrl(e.wixUrl) ? <a href={e.wixUrl} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 text-[#125F88] underline" data-testid="link-event-wix">{e.wixUrl}<ExternalLink className="h-3 w-3" /></a> : e.wixUrl}</Row>}
         {e.notes && <Row label="Notes"><span className="whitespace-pre-wrap">{e.notes}</span></Row>}
         <Row label="Source">
           {e.imported ? (

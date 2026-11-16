@@ -1,0 +1,2 @@
+ALTER TABLE "calendar_events" ADD COLUMN "planning_month" integer;--> statement-breakpoint
+ALTER TABLE "calendar_events" ADD CONSTRAINT "calendar_month_check" CHECK ("calendar_events"."planning_month" is null or "calendar_events"."planning_month" between 1 and 12);

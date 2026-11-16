@@ -5,6 +5,7 @@ import { PageHeader, Panel } from '@/components/ui-bits';
 import { StaffPanel } from '@/components/admin/staff-panel';
 import { AreasPanel } from '@/components/admin/areas-panel';
 import { CyclesPanel } from '@/components/admin/cycles-panel';
+import { ProgramsPanel } from '@/components/admin/programs-panel';
 import { useStaffSession } from '@/lib/session-context';
 import { fmtDate } from '@/lib/format';
 
@@ -13,7 +14,7 @@ export default function Admin() {
   if (me.role !== 'admin') return <AccessDenied inline />;
   return (
     <>
-      <PageHeader eyebrow="Admin" title="Keep the foundation true.">Staff, areas and cycles everyone else builds on. Every change is recorded below.</PageHeader>
+      <PageHeader eyebrow="Admin" title="Keep the foundation true.">Staff, areas, cycles and programs everyone else builds on. Every change is recorded below.</PageHeader>
       <WithFoundation>
         {(data) => (
           <Tabs defaultValue="staff">
@@ -21,11 +22,13 @@ export default function Admin() {
               <TabsTrigger value="staff" data-testid="tab-staff">Staff</TabsTrigger>
               <TabsTrigger value="areas" data-testid="tab-areas">Areas</TabsTrigger>
               <TabsTrigger value="cycles" data-testid="tab-cycles">Cycles</TabsTrigger>
+              <TabsTrigger value="programs" data-testid="tab-programs">Programs</TabsTrigger>
               <TabsTrigger value="activity" data-testid="tab-activity">Activity</TabsTrigger>
             </TabsList>
             <TabsContent value="staff"><StaffPanel staff={data.staff} areas={data.areas} /></TabsContent>
             <TabsContent value="areas"><AreasPanel areas={data.areas} /></TabsContent>
             <TabsContent value="cycles"><CyclesPanel cycles={data.cycles} /></TabsContent>
+            <TabsContent value="programs"><ProgramsPanel /></TabsContent>
             <TabsContent value="activity">
               <Panel>
                 {data.activity.length === 0 ? <p className="text-sm text-muted-foreground">No changes recorded yet.</p> : (

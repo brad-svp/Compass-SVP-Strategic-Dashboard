@@ -8,6 +8,590 @@
 import * as zod from 'zod';
 
 
+export const GetQuarterNarrativeParams = zod.object({
+  "cycleId": zod.coerce.string(),
+  "quarter": zod.enum(['Q1', 'Q2', 'Q3', 'Q4'])
+})
+
+export const GetQuarterNarrativeResponse = zod.object({
+  "cycleId": zod.string(),
+  "quarter": zod.enum(['Q1', 'Q2', 'Q3', 'Q4']),
+  "narrative": zod.string(),
+  "version": zod.number().int(),
+  "canEdit": zod.boolean(),
+  "updatedAt": zod.string().nullable()
+})
+
+
+export const SaveQuarterNarrativeParams = zod.object({
+  "cycleId": zod.coerce.string(),
+  "quarter": zod.enum(['Q1', 'Q2', 'Q3', 'Q4'])
+})
+
+export const saveQuarterNarrativeBodyNarrativeMax = 12000;
+
+export const saveQuarterNarrativeBodyExpectedVersionMin = 0;
+
+
+
+export const SaveQuarterNarrativeBody = zod.object({
+  "narrative": zod.string().max(saveQuarterNarrativeBodyNarrativeMax),
+  "expectedVersion": zod.number().int().min(saveQuarterNarrativeBodyExpectedVersionMin)
+})
+
+export const SaveQuarterNarrativeResponse = zod.object({
+  "cycleId": zod.string(),
+  "quarter": zod.enum(['Q1', 'Q2', 'Q3', 'Q4']),
+  "narrative": zod.string(),
+  "version": zod.number().int(),
+  "canEdit": zod.boolean(),
+  "updatedAt": zod.string().nullable()
+})
+
+
+export const getBrainQueryQMax = 500;
+
+export const getBrainQueryOffsetMin = 0;
+export const getBrainQueryOffsetMax = 100000;
+
+
+
+export const GetBrainQueryParams = zod.object({
+  "q": zod.coerce.string().max(getBrainQueryQMax).optional(),
+  "kind": zod.coerce.string().optional(),
+  "programId": zod.coerce.string().optional(),
+  "areaId": zod.coerce.string().optional(),
+  "status": zod.enum(['all', 'unreviewed', 'reviewed', 'overdue', 'conflicts', 'retired']).optional(),
+  "offset": zod.coerce.number().int().min(getBrainQueryOffsetMin).max(getBrainQueryOffsetMax).optional()
+})
+
+export const getBrainResponseEntriesItemOneTitleMax = 240;
+
+export const getBrainResponseEntriesItemOneSummaryMax = 2000;
+
+export const getBrainResponseEntriesItemOneContentMax = 80000;
+
+export const getBrainResponseEntriesItemOneTagsItemMax = 60;
+
+export const getBrainResponseEntriesItemOneTagsMax = 20;
+
+export const getBrainResponseEntriesItemOneSourceUrlsItemMax = 2000;
+
+export const getBrainResponseEntriesItemOneSourceUrlsMax = 20;
+
+export const getBrainResponseEntriesItemOneLinksItemDomainMax = 60;
+
+export const getBrainResponseEntriesItemOneLinksItemIdMax = 100;
+
+export const getBrainResponseEntriesItemOneLinksItemLabelMax = 200;
+
+export const getBrainResponseEntriesItemOneLinksMax = 30;
+
+export const getBrainResponseEntriesItemOneReviewIntervalDaysMin = 7;
+export const getBrainResponseEntriesItemOneReviewIntervalDaysMax = 730;
+
+export const getBrainResponseEntriesItemOneExpectedVersionMin = 0;
+
+export const getBrainResponseEntriesItemOneRequestKeyMax = 100;
+
+
+
+export const GetBrainResponse = zod.object({
+  "entries": zod.array(zod.object({
+  "title": zod.string().min(1).max(getBrainResponseEntriesItemOneTitleMax),
+  "summary": zod.string().max(getBrainResponseEntriesItemOneSummaryMax),
+  "content": zod.string().max(getBrainResponseEntriesItemOneContentMax),
+  "kind": zod.enum(['playbook', 'procedure', 'strategy', 'decision', 'lesson', 'reference']),
+  "programId": zod.string().nullable(),
+  "areaId": zod.string().nullable(),
+  "ownerId": zod.string(),
+  "tags": zod.array(zod.string().min(1).max(getBrainResponseEntriesItemOneTagsItemMax)).max(getBrainResponseEntriesItemOneTagsMax),
+  "sourceUrls": zod.array(zod.string().max(getBrainResponseEntriesItemOneSourceUrlsItemMax)).max(getBrainResponseEntriesItemOneSourceUrlsMax),
+  "links": zod.array(zod.object({
+  "domain": zod.string().max(getBrainResponseEntriesItemOneLinksItemDomainMax),
+  "id": zod.string().max(getBrainResponseEntriesItemOneLinksItemIdMax),
+  "label": zod.string().max(getBrainResponseEntriesItemOneLinksItemLabelMax)
+})).max(getBrainResponseEntriesItemOneLinksMax),
+  "visibility": zod.enum(['staff', 'admin']),
+  "reviewIntervalDays": zod.number().int().min(getBrainResponseEntriesItemOneReviewIntervalDaysMin).max(getBrainResponseEntriesItemOneReviewIntervalDaysMax),
+  "expectedVersion": zod.number().int().min(getBrainResponseEntriesItemOneExpectedVersionMin),
+  "requestKey": zod.string().min(1).max(getBrainResponseEntriesItemOneRequestKeyMax).optional()
+}).and(zod.object({
+  "id": zod.string(),
+  "authorId": zod.string(),
+  "reviewStatus": zod.enum(['unreviewed', 'reviewed']),
+  "retired": zod.boolean(),
+  "conflict": zod.string(),
+  "mergedIntoId": zod.string().nullable(),
+  "version": zod.number().int(),
+  "via": zod.string(),
+  "reviewedAt": zod.string().nullable(),
+  "reviewerId": zod.string().nullable(),
+  "reviewDueAt": zod.string().nullable(),
+  "overdue": zod.boolean(),
+  "indexStatus": zod.string(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "canEdit": zod.boolean()
+}))),
+  "hits": zod.array(zod.object({
+  "entryId": zod.string(),
+  "title": zod.string(),
+  "reviewStatus": zod.string(),
+  "overdue": zod.boolean(),
+  "conflict": zod.string(),
+  "excerpt": zod.string(),
+  "sourceLabel": zod.string(),
+  "fileId": zod.string().nullable(),
+  "page": zod.number().int().nullable(),
+  "score": zod.number(),
+  "href": zod.string()
+})),
+  "total": zod.number().int(),
+  "semanticReady": zod.boolean(),
+  "semanticMessage": zod.string(),
+  "defaultReviewDays": zod.number().int()
+})
+
+
+export const createBrainEntryBodyTitleMax = 240;
+
+export const createBrainEntryBodySummaryMax = 2000;
+
+export const createBrainEntryBodyContentMax = 80000;
+
+export const createBrainEntryBodyTagsItemMax = 60;
+
+export const createBrainEntryBodyTagsMax = 20;
+
+export const createBrainEntryBodySourceUrlsItemMax = 2000;
+
+export const createBrainEntryBodySourceUrlsMax = 20;
+
+export const createBrainEntryBodyLinksItemDomainMax = 60;
+
+export const createBrainEntryBodyLinksItemIdMax = 100;
+
+export const createBrainEntryBodyLinksItemLabelMax = 200;
+
+export const createBrainEntryBodyLinksMax = 30;
+
+export const createBrainEntryBodyReviewIntervalDaysMin = 7;
+export const createBrainEntryBodyReviewIntervalDaysMax = 730;
+
+export const createBrainEntryBodyExpectedVersionMin = 0;
+
+export const createBrainEntryBodyRequestKeyMax = 100;
+
+
+
+export const CreateBrainEntryBody = zod.object({
+  "title": zod.string().min(1).max(createBrainEntryBodyTitleMax),
+  "summary": zod.string().max(createBrainEntryBodySummaryMax),
+  "content": zod.string().max(createBrainEntryBodyContentMax),
+  "kind": zod.enum(['playbook', 'procedure', 'strategy', 'decision', 'lesson', 'reference']),
+  "programId": zod.string().nullable(),
+  "areaId": zod.string().nullable(),
+  "ownerId": zod.string(),
+  "tags": zod.array(zod.string().min(1).max(createBrainEntryBodyTagsItemMax)).max(createBrainEntryBodyTagsMax),
+  "sourceUrls": zod.array(zod.string().max(createBrainEntryBodySourceUrlsItemMax)).max(createBrainEntryBodySourceUrlsMax),
+  "links": zod.array(zod.object({
+  "domain": zod.string().max(createBrainEntryBodyLinksItemDomainMax),
+  "id": zod.string().max(createBrainEntryBodyLinksItemIdMax),
+  "label": zod.string().max(createBrainEntryBodyLinksItemLabelMax)
+})).max(createBrainEntryBodyLinksMax),
+  "visibility": zod.enum(['staff', 'admin']),
+  "reviewIntervalDays": zod.number().int().min(createBrainEntryBodyReviewIntervalDaysMin).max(createBrainEntryBodyReviewIntervalDaysMax),
+  "expectedVersion": zod.number().int().min(createBrainEntryBodyExpectedVersionMin),
+  "requestKey": zod.string().min(1).max(createBrainEntryBodyRequestKeyMax).optional()
+})
+
+export const CreateBrainEntryResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const GetBrainEntryParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const getBrainEntryResponseEntryOneTitleMax = 240;
+
+export const getBrainEntryResponseEntryOneSummaryMax = 2000;
+
+export const getBrainEntryResponseEntryOneContentMax = 80000;
+
+export const getBrainEntryResponseEntryOneTagsItemMax = 60;
+
+export const getBrainEntryResponseEntryOneTagsMax = 20;
+
+export const getBrainEntryResponseEntryOneSourceUrlsItemMax = 2000;
+
+export const getBrainEntryResponseEntryOneSourceUrlsMax = 20;
+
+export const getBrainEntryResponseEntryOneLinksItemDomainMax = 60;
+
+export const getBrainEntryResponseEntryOneLinksItemIdMax = 100;
+
+export const getBrainEntryResponseEntryOneLinksItemLabelMax = 200;
+
+export const getBrainEntryResponseEntryOneLinksMax = 30;
+
+export const getBrainEntryResponseEntryOneReviewIntervalDaysMin = 7;
+export const getBrainEntryResponseEntryOneReviewIntervalDaysMax = 730;
+
+export const getBrainEntryResponseEntryOneExpectedVersionMin = 0;
+
+export const getBrainEntryResponseEntryOneRequestKeyMax = 100;
+
+
+
+export const GetBrainEntryResponse = zod.object({
+  "entry": zod.object({
+  "title": zod.string().min(1).max(getBrainEntryResponseEntryOneTitleMax),
+  "summary": zod.string().max(getBrainEntryResponseEntryOneSummaryMax),
+  "content": zod.string().max(getBrainEntryResponseEntryOneContentMax),
+  "kind": zod.enum(['playbook', 'procedure', 'strategy', 'decision', 'lesson', 'reference']),
+  "programId": zod.string().nullable(),
+  "areaId": zod.string().nullable(),
+  "ownerId": zod.string(),
+  "tags": zod.array(zod.string().min(1).max(getBrainEntryResponseEntryOneTagsItemMax)).max(getBrainEntryResponseEntryOneTagsMax),
+  "sourceUrls": zod.array(zod.string().max(getBrainEntryResponseEntryOneSourceUrlsItemMax)).max(getBrainEntryResponseEntryOneSourceUrlsMax),
+  "links": zod.array(zod.object({
+  "domain": zod.string().max(getBrainEntryResponseEntryOneLinksItemDomainMax),
+  "id": zod.string().max(getBrainEntryResponseEntryOneLinksItemIdMax),
+  "label": zod.string().max(getBrainEntryResponseEntryOneLinksItemLabelMax)
+})).max(getBrainEntryResponseEntryOneLinksMax),
+  "visibility": zod.enum(['staff', 'admin']),
+  "reviewIntervalDays": zod.number().int().min(getBrainEntryResponseEntryOneReviewIntervalDaysMin).max(getBrainEntryResponseEntryOneReviewIntervalDaysMax),
+  "expectedVersion": zod.number().int().min(getBrainEntryResponseEntryOneExpectedVersionMin),
+  "requestKey": zod.string().min(1).max(getBrainEntryResponseEntryOneRequestKeyMax).optional()
+}).and(zod.object({
+  "id": zod.string(),
+  "authorId": zod.string(),
+  "reviewStatus": zod.enum(['unreviewed', 'reviewed']),
+  "retired": zod.boolean(),
+  "conflict": zod.string(),
+  "mergedIntoId": zod.string().nullable(),
+  "version": zod.number().int(),
+  "via": zod.string(),
+  "reviewedAt": zod.string().nullable(),
+  "reviewerId": zod.string().nullable(),
+  "reviewDueAt": zod.string().nullable(),
+  "overdue": zod.boolean(),
+  "indexStatus": zod.string(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "canEdit": zod.boolean()
+})),
+  "files": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "contentType": zod.string(),
+  "size": zod.number().int(),
+  "status": zod.string(),
+  "error": zod.string().nullable(),
+  "downloadUrl": zod.string().nullable(),
+  "createdAt": zod.string()
+})),
+  "versions": zod.array(zod.object({
+  "id": zod.string(),
+  "version": zod.number().int(),
+  "actorId": zod.string(),
+  "action": zod.string(),
+  "note": zod.string(),
+  "createdAt": zod.string(),
+  "title": zod.string(),
+  "content": zod.string(),
+  "summary": zod.string(),
+  "fileIds": zod.array(zod.string())
+}))
+})
+
+
+
+
+
+export const UpdateBrainEntryParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const updateBrainEntryBodyTitleMax = 240;
+
+export const updateBrainEntryBodySummaryMax = 2000;
+
+export const updateBrainEntryBodyContentMax = 80000;
+
+export const updateBrainEntryBodyTagsItemMax = 60;
+
+export const updateBrainEntryBodyTagsMax = 20;
+
+export const updateBrainEntryBodySourceUrlsItemMax = 2000;
+
+export const updateBrainEntryBodySourceUrlsMax = 20;
+
+export const updateBrainEntryBodyLinksItemDomainMax = 60;
+
+export const updateBrainEntryBodyLinksItemIdMax = 100;
+
+export const updateBrainEntryBodyLinksItemLabelMax = 200;
+
+export const updateBrainEntryBodyLinksMax = 30;
+
+export const updateBrainEntryBodyReviewIntervalDaysMin = 7;
+export const updateBrainEntryBodyReviewIntervalDaysMax = 730;
+
+export const updateBrainEntryBodyExpectedVersionMin = 0;
+
+export const updateBrainEntryBodyRequestKeyMax = 100;
+
+
+
+export const UpdateBrainEntryBody = zod.object({
+  "title": zod.string().min(1).max(updateBrainEntryBodyTitleMax),
+  "summary": zod.string().max(updateBrainEntryBodySummaryMax),
+  "content": zod.string().max(updateBrainEntryBodyContentMax),
+  "kind": zod.enum(['playbook', 'procedure', 'strategy', 'decision', 'lesson', 'reference']),
+  "programId": zod.string().nullable(),
+  "areaId": zod.string().nullable(),
+  "ownerId": zod.string(),
+  "tags": zod.array(zod.string().min(1).max(updateBrainEntryBodyTagsItemMax)).max(updateBrainEntryBodyTagsMax),
+  "sourceUrls": zod.array(zod.string().max(updateBrainEntryBodySourceUrlsItemMax)).max(updateBrainEntryBodySourceUrlsMax),
+  "links": zod.array(zod.object({
+  "domain": zod.string().max(updateBrainEntryBodyLinksItemDomainMax),
+  "id": zod.string().max(updateBrainEntryBodyLinksItemIdMax),
+  "label": zod.string().max(updateBrainEntryBodyLinksItemLabelMax)
+})).max(updateBrainEntryBodyLinksMax),
+  "visibility": zod.enum(['staff', 'admin']),
+  "reviewIntervalDays": zod.number().int().min(updateBrainEntryBodyReviewIntervalDaysMin).max(updateBrainEntryBodyReviewIntervalDaysMax),
+  "expectedVersion": zod.number().int().min(updateBrainEntryBodyExpectedVersionMin),
+  "requestKey": zod.string().min(1).max(updateBrainEntryBodyRequestKeyMax).optional()
+})
+
+export const UpdateBrainEntryResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const ActOnBrainEntryParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+
+export const actOnBrainEntryBodyNoteMax = 8000;
+
+
+
+export const ActOnBrainEntryBody = zod.object({
+  "action": zod.enum(['approve', 'retire', 'restore', 'restore_version', 'flag_conflict', 'clear_conflict', 'merge', 'propose_amendment']),
+  "expectedVersion": zod.number().int().min(1),
+  "versionId": zod.string().optional(),
+  "targetId": zod.string().optional(),
+  "note": zod.string().max(actOnBrainEntryBodyNoteMax).optional()
+})
+
+export const ActOnBrainEntryResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const requestBrainUploadBodyNameMax = 240;
+
+export const requestBrainUploadBodySizeMax = 20971520;
+
+export const requestBrainUploadBodyContentTypeMax = 150;
+
+
+
+
+export const RequestBrainUploadBody = zod.object({
+  "entryId": zod.string(),
+  "name": zod.string().min(1).max(requestBrainUploadBodyNameMax),
+  "size": zod.number().int().min(1).max(requestBrainUploadBodySizeMax),
+  "contentType": zod.string().min(1).max(requestBrainUploadBodyContentTypeMax),
+  "expectedVersion": zod.number().int().min(1),
+  "replacesId": zod.string().optional()
+})
+
+export const RequestBrainUploadResponse = zod.object({
+  "id": zod.string(),
+  "uploadURL": zod.string()
+})
+
+
+
+
+
+export const CompleteBrainUploadParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const CompleteBrainUploadResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const DownloadBrainFileParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const DownloadBrainFileResponse = zod.unknown()
+
+
+
+
+
+export const RemoveBrainFileParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const removeBrainFileBodyExpectedVersionMin = 0;
+
+
+
+export const RemoveBrainFileBody = zod.object({
+  "expectedVersion": zod.number().int().min(removeBrainFileBodyExpectedVersionMin)
+})
+
+export const RemoveBrainFileResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const GetBrainAdminResponse = zod.object({
+  "settingsVersion": zod.number().int(),
+  "reviewIntervalDays": zod.number().int(),
+  "unreviewed": zod.number().int(),
+  "overdue": zod.number().int(),
+  "conflicts": zod.number().int(),
+  "failed": zod.number().int(),
+  "jobs": zod.array(zod.object({
+  "id": zod.string(),
+  "entryId": zod.string(),
+  "title": zod.string(),
+  "version": zod.number().int(),
+  "status": zod.string(),
+  "attempts": zod.number().int(),
+  "error": zod.string().nullable()
+})),
+  "duplicates": zod.array(zod.object({
+  "title": zod.string(),
+  "ids": zod.array(zod.string())
+})),
+  "model": zod.string(),
+  "modelState": zod.string(),
+  "modelMessage": zod.string()
+})
+
+
+export const updateBrainSettingsBodyReviewIntervalDaysMin = 7;
+export const updateBrainSettingsBodyReviewIntervalDaysMax = 730;
+
+
+
+
+export const UpdateBrainSettingsBody = zod.object({
+  "reviewIntervalDays": zod.number().int().min(updateBrainSettingsBodyReviewIntervalDaysMin).max(updateBrainSettingsBodyReviewIntervalDaysMax),
+  "expectedVersion": zod.number().int().min(1)
+})
+
+export const UpdateBrainSettingsResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const RetryBrainJobParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const RetryBrainJobResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const ReindexBrainResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const GetBrainConnectionsResponse = zod.object({
+  "mcpUrl": zod.string(),
+  "published": zod.boolean(),
+  "clientId": zod.string(),
+  "scopes": zod.array(zod.string()),
+  "grants": zod.array(zod.object({
+  "id": zod.string(),
+  "clientName": zod.string(),
+  "scopes": zod.array(zod.string()),
+  "createdAt": zod.string(),
+  "lastUsedAt": zod.string().nullable(),
+  "revokedAt": zod.string().nullable()
+})),
+  "skillUrl": zod.string(),
+  "message": zod.string()
+})
+
+
+
+
+
+export const RevokeBrainConnectionParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const RevokeBrainConnectionResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const GetBrainConsentParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const GetBrainConsentResponse = zod.object({
+  "id": zod.string(),
+  "clientName": zod.string(),
+  "scopes": zod.array(zod.string()),
+  "resource": zod.string(),
+  "redirectUri": zod.string(),
+  "expiresAt": zod.string()
+})
+
+
+
+
+
+export const DecideBrainConsentParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const DecideBrainConsentBody = zod.object({
+  "allow": zod.boolean()
+})
+
+export const DecideBrainConsentResponse = zod.object({
+  "redirectUrl": zod.string()
+})
+
+
+export const DownloadBrainSkillResponse = zod.unknown()
+
+
 export const createCalendarProgramBodyNameMax = 120;
 
 export const createCalendarProgramBodyExpectedVersionMin = 0;
@@ -310,6 +894,8 @@ export const getMasterCalendarResponseEventsItemOneProgramMax = 120;
 export const getMasterCalendarResponseEventsItemOnePlanningYearMin = 1900;
 export const getMasterCalendarResponseEventsItemOnePlanningYearMax = 9999;
 
+export const getMasterCalendarResponseEventsItemOnePlanningMonthMax = 12;
+
 export const getMasterCalendarResponseEventsItemOneLocationMax = 1000;
 
 export const getMasterCalendarResponseEventsItemOneAudienceItemMax = 120;
@@ -329,6 +915,7 @@ export const GetMasterCalendarResponse = zod.object({
   "title": zod.string().min(1).max(getMasterCalendarResponseEventsItemOneTitleMax),
   "program": zod.string().max(getMasterCalendarResponseEventsItemOneProgramMax),
   "planningYear": zod.number().int().min(getMasterCalendarResponseEventsItemOnePlanningYearMin).max(getMasterCalendarResponseEventsItemOnePlanningYearMax),
+  "planningMonth": zod.number().int().min(1).max(getMasterCalendarResponseEventsItemOnePlanningMonthMax).nullish(),
   "startDate": zod.string().nullable(),
   "endDate": zod.string().nullable(),
   "allDay": zod.boolean(),
@@ -383,6 +970,8 @@ export const createCalendarEventBodyProgramMax = 120;
 export const createCalendarEventBodyPlanningYearMin = 1900;
 export const createCalendarEventBodyPlanningYearMax = 9999;
 
+export const createCalendarEventBodyPlanningMonthMax = 12;
+
 export const createCalendarEventBodyLocationMax = 1000;
 
 export const createCalendarEventBodyAudienceItemMax = 120;
@@ -401,6 +990,7 @@ export const CreateCalendarEventBody = zod.object({
   "title": zod.string().min(1).max(createCalendarEventBodyTitleMax),
   "program": zod.string().max(createCalendarEventBodyProgramMax),
   "planningYear": zod.number().int().min(createCalendarEventBodyPlanningYearMin).max(createCalendarEventBodyPlanningYearMax),
+  "planningMonth": zod.number().int().min(1).max(createCalendarEventBodyPlanningMonthMax).nullish(),
   "startDate": zod.string().nullable(),
   "endDate": zod.string().nullable(),
   "allDay": zod.boolean(),
@@ -435,6 +1025,8 @@ export const updateCalendarEventBodyProgramMax = 120;
 export const updateCalendarEventBodyPlanningYearMin = 1900;
 export const updateCalendarEventBodyPlanningYearMax = 9999;
 
+export const updateCalendarEventBodyPlanningMonthMax = 12;
+
 export const updateCalendarEventBodyLocationMax = 1000;
 
 export const updateCalendarEventBodyAudienceItemMax = 120;
@@ -453,6 +1045,7 @@ export const UpdateCalendarEventBody = zod.object({
   "title": zod.string().min(1).max(updateCalendarEventBodyTitleMax),
   "program": zod.string().max(updateCalendarEventBodyProgramMax),
   "planningYear": zod.number().int().min(updateCalendarEventBodyPlanningYearMin).max(updateCalendarEventBodyPlanningYearMax),
+  "planningMonth": zod.number().int().min(1).max(updateCalendarEventBodyPlanningMonthMax).nullish(),
   "startDate": zod.string().nullable(),
   "endDate": zod.string().nullable(),
   "allDay": zod.boolean(),
@@ -541,6 +1134,41 @@ export const GetSixBySixResponse = zod.object({
   "canEdit": zod.boolean(),
   "updatedAt": zod.coerce.date()
 })))
+})
+
+
+export const getSixViewPreferencesResponseStaffIdsItemMax = 200;
+
+export const getSixViewPreferencesResponseStaffIdsMax = 200;
+
+
+
+export const GetSixViewPreferencesResponse = zod.object({
+  "mode": zod.enum(['mine', 'all', 'custom']),
+  "staffIds": zod.array(zod.string().min(1).max(getSixViewPreferencesResponseStaffIdsItemMax)).max(getSixViewPreferencesResponseStaffIdsMax)
+})
+
+
+export const saveSixViewPreferencesBodyStaffIdsItemMax = 200;
+
+export const saveSixViewPreferencesBodyStaffIdsMax = 200;
+
+
+
+export const SaveSixViewPreferencesBody = zod.object({
+  "mode": zod.enum(['mine', 'all', 'custom']),
+  "staffIds": zod.array(zod.string().min(1).max(saveSixViewPreferencesBodyStaffIdsItemMax)).max(saveSixViewPreferencesBodyStaffIdsMax)
+})
+
+export const saveSixViewPreferencesResponseStaffIdsItemMax = 200;
+
+export const saveSixViewPreferencesResponseStaffIdsMax = 200;
+
+
+
+export const SaveSixViewPreferencesResponse = zod.object({
+  "mode": zod.enum(['mine', 'all', 'custom']),
+  "staffIds": zod.array(zod.string().min(1).max(saveSixViewPreferencesResponseStaffIdsItemMax)).max(saveSixViewPreferencesResponseStaffIdsMax)
 })
 
 

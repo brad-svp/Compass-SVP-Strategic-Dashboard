@@ -25,6 +25,10 @@ import Admin from '@/pages/admin';
 import Qbos from '@/pages/qbos';
 import QboDetail from '@/pages/qbo-detail';
 import Scorecard from '@/pages/scorecard';
+import BrainPage from '@/pages/brain';
+import BrainDetailPage from '@/pages/brain-detail';
+import BrainConnectionsPage from '@/pages/brain-connections';
+import BrainConsentPage from '@/pages/brain-consent';
 import { DevAuthProvider, useDevAuth } from '@/lib/dev-auth';
 
 const queryClient = new QueryClient();
@@ -174,6 +178,10 @@ function Routes() {
         <Route path="/calendar"><Protected><CalendarPage /></Protected></Route>
         <Route path="/purpose"><Protected><PurposePage /></Protected></Route>
         <Route path="/systems"><Protected><SystemsPage /></Protected></Route>
+        <Route path="/brain"><Protected><BrainPage /></Protected></Route>
+        <Route path="/brain/connections"><Protected><BrainConnectionsPage /></Protected></Route>
+        <Route path="/brain/consent"><Protected><BrainConsentPage /></Protected></Route>
+        <Route path="/brain/:id"><Protected><BrainDetailPage /></Protected></Route>
         <Route path="/learn"><Protected><LearnPreview /></Protected></Route>
         <Route path="/team"><Protected><Team /></Protected></Route>
         <Route path="/settings"><Protected><Settings /></Protected></Route>

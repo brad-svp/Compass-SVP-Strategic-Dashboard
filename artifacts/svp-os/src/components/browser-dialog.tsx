@@ -22,7 +22,7 @@ export function BrowserDialog({ open, onOpenChange, title, description, children
       aria-describedby={descriptionId}
       onCancel={(event) => { event.preventDefault(); onOpenChange(false); }}
       onClose={() => onOpenChange(false)}
-      className="fixed inset-0 m-auto max-h-[92dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto rounded-xl border border-border bg-[#FBFAF6] p-6 text-foreground shadow-xl backdrop:bg-black/60"
+      className="pointer-events-auto fixed inset-0 m-auto max-h-[92dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto rounded-xl border border-border bg-[#FBFAF6] p-6 text-foreground shadow-xl backdrop:bg-black/60"
       data-testid={testId}
     >
       <header className="mb-4 space-y-1.5 pr-7">

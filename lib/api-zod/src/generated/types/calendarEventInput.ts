@@ -21,6 +21,12 @@ export interface CalendarEventInput {
      * @maximum 9999
      */
   planningYear: number;
+  /**
+     * @minimum 1
+     * @maximum 12
+     * @nullable
+     */
+  planningMonth?: number | null;
   /** @nullable */
   startDate: string | null;
   /** @nullable */

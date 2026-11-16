@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useDevAuth, useWorkspaceSignOut } from '@/lib/dev-auth';
 import {
-  LayoutDashboard, Target, BarChart3, Grid3x3, CalendarDays, Users, Settings, ShieldCheck, LogOut, Menu, Waypoints, Compass,
+  LayoutDashboard, Target, BarChart3, Grid3x3, CalendarDays, Users, Settings, ShieldCheck, LogOut, Menu, Waypoints, Compass, BrainCircuit,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { BrandLockup } from '@/components/brand-logo';
@@ -16,8 +16,9 @@ const NAV = [
   { href: '/qbos', label: 'QBOs', icon: Target },
   { href: '/scorecard', label: 'Scorecard', icon: BarChart3 },
   { href: '/six-by-six', label: '6x6', icon: Grid3x3 },
-  { href: '/calendar', label: 'Calendar', icon: CalendarDays },
+  { href: '/calendar', label: 'Master Calendar', icon: CalendarDays },
   { href: '/systems', label: 'Systems Overview', icon: Waypoints },
+  { href: '/brain', label: 'Brain', icon: BrainCircuit },
   { href: '/team', label: 'Team & Ownership', icon: Users },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];

@@ -13,7 +13,7 @@ export function PeriodDialog({ target, all, actions, onClose, onReopen, onCreate
   return (
     <BrowserDialog open={!!target} onOpenChange={(o) => { if (!o) onClose(); }}
       title={target?.period ? 'Edit period' : 'New 6x6 period'}
-      description={target?.period ? 'Dates, meeting and status. Moments and items stay as they are.' : 'Six empty moment rows are created with it. Dates are suggested from the neighbouring period.'}>
+      description={target?.period ? 'Dates, meeting and status. Everyone\'s priorities stay as they are.' : 'Each teammate gets six empty priority slots. Dates are suggested from the neighbouring period.'}>
       {target && <PeriodForm key={`${target.period?.id ?? 'new'}-${target.nonce}`} target={target} all={all} actions={actions} onClose={onClose} onReopen={onReopen} onCreated={onCreated} />}
     </BrowserDialog>
   );

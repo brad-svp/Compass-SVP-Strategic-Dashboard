@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, HTMLAttributes } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -53,8 +53,8 @@ export function StaffAvatar({ name, url, color, size = 'h-9 w-9' }: { name: stri
   );
 }
 
-export function Panel({ children, className }: { children: ReactNode; className?: string }) {
-  return <section className={cn('rounded-2xl border border-card-border bg-card p-5 md:p-6', className)}>{children}</section>;
+export function Panel({ children, className, ...props }: HTMLAttributes<HTMLElement>) {
+  return <section {...props} className={cn('rounded-2xl border border-card-border bg-card p-5 md:p-6', className)}>{children}</section>;
 }
 
 export function PageSkeleton() {

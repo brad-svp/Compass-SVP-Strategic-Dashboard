@@ -16,6 +16,7 @@ import calendarRouter, { calendarFeed } from "./calendar";
 import systemsRouter from "./systems";
 import purposeRouter from "./purpose";
 import calendarProgramsRouter from "./calendar-programs";
+import brainRouter from "./brain";
 
 const router: IRouter = Router();
 // Google Calendar cannot present a staff session. This exact read-only route
@@ -44,6 +45,7 @@ router.use("/svp", calendarRouter);
 router.use("/svp", systemsRouter);
 router.use("/svp", purposeRouter);
 router.use("/svp", calendarProgramsRouter);
+router.use("/svp", brainRouter);
 router.get("/svp/foundation", async (_req, res): Promise<void> => {
   const [staff, areas, cycles, periods, moments] = await Promise.all([
     db.select().from(usersTable).orderBy(asc(usersTable.createdAt), asc(usersTable.name)),

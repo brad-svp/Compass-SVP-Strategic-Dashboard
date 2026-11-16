@@ -27,6 +27,16 @@ import type {
 import type {
   AccountabilitySeat,
   AccountabilitySeatInput,
+  BrainActionInput,
+  BrainAdmin,
+  BrainConnections,
+  BrainConsent,
+  BrainConsentInput,
+  BrainDetail,
+  BrainEntryInput,
+  BrainSettingsInput,
+  BrainUploadInput,
+  BrainWorkspace,
   CalendarEventInput,
   CalendarProgramInput,
   CalendarSubscription,
@@ -34,9 +44,11 @@ import type {
   CommentInput,
   CommentUpdate,
   CompleteProgramLogoUpload200,
+  DecideBrainConsent200,
   DevLoginInput,
   Foundation,
   FoundationInput,
+  GetBrainParams,
   GetDevAuth200,
   GetScorecardParams,
   GetSystemsOverview200,
@@ -49,6 +61,9 @@ import type {
   ObjectiveUpdate,
   OkrWorkspace,
   ProgramLogoUploadRequest,
+  QuarterNarrative,
+  QuarterNarrativeInput,
+  RequestBrainUpload201,
   RequestProgramLogoUpload201,
   ScorecardEntryInput,
   ScorecardMetricInput,
@@ -58,6 +73,7 @@ import type {
   SixMomentInput,
   SixPeriodInput,
   SixVersionInput,
+  SixViewPreferences,
   SixWorkspace,
   Staff,
   SvpPurpose,
@@ -91,6 +107,1716 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetQuarterNarrativeUrl = (cycleId: string,
+    quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4',) => {
+
+
+
+
+  return `/api/svp/qbos/narratives/${cycleId}/${quarter}`
+}
+
+export const getQuarterNarrative = async (cycleId: string,
+    quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4', options?: Parameters<typeof customFetch>[1]): Promise<QuarterNarrative> => {
+
+  return customFetch<QuarterNarrative>(getGetQuarterNarrativeUrl(cycleId,quarter),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetQuarterNarrativeQueryKey = (cycleId: string,
+    quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4',) => {
+    return [
+    `/api/svp/qbos/narratives/${cycleId}/${quarter}`
+    ] as const;
+    }
+
+
+export const getGetQuarterNarrativeQueryOptions = <TData = Awaited<ReturnType<typeof getQuarterNarrative>>, TError = ErrorType<unknown>>(cycleId: string,
+    quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getQuarterNarrative>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetQuarterNarrativeQueryKey(cycleId,quarter);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getQuarterNarrative>>> = ({ signal }) => getQuarterNarrative(cycleId,quarter, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: cycleId !== null && cycleId !== undefined && quarter !== null && quarter !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getQuarterNarrative>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetQuarterNarrativeQueryResult = NonNullable<Awaited<ReturnType<typeof getQuarterNarrative>>>
+export type GetQuarterNarrativeQueryError = ErrorType<unknown>
+
+
+export function useGetQuarterNarrative<TData = Awaited<ReturnType<typeof getQuarterNarrative>>, TError = ErrorType<unknown>>(
+ cycleId: string,
+    quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4', options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getQuarterNarrative>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getQuarterNarrative>>,
+          TError,
+          Awaited<ReturnType<typeof getQuarterNarrative>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetQuarterNarrative<TData = Awaited<ReturnType<typeof getQuarterNarrative>>, TError = ErrorType<unknown>>(
+ cycleId: string,
+    quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getQuarterNarrative>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getQuarterNarrative>>,
+          TError,
+          Awaited<ReturnType<typeof getQuarterNarrative>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetQuarterNarrative<TData = Awaited<ReturnType<typeof getQuarterNarrative>>, TError = ErrorType<unknown>>(
+ cycleId: string,
+    quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getQuarterNarrative>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetQuarterNarrative<TData = Awaited<ReturnType<typeof getQuarterNarrative>>, TError = ErrorType<unknown>>(
+ cycleId: string,
+    quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getQuarterNarrative>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetQuarterNarrativeQueryOptions(cycleId,quarter,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveQuarterNarrativeUrl = (cycleId: string,
+    quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4',) => {
+
+
+
+
+  return `/api/svp/qbos/narratives/${cycleId}/${quarter}`
+}
+
+export const saveQuarterNarrative = async (cycleId: string,
+    quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4',
+    quarterNarrativeInput: QuarterNarrativeInput, options?: Parameters<typeof customFetch>[1]): Promise<QuarterNarrative> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<QuarterNarrative>(getSaveQuarterNarrativeUrl(cycleId,quarter),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(quarterNarrativeInput)
+  }
+);}
+
+
+
+
+
+export const getSaveQuarterNarrativeMutationKey = () => ['saveQuarterNarrative'] as const;
+
+export const getSaveQuarterNarrativeMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveQuarterNarrative>>, TError,SaveQuarterNarrativeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveQuarterNarrative>>, TError,SaveQuarterNarrativeMutationVariables, TContext> => {
+
+const mutationKey = getSaveQuarterNarrativeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveQuarterNarrative>>, SaveQuarterNarrativeMutationVariables> = (props) => {
+          const {cycleId,quarter,data} = props ?? {};
+
+          return  saveQuarterNarrative(cycleId,quarter,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveQuarterNarrativeMutationResult = NonNullable<Awaited<ReturnType<typeof saveQuarterNarrative>>>
+    export type SaveQuarterNarrativeMutationBody = BodyType<QuarterNarrativeInput>
+    export type SaveQuarterNarrativeMutationError = ErrorType<unknown>
+    export type SaveQuarterNarrativeMutationVariables = {cycleId: string;quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';data: BodyType<QuarterNarrativeInput>}
+
+    export const useSaveQuarterNarrative = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveQuarterNarrative>>, TError,SaveQuarterNarrativeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof saveQuarterNarrative>>,
+        TError,
+        SaveQuarterNarrativeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveQuarterNarrativeMutationOptions(options), queryClient);
+    }
+
+export const getGetBrainUrl = (params?: GetBrainParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/svp/brain?${stringifiedParams}` : `/api/svp/brain`
+}
+
+export const getBrain = async (params?: GetBrainParams, options?: Parameters<typeof customFetch>[1]): Promise<BrainWorkspace> => {
+
+  return customFetch<BrainWorkspace>(getGetBrainUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBrainQueryKey = (params?: GetBrainParams,) => {
+    return [
+    `/api/svp/brain`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetBrainQueryOptions = <TData = Awaited<ReturnType<typeof getBrain>>, TError = ErrorType<unknown>>(params?: GetBrainParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrain>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBrainQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBrain>>> = ({ signal }) => getBrain(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBrain>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetBrainQueryResult = NonNullable<Awaited<ReturnType<typeof getBrain>>>
+export type GetBrainQueryError = ErrorType<unknown>
+
+
+export function useGetBrain<TData = Awaited<ReturnType<typeof getBrain>>, TError = ErrorType<unknown>>(
+ params: undefined |  GetBrainParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrain>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrain>>,
+          TError,
+          Awaited<ReturnType<typeof getBrain>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBrain<TData = Awaited<ReturnType<typeof getBrain>>, TError = ErrorType<unknown>>(
+ params?: GetBrainParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrain>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrain>>,
+          TError,
+          Awaited<ReturnType<typeof getBrain>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBrain<TData = Awaited<ReturnType<typeof getBrain>>, TError = ErrorType<unknown>>(
+ params?: GetBrainParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrain>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetBrain<TData = Awaited<ReturnType<typeof getBrain>>, TError = ErrorType<unknown>>(
+ params?: GetBrainParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrain>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetBrainQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateBrainEntryUrl = () => {
+
+
+
+
+  return `/api/svp/brain/entries`
+}
+
+export const createBrainEntry = async (brainEntryInput: BrainEntryInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getCreateBrainEntryUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(brainEntryInput)
+  }
+);}
+
+
+
+
+
+export const getCreateBrainEntryMutationKey = () => ['createBrainEntry'] as const;
+
+export const getCreateBrainEntryMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createBrainEntry>>, TError,CreateBrainEntryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createBrainEntry>>, TError,CreateBrainEntryMutationVariables, TContext> => {
+
+const mutationKey = getCreateBrainEntryMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createBrainEntry>>, CreateBrainEntryMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createBrainEntry(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateBrainEntryMutationResult = NonNullable<Awaited<ReturnType<typeof createBrainEntry>>>
+    export type CreateBrainEntryMutationBody = BodyType<BrainEntryInput>
+    export type CreateBrainEntryMutationError = ErrorType<unknown>
+    export type CreateBrainEntryMutationVariables = {data: BodyType<BrainEntryInput>}
+
+    export const useCreateBrainEntry = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createBrainEntry>>, TError,CreateBrainEntryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createBrainEntry>>,
+        TError,
+        CreateBrainEntryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateBrainEntryMutationOptions(options), queryClient);
+    }
+
+export const getGetBrainEntryUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/brain/entries/${id}`
+}
+
+export const getBrainEntry = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<BrainDetail> => {
+
+  return customFetch<BrainDetail>(getGetBrainEntryUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBrainEntryQueryKey = (id: string,) => {
+    return [
+    `/api/svp/brain/entries/${id}`
+    ] as const;
+    }
+
+
+export const getGetBrainEntryQueryOptions = <TData = Awaited<ReturnType<typeof getBrainEntry>>, TError = ErrorType<unknown>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainEntry>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBrainEntryQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBrainEntry>>> = ({ signal }) => getBrainEntry(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBrainEntry>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetBrainEntryQueryResult = NonNullable<Awaited<ReturnType<typeof getBrainEntry>>>
+export type GetBrainEntryQueryError = ErrorType<unknown>
+
+
+export function useGetBrainEntry<TData = Awaited<ReturnType<typeof getBrainEntry>>, TError = ErrorType<unknown>>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainEntry>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrainEntry>>,
+          TError,
+          Awaited<ReturnType<typeof getBrainEntry>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBrainEntry<TData = Awaited<ReturnType<typeof getBrainEntry>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainEntry>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrainEntry>>,
+          TError,
+          Awaited<ReturnType<typeof getBrainEntry>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBrainEntry<TData = Awaited<ReturnType<typeof getBrainEntry>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainEntry>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetBrainEntry<TData = Awaited<ReturnType<typeof getBrainEntry>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainEntry>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetBrainEntryQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateBrainEntryUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/brain/entries/${id}`
+}
+
+export const updateBrainEntry = async (id: string,
+    brainEntryInput: BrainEntryInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getUpdateBrainEntryUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(brainEntryInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateBrainEntryMutationKey = () => ['updateBrainEntry'] as const;
+
+export const getUpdateBrainEntryMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateBrainEntry>>, TError,UpdateBrainEntryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateBrainEntry>>, TError,UpdateBrainEntryMutationVariables, TContext> => {
+
+const mutationKey = getUpdateBrainEntryMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateBrainEntry>>, UpdateBrainEntryMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateBrainEntry(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateBrainEntryMutationResult = NonNullable<Awaited<ReturnType<typeof updateBrainEntry>>>
+    export type UpdateBrainEntryMutationBody = BodyType<BrainEntryInput>
+    export type UpdateBrainEntryMutationError = ErrorType<unknown>
+    export type UpdateBrainEntryMutationVariables = {id: string;data: BodyType<BrainEntryInput>}
+
+    export const useUpdateBrainEntry = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateBrainEntry>>, TError,UpdateBrainEntryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateBrainEntry>>,
+        TError,
+        UpdateBrainEntryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateBrainEntryMutationOptions(options), queryClient);
+    }
+
+export const getActOnBrainEntryUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/brain/entries/${id}/action`
+}
+
+export const actOnBrainEntry = async (id: string,
+    brainActionInput: BrainActionInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getActOnBrainEntryUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(brainActionInput)
+  }
+);}
+
+
+
+
+
+export const getActOnBrainEntryMutationKey = () => ['actOnBrainEntry'] as const;
+
+export const getActOnBrainEntryMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof actOnBrainEntry>>, TError,ActOnBrainEntryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof actOnBrainEntry>>, TError,ActOnBrainEntryMutationVariables, TContext> => {
+
+const mutationKey = getActOnBrainEntryMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof actOnBrainEntry>>, ActOnBrainEntryMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  actOnBrainEntry(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ActOnBrainEntryMutationResult = NonNullable<Awaited<ReturnType<typeof actOnBrainEntry>>>
+    export type ActOnBrainEntryMutationBody = BodyType<BrainActionInput>
+    export type ActOnBrainEntryMutationError = ErrorType<unknown>
+    export type ActOnBrainEntryMutationVariables = {id: string;data: BodyType<BrainActionInput>}
+
+    export const useActOnBrainEntry = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof actOnBrainEntry>>, TError,ActOnBrainEntryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof actOnBrainEntry>>,
+        TError,
+        ActOnBrainEntryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getActOnBrainEntryMutationOptions(options), queryClient);
+    }
+
+export const getRequestBrainUploadUrl = () => {
+
+
+
+
+  return `/api/svp/brain/uploads`
+}
+
+export const requestBrainUpload = async (brainUploadInput: BrainUploadInput, options?: Parameters<typeof customFetch>[1]): Promise<RequestBrainUpload201> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<RequestBrainUpload201>(getRequestBrainUploadUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(brainUploadInput)
+  }
+);}
+
+
+
+
+
+export const getRequestBrainUploadMutationKey = () => ['requestBrainUpload'] as const;
+
+export const getRequestBrainUploadMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestBrainUpload>>, TError,RequestBrainUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestBrainUpload>>, TError,RequestBrainUploadMutationVariables, TContext> => {
+
+const mutationKey = getRequestBrainUploadMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestBrainUpload>>, RequestBrainUploadMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  requestBrainUpload(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestBrainUploadMutationResult = NonNullable<Awaited<ReturnType<typeof requestBrainUpload>>>
+    export type RequestBrainUploadMutationBody = BodyType<BrainUploadInput>
+    export type RequestBrainUploadMutationError = ErrorType<unknown>
+    export type RequestBrainUploadMutationVariables = {data: BodyType<BrainUploadInput>}
+
+    export const useRequestBrainUpload = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestBrainUpload>>, TError,RequestBrainUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof requestBrainUpload>>,
+        TError,
+        RequestBrainUploadMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRequestBrainUploadMutationOptions(options), queryClient);
+    }
+
+export const getCompleteBrainUploadUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/brain/files/${id}/complete`
+}
+
+export const completeBrainUpload = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+  return customFetch<MutationResult>(getCompleteBrainUploadUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getCompleteBrainUploadMutationKey = () => ['completeBrainUpload'] as const;
+
+export const getCompleteBrainUploadMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeBrainUpload>>, TError,CompleteBrainUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof completeBrainUpload>>, TError,CompleteBrainUploadMutationVariables, TContext> => {
+
+const mutationKey = getCompleteBrainUploadMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof completeBrainUpload>>, CompleteBrainUploadMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  completeBrainUpload(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CompleteBrainUploadMutationResult = NonNullable<Awaited<ReturnType<typeof completeBrainUpload>>>
+
+    export type CompleteBrainUploadMutationError = ErrorType<unknown>
+    export type CompleteBrainUploadMutationVariables = {id: string}
+
+    export const useCompleteBrainUpload = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeBrainUpload>>, TError,CompleteBrainUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof completeBrainUpload>>,
+        TError,
+        CompleteBrainUploadMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCompleteBrainUploadMutationOptions(options), queryClient);
+    }
+
+export const getDownloadBrainFileUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/brain/files/${id}`
+}
+
+export const downloadBrainFile = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadBrainFileUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadBrainFileQueryKey = (id: string,) => {
+    return [
+    `/api/svp/brain/files/${id}`
+    ] as const;
+    }
+
+
+export const getDownloadBrainFileQueryOptions = <TData = Awaited<ReturnType<typeof downloadBrainFile>>, TError = ErrorType<unknown>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadBrainFile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadBrainFileQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadBrainFile>>> = ({ signal }) => downloadBrainFile(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadBrainFile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type DownloadBrainFileQueryResult = NonNullable<Awaited<ReturnType<typeof downloadBrainFile>>>
+export type DownloadBrainFileQueryError = ErrorType<unknown>
+
+
+export function useDownloadBrainFile<TData = Awaited<ReturnType<typeof downloadBrainFile>>, TError = ErrorType<unknown>>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadBrainFile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadBrainFile>>,
+          TError,
+          Awaited<ReturnType<typeof downloadBrainFile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadBrainFile<TData = Awaited<ReturnType<typeof downloadBrainFile>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadBrainFile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadBrainFile>>,
+          TError,
+          Awaited<ReturnType<typeof downloadBrainFile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadBrainFile<TData = Awaited<ReturnType<typeof downloadBrainFile>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadBrainFile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useDownloadBrainFile<TData = Awaited<ReturnType<typeof downloadBrainFile>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadBrainFile>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getDownloadBrainFileQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getRemoveBrainFileUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/brain/files/${id}`
+}
+
+export const removeBrainFile = async (id: string,
+    sixVersionInput: SixVersionInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getRemoveBrainFileUrl(id),
+  {
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sixVersionInput)
+  }
+);}
+
+
+
+
+
+export const getRemoveBrainFileMutationKey = () => ['removeBrainFile'] as const;
+
+export const getRemoveBrainFileMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeBrainFile>>, TError,RemoveBrainFileMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof removeBrainFile>>, TError,RemoveBrainFileMutationVariables, TContext> => {
+
+const mutationKey = getRemoveBrainFileMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof removeBrainFile>>, RemoveBrainFileMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  removeBrainFile(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RemoveBrainFileMutationResult = NonNullable<Awaited<ReturnType<typeof removeBrainFile>>>
+    export type RemoveBrainFileMutationBody = BodyType<SixVersionInput>
+    export type RemoveBrainFileMutationError = ErrorType<unknown>
+    export type RemoveBrainFileMutationVariables = {id: string;data: BodyType<SixVersionInput>}
+
+    export const useRemoveBrainFile = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeBrainFile>>, TError,RemoveBrainFileMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof removeBrainFile>>,
+        TError,
+        RemoveBrainFileMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRemoveBrainFileMutationOptions(options), queryClient);
+    }
+
+export const getGetBrainAdminUrl = () => {
+
+
+
+
+  return `/api/svp/brain/admin`
+}
+
+export const getBrainAdmin = async ( options?: Parameters<typeof customFetch>[1]): Promise<BrainAdmin> => {
+
+  return customFetch<BrainAdmin>(getGetBrainAdminUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBrainAdminQueryKey = () => {
+    return [
+    `/api/svp/brain/admin`
+    ] as const;
+    }
+
+
+export const getGetBrainAdminQueryOptions = <TData = Awaited<ReturnType<typeof getBrainAdmin>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainAdmin>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBrainAdminQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBrainAdmin>>> = ({ signal }) => getBrainAdmin({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBrainAdmin>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetBrainAdminQueryResult = NonNullable<Awaited<ReturnType<typeof getBrainAdmin>>>
+export type GetBrainAdminQueryError = ErrorType<unknown>
+
+
+export function useGetBrainAdmin<TData = Awaited<ReturnType<typeof getBrainAdmin>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainAdmin>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrainAdmin>>,
+          TError,
+          Awaited<ReturnType<typeof getBrainAdmin>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBrainAdmin<TData = Awaited<ReturnType<typeof getBrainAdmin>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainAdmin>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrainAdmin>>,
+          TError,
+          Awaited<ReturnType<typeof getBrainAdmin>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBrainAdmin<TData = Awaited<ReturnType<typeof getBrainAdmin>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainAdmin>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetBrainAdmin<TData = Awaited<ReturnType<typeof getBrainAdmin>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainAdmin>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetBrainAdminQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateBrainSettingsUrl = () => {
+
+
+
+
+  return `/api/svp/brain/settings`
+}
+
+export const updateBrainSettings = async (brainSettingsInput: BrainSettingsInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getUpdateBrainSettingsUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(brainSettingsInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateBrainSettingsMutationKey = () => ['updateBrainSettings'] as const;
+
+export const getUpdateBrainSettingsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateBrainSettings>>, TError,UpdateBrainSettingsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateBrainSettings>>, TError,UpdateBrainSettingsMutationVariables, TContext> => {
+
+const mutationKey = getUpdateBrainSettingsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateBrainSettings>>, UpdateBrainSettingsMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateBrainSettings(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateBrainSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof updateBrainSettings>>>
+    export type UpdateBrainSettingsMutationBody = BodyType<BrainSettingsInput>
+    export type UpdateBrainSettingsMutationError = ErrorType<unknown>
+    export type UpdateBrainSettingsMutationVariables = {data: BodyType<BrainSettingsInput>}
+
+    export const useUpdateBrainSettings = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateBrainSettings>>, TError,UpdateBrainSettingsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateBrainSettings>>,
+        TError,
+        UpdateBrainSettingsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateBrainSettingsMutationOptions(options), queryClient);
+    }
+
+export const getRetryBrainJobUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/brain/jobs/${id}/retry`
+}
+
+export const retryBrainJob = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+  return customFetch<MutationResult>(getRetryBrainJobUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getRetryBrainJobMutationKey = () => ['retryBrainJob'] as const;
+
+export const getRetryBrainJobMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retryBrainJob>>, TError,RetryBrainJobMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof retryBrainJob>>, TError,RetryBrainJobMutationVariables, TContext> => {
+
+const mutationKey = getRetryBrainJobMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof retryBrainJob>>, RetryBrainJobMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  retryBrainJob(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RetryBrainJobMutationResult = NonNullable<Awaited<ReturnType<typeof retryBrainJob>>>
+
+    export type RetryBrainJobMutationError = ErrorType<unknown>
+    export type RetryBrainJobMutationVariables = {id: string}
+
+    export const useRetryBrainJob = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retryBrainJob>>, TError,RetryBrainJobMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof retryBrainJob>>,
+        TError,
+        RetryBrainJobMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRetryBrainJobMutationOptions(options), queryClient);
+    }
+
+export const getReindexBrainUrl = () => {
+
+
+
+
+  return `/api/svp/brain/reindex`
+}
+
+export const reindexBrain = async ( options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+  return customFetch<MutationResult>(getReindexBrainUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getReindexBrainMutationKey = () => ['reindexBrain'] as const;
+
+export const getReindexBrainMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reindexBrain>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof reindexBrain>>, TError,void, TContext> => {
+
+const mutationKey = getReindexBrainMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof reindexBrain>>, void> = () => {
+
+
+          return  reindexBrain(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReindexBrainMutationResult = NonNullable<Awaited<ReturnType<typeof reindexBrain>>>
+
+    export type ReindexBrainMutationError = ErrorType<unknown>
+
+
+    export const useReindexBrain = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reindexBrain>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof reindexBrain>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getReindexBrainMutationOptions(options), queryClient);
+    }
+
+export const getGetBrainConnectionsUrl = () => {
+
+
+
+
+  return `/api/svp/brain/connections`
+}
+
+export const getBrainConnections = async ( options?: Parameters<typeof customFetch>[1]): Promise<BrainConnections> => {
+
+  return customFetch<BrainConnections>(getGetBrainConnectionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBrainConnectionsQueryKey = () => {
+    return [
+    `/api/svp/brain/connections`
+    ] as const;
+    }
+
+
+export const getGetBrainConnectionsQueryOptions = <TData = Awaited<ReturnType<typeof getBrainConnections>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainConnections>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBrainConnectionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBrainConnections>>> = ({ signal }) => getBrainConnections({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBrainConnections>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetBrainConnectionsQueryResult = NonNullable<Awaited<ReturnType<typeof getBrainConnections>>>
+export type GetBrainConnectionsQueryError = ErrorType<unknown>
+
+
+export function useGetBrainConnections<TData = Awaited<ReturnType<typeof getBrainConnections>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainConnections>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrainConnections>>,
+          TError,
+          Awaited<ReturnType<typeof getBrainConnections>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBrainConnections<TData = Awaited<ReturnType<typeof getBrainConnections>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainConnections>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrainConnections>>,
+          TError,
+          Awaited<ReturnType<typeof getBrainConnections>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBrainConnections<TData = Awaited<ReturnType<typeof getBrainConnections>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainConnections>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetBrainConnections<TData = Awaited<ReturnType<typeof getBrainConnections>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainConnections>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetBrainConnectionsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getRevokeBrainConnectionUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/brain/connections/${id}`
+}
+
+export const revokeBrainConnection = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+  return customFetch<MutationResult>(getRevokeBrainConnectionUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getRevokeBrainConnectionMutationKey = () => ['revokeBrainConnection'] as const;
+
+export const getRevokeBrainConnectionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeBrainConnection>>, TError,RevokeBrainConnectionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof revokeBrainConnection>>, TError,RevokeBrainConnectionMutationVariables, TContext> => {
+
+const mutationKey = getRevokeBrainConnectionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof revokeBrainConnection>>, RevokeBrainConnectionMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  revokeBrainConnection(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RevokeBrainConnectionMutationResult = NonNullable<Awaited<ReturnType<typeof revokeBrainConnection>>>
+
+    export type RevokeBrainConnectionMutationError = ErrorType<unknown>
+    export type RevokeBrainConnectionMutationVariables = {id: string}
+
+    export const useRevokeBrainConnection = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeBrainConnection>>, TError,RevokeBrainConnectionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof revokeBrainConnection>>,
+        TError,
+        RevokeBrainConnectionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRevokeBrainConnectionMutationOptions(options), queryClient);
+    }
+
+export const getGetBrainConsentUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/brain/oauth/requests/${id}`
+}
+
+export const getBrainConsent = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<BrainConsent> => {
+
+  return customFetch<BrainConsent>(getGetBrainConsentUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBrainConsentQueryKey = (id: string,) => {
+    return [
+    `/api/svp/brain/oauth/requests/${id}`
+    ] as const;
+    }
+
+
+export const getGetBrainConsentQueryOptions = <TData = Awaited<ReturnType<typeof getBrainConsent>>, TError = ErrorType<unknown>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainConsent>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBrainConsentQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBrainConsent>>> = ({ signal }) => getBrainConsent(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBrainConsent>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetBrainConsentQueryResult = NonNullable<Awaited<ReturnType<typeof getBrainConsent>>>
+export type GetBrainConsentQueryError = ErrorType<unknown>
+
+
+export function useGetBrainConsent<TData = Awaited<ReturnType<typeof getBrainConsent>>, TError = ErrorType<unknown>>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainConsent>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrainConsent>>,
+          TError,
+          Awaited<ReturnType<typeof getBrainConsent>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBrainConsent<TData = Awaited<ReturnType<typeof getBrainConsent>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainConsent>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrainConsent>>,
+          TError,
+          Awaited<ReturnType<typeof getBrainConsent>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBrainConsent<TData = Awaited<ReturnType<typeof getBrainConsent>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainConsent>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetBrainConsent<TData = Awaited<ReturnType<typeof getBrainConsent>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBrainConsent>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetBrainConsentQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDecideBrainConsentUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/brain/oauth/requests/${id}`
+}
+
+export const decideBrainConsent = async (id: string,
+    brainConsentInput: BrainConsentInput, options?: Parameters<typeof customFetch>[1]): Promise<DecideBrainConsent200> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<DecideBrainConsent200>(getDecideBrainConsentUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(brainConsentInput)
+  }
+);}
+
+
+
+
+
+export const getDecideBrainConsentMutationKey = () => ['decideBrainConsent'] as const;
+
+export const getDecideBrainConsentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof decideBrainConsent>>, TError,DecideBrainConsentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof decideBrainConsent>>, TError,DecideBrainConsentMutationVariables, TContext> => {
+
+const mutationKey = getDecideBrainConsentMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof decideBrainConsent>>, DecideBrainConsentMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  decideBrainConsent(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DecideBrainConsentMutationResult = NonNullable<Awaited<ReturnType<typeof decideBrainConsent>>>
+    export type DecideBrainConsentMutationBody = BodyType<BrainConsentInput>
+    export type DecideBrainConsentMutationError = ErrorType<unknown>
+    export type DecideBrainConsentMutationVariables = {id: string;data: BodyType<BrainConsentInput>}
+
+    export const useDecideBrainConsent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof decideBrainConsent>>, TError,DecideBrainConsentMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof decideBrainConsent>>,
+        TError,
+        DecideBrainConsentMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDecideBrainConsentMutationOptions(options), queryClient);
+    }
+
+export const getDownloadBrainSkillUrl = () => {
+
+
+
+
+  return `/api/svp/brain/skill.zip`
+}
+
+export const downloadBrainSkill = async ( options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadBrainSkillUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadBrainSkillQueryKey = () => {
+    return [
+    `/api/svp/brain/skill.zip`
+    ] as const;
+    }
+
+
+export const getDownloadBrainSkillQueryOptions = <TData = Awaited<ReturnType<typeof downloadBrainSkill>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadBrainSkill>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadBrainSkillQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadBrainSkill>>> = ({ signal }) => downloadBrainSkill({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadBrainSkill>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type DownloadBrainSkillQueryResult = NonNullable<Awaited<ReturnType<typeof downloadBrainSkill>>>
+export type DownloadBrainSkillQueryError = ErrorType<unknown>
+
+
+export function useDownloadBrainSkill<TData = Awaited<ReturnType<typeof downloadBrainSkill>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadBrainSkill>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadBrainSkill>>,
+          TError,
+          Awaited<ReturnType<typeof downloadBrainSkill>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadBrainSkill<TData = Awaited<ReturnType<typeof downloadBrainSkill>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadBrainSkill>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadBrainSkill>>,
+          TError,
+          Awaited<ReturnType<typeof downloadBrainSkill>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadBrainSkill<TData = Awaited<ReturnType<typeof downloadBrainSkill>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadBrainSkill>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useDownloadBrainSkill<TData = Awaited<ReturnType<typeof downloadBrainSkill>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadBrainSkill>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getDownloadBrainSkillQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getCreateCalendarProgramUrl = () => {
 
@@ -1595,6 +3321,183 @@ export function useGetSixBySix<TData = Awaited<ReturnType<typeof getSixBySix>>, 
 
 
 
+
+export const getGetSixViewPreferencesUrl = () => {
+
+
+
+
+  return `/api/svp/six-by-six/view-preferences`
+}
+
+export const getSixViewPreferences = async ( options?: Parameters<typeof customFetch>[1]): Promise<SixViewPreferences> => {
+
+  return customFetch<SixViewPreferences>(getGetSixViewPreferencesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSixViewPreferencesQueryKey = () => {
+    return [
+    `/api/svp/six-by-six/view-preferences`
+    ] as const;
+    }
+
+
+export const getGetSixViewPreferencesQueryOptions = <TData = Awaited<ReturnType<typeof getSixViewPreferences>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSixViewPreferences>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSixViewPreferencesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSixViewPreferences>>> = ({ signal }) => getSixViewPreferences({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSixViewPreferences>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSixViewPreferencesQueryResult = NonNullable<Awaited<ReturnType<typeof getSixViewPreferences>>>
+export type GetSixViewPreferencesQueryError = ErrorType<unknown>
+
+
+export function useGetSixViewPreferences<TData = Awaited<ReturnType<typeof getSixViewPreferences>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSixViewPreferences>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSixViewPreferences>>,
+          TError,
+          Awaited<ReturnType<typeof getSixViewPreferences>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSixViewPreferences<TData = Awaited<ReturnType<typeof getSixViewPreferences>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSixViewPreferences>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSixViewPreferences>>,
+          TError,
+          Awaited<ReturnType<typeof getSixViewPreferences>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSixViewPreferences<TData = Awaited<ReturnType<typeof getSixViewPreferences>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSixViewPreferences>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetSixViewPreferences<TData = Awaited<ReturnType<typeof getSixViewPreferences>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSixViewPreferences>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetSixViewPreferencesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveSixViewPreferencesUrl = () => {
+
+
+
+
+  return `/api/svp/six-by-six/view-preferences`
+}
+
+export const saveSixViewPreferences = async (sixViewPreferences: SixViewPreferences, options?: Parameters<typeof customFetch>[1]): Promise<SixViewPreferences> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<SixViewPreferences>(getSaveSixViewPreferencesUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(sixViewPreferences)
+  }
+);}
+
+
+
+
+
+export const getSaveSixViewPreferencesMutationKey = () => ['saveSixViewPreferences'] as const;
+
+export const getSaveSixViewPreferencesMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveSixViewPreferences>>, TError,SaveSixViewPreferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveSixViewPreferences>>, TError,SaveSixViewPreferencesMutationVariables, TContext> => {
+
+const mutationKey = getSaveSixViewPreferencesMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveSixViewPreferences>>, SaveSixViewPreferencesMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  saveSixViewPreferences(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveSixViewPreferencesMutationResult = NonNullable<Awaited<ReturnType<typeof saveSixViewPreferences>>>
+    export type SaveSixViewPreferencesMutationBody = BodyType<SixViewPreferences>
+    export type SaveSixViewPreferencesMutationError = ErrorType<unknown>
+    export type SaveSixViewPreferencesMutationVariables = {data: BodyType<SixViewPreferences>}
+
+    export const useSaveSixViewPreferences = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveSixViewPreferences>>, TError,SaveSixViewPreferencesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof saveSixViewPreferences>>,
+        TError,
+        SaveSixViewPreferencesMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveSixViewPreferencesMutationOptions(options), queryClient);
+    }
 
 export const getCreateSixPeriodUrl = () => {
 

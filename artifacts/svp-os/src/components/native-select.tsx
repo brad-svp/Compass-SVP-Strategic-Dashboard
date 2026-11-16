@@ -39,13 +39,23 @@ export function NativeSelect({ className, wrapClassName, children, value, defaul
       if (event?.target instanceof Node && panel?.contains(event.target)) return;
       const rect = trigger.current?.getBoundingClientRect();
       if (!rect) return;
-      const below = window.innerHeight - rect.bottom - 12, above = rect.top - 12;
+      // iOS's keyboard changes the visual viewport, not necessarily innerHeight.
+      const vv = window.visualViewport;
+      const viewportTop = vv?.offsetTop ?? 0;
+      const viewportHeight = vv?.height ?? window.innerHeight;
+      const viewportLeft = vv?.offsetLeft ?? 0;
+      const viewportWidth = vv?.width ?? window.innerWidth;
+      const below = viewportTop + viewportHeight - rect.bottom - 12, above = rect.top - viewportTop - 12;
       const up = below < 220 && above > below;
-      const width = Math.min(Math.max(rect.width, 180), window.innerWidth - 24);
+      const width = Math.min(Math.max(rect.width, 180), viewportWidth - 24);
+      const room = Math.max(0, up ? above : below);
+      // If the trigger is beside the keyboard, use the visible viewport instead
+      // of squeezing the list to zero between the search box and Close button.
+      const useViewport = room < 160;
       setPosition({
-        left: Math.max(12, Math.min(rect.left, window.innerWidth - width - 12)),
-        top: up ? rect.top - 5 : rect.bottom + 5, width,
-        maxHeight: Math.max(80, Math.min(360, up ? above : below)), up,
+        left: Math.max(viewportLeft + 12, Math.min(rect.left, viewportLeft + viewportWidth - width - 12)),
+        top: useViewport ? viewportTop + 12 : up ? rect.top - 5 : rect.bottom + 5, width,
+        maxHeight: Math.max(128, Math.min(360, useViewport ? viewportHeight - 24 : room)), up: useViewport ? false : up,
       });
     }
     align();
@@ -55,9 +65,24 @@ export function NativeSelect({ className, wrapClassName, children, value, defaul
     if (supportsPopover && panel && !panel.matches(':popover-open')) panel.showPopover();
     window.addEventListener('resize', align);
     window.addEventListener('scroll', align, true);
+    window.visualViewport?.addEventListener('resize', align);
+    window.visualViewport?.addEventListener('scroll', align);
+    // The opening gesture is pointerdown -> click; this listener is installed
+    // only after click opens the list, so it cannot dismiss that same gesture.
+    // Do not preventDefault or refocus the trigger: the outside field must
+    // receive the click and remain editable.
+    function outside(event: PointerEvent) {
+      const path = event.composedPath();
+      if ((trigger.current && path.includes(trigger.current)) || (panel && path.includes(panel))) return;
+      setExpanded(false); setSearch('');
+    }
+    document.addEventListener('pointerdown', outside, true);
     return () => {
       window.removeEventListener('resize', align);
       window.removeEventListener('scroll', align, true);
+      window.visualViewport?.removeEventListener('resize', align);
+      window.visualViewport?.removeEventListener('scroll', align);
+      document.removeEventListener('pointerdown', outside, true);
       if (supportsPopover && panel?.matches(':popover-open')) panel.hidePopover();
     };
   }, [expanded, disabled, supportsPopover]);
@@ -86,6 +111,7 @@ export function NativeSelect({ className, wrapClassName, children, value, defaul
       <button
         id={id} ref={trigger} type="button" disabled={disabled}
         aria-label={rest['aria-label']} aria-labelledby={rest['aria-labelledby']}
+        aria-haspopup="listbox"
         aria-expanded={expanded && !disabled} aria-controls={panelId} aria-required={required}
         data-testid={rest['data-testid']}
         onClick={() => { setExpanded(!expanded); setSearch(''); }}
@@ -106,12 +132,14 @@ export function NativeSelect({ className, wrapClassName, children, value, defaul
         <div ref={panelRef} popover={supportsPopover ? 'manual' : undefined}
           style={{ position: 'fixed', inset: 'auto', margin: 0, left: position.left, top: position.top, width: position.width, maxHeight: position.maxHeight, transform: position.up ? 'translateY(-100%)' : undefined, zIndex: 1000 }}
           onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); setExpanded(false); trigger.current?.focus(); } }}
-          className="flex flex-col gap-1 rounded-lg border-2 border-[#1D8BC4]/35 bg-card p-1.5 text-foreground shadow-xl">
+          className="flex flex-col gap-1 overflow-hidden rounded-lg border-2 border-[#1D8BC4]/35 bg-card p-1.5 text-foreground shadow-xl">
           {choices.length > 8 && <label className="flex shrink-0 items-center gap-1 rounded border border-border px-2">
             <Search aria-hidden className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Find an option…" aria-label={`Find ${rest['aria-label'] ?? 'option'}`} className="min-w-0 flex-1 bg-transparent py-2 text-[13px] outline-none" />
           </label>}
-          <div id={panelId} role="listbox" aria-label={rest['aria-label'] ?? 'Available choices'} className="min-h-0 flex-1 space-y-0.5 overflow-y-auto"
+          <div id={panelId} role="listbox" aria-label={rest['aria-label'] ?? 'Available choices'}
+            style={{ maxHeight: Math.max(44, position.maxHeight - (choices.length > 8 ? 72 : 24)) }}
+            className="min-h-[44px] shrink space-y-0.5 overflow-y-auto overscroll-contain"
             onKeyDown={event => {
               if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); setExpanded(false); trigger.current?.focus(); return; }
               if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
@@ -128,7 +156,6 @@ export function NativeSelect({ className, wrapClassName, children, value, defaul
             </button>)}
             {!filtered.length && <p className="px-2 py-2 text-xs text-muted-foreground">No matching choices.</p>}
           </div>
-          <button type="button" onClick={() => { setExpanded(false); trigger.current?.focus(); }} className="w-full shrink-0 rounded border border-border py-1 text-xs text-muted-foreground">Close choices</button>
         </div>
       )}
     </div>
