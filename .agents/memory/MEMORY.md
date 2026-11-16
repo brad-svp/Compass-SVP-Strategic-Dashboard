@@ -2,3 +2,4 @@
 - [Embedded preview controls](period-picker.md) — native and custom popups both failed for the user; standalone passes do not prove the embedded preview is fixed.
 - [Database check constraints](database-checks.md) — verify live constraint definitions after changing them; a successful schema push can leave old checks in place.
 - [Object Storage compatibility](object-storage-compatibility.md) — the supplied sidecar client needs the compatible SDK major; verify an actual upload before upgrading it.
+- [Organizational brain policy](organizational-brain-policy.md) — contributions are searchable unreviewed; admins review periodically; Claude reads operations and writes knowledge only.
