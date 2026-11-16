@@ -26,3 +26,9 @@ Native modal dialogs also failed to accept typing for this user in the embedded 
 **Why:** Repeated QBO, Systems and narrative-form reports persisted after changing controls and modal implementations. A development banner also intercepted mobile modal headers during browser regression checks.
 
 **How to apply:** Keep forms isolated from page stacking contexts and development overlays, and verify real pointer/keyboard interaction in an embedded frame and reduced-height viewport. Chromium embedded checks are not proof of actual iPad Safari behavior.
+
+Keep the modal/popup workflow. The user explicitly rejected full-page editors as a workaround for the persistent focus issue.
+
+**Why:** After requesting another form-formatting option, the user clarified that they really liked popups and wanted the focus problem fixed without changing that workflow.
+
+**How to apply:** Diagnose click cancellation, competing focus scopes and preview instrumentation while preserving modals. Test a text control after cancelling its native mouse-down focus, not only ordinary clicks. Do not treat successful simulated embedded tests as user confirmation.

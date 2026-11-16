@@ -54,7 +54,7 @@ export function EntryDialog({ open, onOpenChange, metric, weekStart, entry, revi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto bg-[#FBFAF6] sm:max-w-lg">
+      <DialogContent className="bg-[#FBFAF6]">
         <DialogHeader>
           <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#1D8BC4]" data-testid="text-entry-week">Week of {weekLabel(weekStart)}</div>
           <DialogTitle className="font-display text-2xl text-[#0A2540]">{metric.title}</DialogTitle>

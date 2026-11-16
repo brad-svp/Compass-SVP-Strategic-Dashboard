@@ -282,7 +282,7 @@ export function SeatEditor({ seat, seats, staff, open, onClose, actions }: {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="font-display text-2xl text-[#0A2540]">{seat ? 'Edit seat' : 'Add a seat'}</DialogTitle>
           <DialogDescription>Seats describe the work. People are named on them, not the other way round.</DialogDescription>

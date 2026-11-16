@@ -76,7 +76,7 @@ export function MetricDialog({ open, onOpenChange, foundation, krOptions, action
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto bg-[#FBFAF6] sm:max-w-xl">
+      <DialogContent className="bg-[#FBFAF6]">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl text-[#0A2540]">{editing ? 'Configure metric' : 'New weekly metric'}</DialogTitle>
           <DialogDescription>One number, one owner, one goal. Recorded every week, Monday to Sunday.</DialogDescription>

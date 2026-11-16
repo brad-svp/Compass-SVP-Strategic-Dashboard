@@ -23,6 +23,7 @@ try {
     contentType: "text/html", body: `<iframe title="App" src="${origin}/qbos" style="position:fixed;inset:0;width:100%;height:100%;border:0"></iframe>`,
   }));
   for (const embedded of [false, true]) {
+    if (process.argv.includes("--focus-regression") && !embedded) continue;
     if (process.argv.includes("--iframe-mobile") && !embedded) continue;
     if (embedded) await page.goto("https://preview-shell.test/");
     for (const mobile of [false, true]) {
@@ -38,10 +39,13 @@ try {
         { path: "/scorecard", name: /Metric/, exact: true },
         { path: "/brain", open: '[data-testid="button-brain-new"]' },
         { path: "/admin", open: '[data-testid="button-add-staff"]' },
+        { path: "/admin", tab: "tab-areas", open: '[data-testid="button-add-area"]' },
         { path: "/purpose", open: '[data-testid="button-edit-purpose"]' },
       ]) {
         if (process.argv.includes("--iframe-mobile") && !["/brain", "/admin", "/purpose"].includes(form.path)) continue;
+        if (process.argv.includes("--quick") && !["/qbos", "/systems", "/admin"].includes(form.path)) continue;
         await app.goto(origin + form.path);
+        if (form.tab) await app.getByTestId(form.tab).click();
         const opener = form.open ? app.locator(form.open).first() : app.getByRole("button", { name: form.name!, exact: form.exact }).first();
         await opener.click();
         const modal = app.getByRole("dialog").last();
@@ -51,6 +55,14 @@ try {
           const field = fields.nth(i);
           if (!await field.isVisible() || !await field.isEditable()) continue;
           await field.click();
+          // Reproduce an embedded layer cancelling the native mouse focus.
+          // Pointer-up in the shared popup must still activate the text field.
+          await field.evaluate(el => {
+            el.blur();
+            el.addEventListener('mousedown', (e: { preventDefault: () => void }) => e.preventDefault(), { once: true });
+          });
+          await field.click();
+          assert.ok(await field.evaluate(e => e.ownerDocument.activeElement === e), "Cancelled native focus is repaired");
           await field.press("ControlOrMeta+A");
           await field.pressSequentially("Keyboard interaction check");
           assert.equal(await field.inputValue(), "Keyboard interaction check", form.path);

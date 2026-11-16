@@ -36,11 +36,8 @@ export default defineConfig({
     ...(process.env.NODE_ENV !== 'production' &&
     process.env.REPL_ID !== undefined
       ? [
-          await import('@replit/vite-plugin-cartographer').then((m) =>
-            m.cartographer({
-              root: path.resolve(import.meta.dirname, '..'),
-            }),
-          ),
+          // Visual-element selection intercepts clicks in the embedded preview.
+          // Keep the staff app interactive; no editor beacon is needed at runtime.
           await import('@replit/vite-plugin-dev-banner').then((m) =>
             m.devBanner(),
           ),

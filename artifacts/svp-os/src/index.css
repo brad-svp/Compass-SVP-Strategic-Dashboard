@@ -392,3 +392,14 @@
 .lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -14px hsl(210 73% 14% / .35); }
 .cl-socialButtonsBlockButton:hover { background: #EAF4FA !important; }
 .cl-formFieldInput::placeholder { color: #5A6B7D; opacity: 1; }
+
+/* Keep text controls selectable and large enough to avoid iOS focus zoom. */
+.svp-form-surface input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+.svp-form-surface textarea {
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-user-select: text;
+  user-select: text;
+  touch-action: manipulation;
+}
+.svp-form-surface input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="color"]) { min-height: 44px; }
