@@ -15,6 +15,8 @@ export const DOMAINS={
   scorecard_metrics:{table:"scorecard_metrics",columns:"*",deleted:false},
   scorecard_entries:{table:"scorecard_entries",columns:"*",deleted:false},
   scorecard_history:{table:"scorecard_revisions",columns:"*",deleted:false},
+  scorecard_measurements:{table:"scorecard_measurements",columns:"id,metric_id,value,note,author_id,unit,recorded_at,source_week_start,legacy_reason",deleted:true},
+  scorecard_milestones:{table:"scorecard_milestones",columns:"*",deleted:false},
   six_periods:{table:"periods",columns:"id,name,start_date,end_date,meeting_date,meeting_notes,status,version",deleted:false},
   six_items:{table:"six_items",columns:"*",deleted:true},
   six_slots:{table:"major_moments",columns:"id,period_id,position",deleted:false},
@@ -27,7 +29,7 @@ export const DOMAINS={
   audit:{table:"audit_log",columns:"id,actor_id,action,entity_type,entity_id,via,created_at",deleted:false},
 } as const;
 export const operatingInput=z.object({domain:z.enum(Object.keys(DOMAINS) as [keyof typeof DOMAINS,...(keyof typeof DOMAINS)[]]),id:z.string().max(200).optional(),offset:z.number().int().min(0).max(100000).default(0),limit:z.number().int().min(1).max(100).default(30),parentId:z.string().max(200).optional(),from:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),to:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional()}).strict();
-const parentCols:Partial<Record<keyof typeof DOMAINS,string>>={qbos:"cycle_id",key_results:"objective_id",check_ins:"key_result_id",six_items:"moment_id",six_slots:"period_id",scorecard_entries:"metric_id",scorecard_history:"metric_id"};
+const parentCols:Partial<Record<keyof typeof DOMAINS,string>>={qbos:"cycle_id",key_results:"objective_id",check_ins:"key_result_id",six_items:"moment_id",six_slots:"period_id",scorecard_entries:"metric_id",scorecard_measurements:"metric_id",scorecard_milestones:"metric_id"};
 export async function readOperations(actor:StaffActor,raw:unknown) {
   const a=await freshActor(actor),p=operatingInput.parse(raw);
   if(p.domain==="audit"&&a.role!=="admin")throw new AppError(403,"Audit data is administrator-only.");
@@ -37,7 +39,10 @@ export async function readOperations(actor:StaffActor,raw:unknown) {
     if(p.domain==="quarter_narratives")throw new AppError(400,"Filter quarterly narratives with pagination.");
     conditions.push(sql`id=${p.id}`);
   }
-  if(p.parentId){const col=parentCols[p.domain];if(!col)throw new AppError(400,"Parent filtering is not supported for this domain.");conditions.push(sql`${sql.raw(col)}=${p.parentId}`);}
+  if(p.parentId){
+    if(p.domain==="scorecard_history")conditions.push(sql`entry_id in (select id from scorecard_entries where metric_id=${p.parentId})`);
+    else {const col=parentCols[p.domain];if(!col)throw new AppError(400,"Parent filtering is not supported for this domain.");conditions.push(sql`${sql.raw(col)}=${p.parentId}`);}
+  }
   if(p.domain==="calendar"){if(p.from)conditions.push(sql`coalesce(end_date,start_date)>=${p.from}`);if(p.to)conditions.push(sql`start_date<=${p.to}`);}
   const result=await db.transaction(async tx=>{
     await tx.execute(sql`set local statement_timeout='4000ms'`);

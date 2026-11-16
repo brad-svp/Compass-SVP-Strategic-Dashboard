@@ -9,6 +9,8 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@workspace/db": "workspace:*",
+    "drizzle-orm": "catalog:",
     "playwright-core": "^1.65.1",
     "tsx": "catalog:"
   }

@@ -6,6 +6,7 @@ import { seedCalendar } from "./lib/seedCalendar";
 import { seedPurpose } from "./lib/purposeService";
 import { seedCalendarPrograms } from "./lib/calendarProgramsService";
 import { startBrainWorker } from "./lib/brain/indexer";
+import { backfillScorecardHistory } from "./lib/scorecardTrackerService";
 
 const rawPort = process.env["PORT"];
 
@@ -21,7 +22,7 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-seedFoundation().then(seedAccountability).then(seedCalendar).then(seedCalendarPrograms).then(seedPurpose).then(() => app.listen(port, (err) => {
+seedFoundation().then(seedAccountability).then(seedCalendar).then(seedCalendarPrograms).then(seedPurpose).then(backfillScorecardHistory).then(() => app.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
     process.exit(1);

@@ -5,5 +5,6 @@
 - [Organizational brain policy](organizational-brain-policy.md) — contributions are searchable unreviewed; admins review periodically; Claude reads operations and writes knowledge only.
 - [SVP Compass identity](product-identity.md) — the user selected SVP Compass as the app's new name and requested a compass-based logo and brand.
 - [Planning policy](planning-policy.md) — personal 6x6s, optional admin quarterly direction, current-only home dashboard and a cross-year calendar timeline.
-- [Scorecard policy](scorecard-policy.md) — requested append-only metric updates, author-attributed history and dated milestone targets; status rule needs confirmation.
+- [Scorecard policy](scorecard-policy.md) — event-linked metrics, append-only attributed updates and dated milestones; status follows the latest due target.
+- [API transport validation](api-transport-validation.md) — generated timestamp coercion can invalidate service-only tests; verify the HTTP validation boundary.
 - [Vector export validation](vector-export-validation.md) — rasterizers can silently accept invalid SVG coordinates; validate paths and inspect actual outlined wordmarks.

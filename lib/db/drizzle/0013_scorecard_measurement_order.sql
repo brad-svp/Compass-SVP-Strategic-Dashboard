@@ -1,0 +1,1 @@
+ALTER TABLE "scorecard_measurements" ADD COLUMN "sequence" bigserial NOT NULL;

@@ -1,13 +1,18 @@
 import assert from "node:assert/strict";
 import { before, after, test } from "node:test";
 import { readFile } from "node:fs/promises";
+import { readdirSync } from "node:fs";
 import { db, pool, usersTable, areasTable, cyclesTable, objectivesTable, keyResultsTable, auditLogTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { GetScorecardResponse } from "@workspace/api-zod";
+import {UpdateScorecardMetricBody} from "@workspace/api-zod";
 import { saveScorecardMetric, saveScorecardEntry, getScorecard } from "../src/lib/scorecardService";
 import { scorecardStatus, weekStart, validateWeek } from "../src/lib/scorecardMath";
 import { saveObjective, saveKeyResult, addCheckIn, getOkrWorkspace } from "../src/lib/okrService";
 import type { StaffActor } from "../src/lib/permissions";
+import {appendScorecardMeasurement,deleteScorecardMeasurement,getScorecardTracker,getScorecardTrend,backfillScorecardHistory} from "../src/lib/scorecardTrackerService";
+import {saveCalendarEvent} from "../src/lib/calendarService";
+import {readOperations} from "../src/lib/brain/operations";
 
 const schema = `svp_test_${crypto.randomUUID().replaceAll("-", "")}`;
 let admin: StaffActor, owner: StaffActor, other: StaffActor, metricId: string, qboId: string, krId: string;
@@ -20,12 +25,12 @@ const metric = {
 const entry = (value: number | null, expectedVersion = 0, reason = "") => ({ value, note: "Weekly notes", reason, expectedVersion });
 const status = (code: number) => (e: unknown) => !!e && typeof e === "object" && "status" in e && e.status === code;
 before(async () => {
-  pool.options.options = `-c search_path=${schema}`;
+  pool.options.options = `-c search_path=${schema},public`;
   const client = await pool.connect();
   try {
     await client.query(`CREATE SCHEMA "${schema}"`);
-    await client.query(`SET search_path TO "${schema}"`);
-    for (const file of ["0000_phase2_okrs.sql", "0001_accountability_chart.sql", "0002_qbos_scorecard.sql", "0003_editable_six_by_six.sql", "0004_master_calendar.sql", "0005_event_key_results.sql"]) {
+    await client.query(`SET search_path TO "${schema}",public`);
+    for (const file of readdirSync(new URL("../../../lib/db/drizzle/",import.meta.url)).filter(n=>/^\d+.*\.sql$/.test(n)).sort()) {
       const sql = await readFile(new URL(`../../../lib/db/drizzle/${file}`, import.meta.url), "utf8");
       await client.query(sql.replaceAll('"public".', `"${schema}".`));
     }
@@ -151,6 +156,67 @@ test("archive retains data and disables entry; restore and historical window nav
   assert.equal(ws.entries.length, 1);
   assert.equal(ws.entries[0].weekStart, "2026-08-03");
   assert.equal(ws.entries[0].status, "on_track");
+});
+test("append-only tracker preserves old revisions, links events, paginates and enforces author deletion",async()=>{
+  await backfillScorecardHistory();
+  const historical=await getScorecardTrend(owner,metricId);
+  assert.ok(historical.entries.length>=5);
+  assert.ok(historical.entries.some(e=>e.value===null),"A historical clearing is not replaced by a fabricated numeric value.");
+  assert.ok(historical.entries.every(e=>e.sourceWeekStart&&e.authorId&&e.recordedAt));
+  await backfillScorecardHistory();
+  assert.equal((await getScorecardTrend(owner,metricId)).entries.length,historical.entries.length);
+  const legacy=historical.entries.find(e=>e.authorId===owner.id)!;
+  await deleteScorecardMeasurement(owner,legacy.id);
+  await backfillScorecardHistory();
+  assert.ok(!(await getScorecardTrend(owner,metricId)).entries.some(e=>e.id===legacy.id),"Restart must not resurrect a deleted migrated entry.");
+
+  const event=await saveCalendarEvent(admin,{title:"Isolated registration event",program:"",planningYear:2027,startDate:"2027-05-05",endDate:"2027-05-05",allDay:true,startsAt:null,endsAt:null,location:"",dateStatus:"confirmed",locationStatus:"tbd",audience:[],wixUrl:"",notes:"",ownerId:null,expectedVersion:0});
+  let cfg={...metric,title:"Event registrations",unit:"registrations",calendarEventId:event.id,milestones:[{dueDate:"2027-03-01",target:20,upperTarget:null},{dueDate:"2027-05-05",target:100,upperTarget:null}]};
+  const fresh=await saveScorecardMetric(admin,cfg);
+  const current=async()=> (await getScorecardTracker(owner)).metrics.find(m=>m.id===fresh.id)!;
+  const update=async(patch:Partial<typeof cfg>)=>{const before=await current();cfg={...cfg,...patch};return saveScorecardMetric(admin,{...cfg,expectedUpdatedAt:before.updatedAt},fresh.id);};
+  assert.equal((await current()).calendarEventId,event.id);
+  assert.equal((await getScorecardTracker(owner,new Date("2027-03-01T07:59:00Z"))).today,"2027-02-28","Due-day boundaries use Sacramento, not UTC.");
+  const dates=(await getScorecardTracker(owner)).milestones.filter(m=>m.metricId===fresh.id);
+  assert.equal(dates.length,2);
+  await saveScorecardMetric(admin,UpdateScorecardMetricBody.strict().parse({...cfg,expectedUpdatedAt:(await current()).updatedAt}),fresh.id);
+  await assert.rejects(saveScorecardMetric(admin,{...cfg,expectedUpdatedAt:"2000-01-01T00:00:00.000Z"},fresh.id),status(409));
+  await assert.rejects(saveScorecardMetric(admin,{...cfg,expectedUpdatedAt:(await current()).updatedAt,milestones:[dates[0],dates[0]].map(({dueDate,target,upperTarget})=>({dueDate,target,upperTarget}))},fresh.id),status(400));
+  await assert.rejects(saveScorecardMetric(admin,{...cfg,calendarEventId:"missing-event",expectedUpdatedAt:(await current()).updatedAt},fresh.id),status(400));
+  await assert.rejects(appendScorecardMeasurement(other,fresh.id,{value:1,note:""}),status(403));
+  await assert.rejects(appendScorecardMeasurement(owner,fresh.id,{value:1,note:"",authorId:admin.id}));
+  await assert.rejects(appendScorecardMeasurement(owner,fresh.id,{value:NaN,note:""}));
+  const first=await appendScorecardMeasurement(owner,fresh.id,{value:0,note:"First zero"});
+  const second=await appendScorecardMeasurement(owner,fresh.id,{value:0,note:"Another save, not an overwrite"});
+  const third=await appendScorecardMeasurement(admin,fresh.id,{value:5,note:"Admin update"});
+  assert.notEqual(first.id,second.id);
+  assert.equal((await getScorecardTracker(owner)).latest.find(e=>e.metricId===fresh.id)!.id,third.id);
+  const one=await getScorecardTrend(owner,fresh.id,{limit:1});
+  assert.equal(one.entries[0]!.id,first.id);assert.equal(one.entries[0]!.value,0);
+  await deleteScorecardMeasurement(owner,first.id);
+  const rest=await getScorecardTrend(owner,fresh.id,{after:one.nextCursor,limit:2});
+  assert.deepEqual(rest.entries.map(e=>e.id),[second.id,third.id]);assert.equal(rest.nextCursor,null);
+  assert.equal(rest.entries[0]!.canDelete,true);assert.equal(rest.entries[1]!.canDelete,false);
+  await assert.rejects(deleteScorecardMeasurement(owner,third.id),status(403));
+  await deleteScorecardMeasurement(admin,third.id);
+  assert.equal((await getScorecardTracker(owner)).latest.find(e=>e.metricId===fresh.id)!.id,second.id);
+  const operations=await readOperations(owner,{domain:"scorecard_measurements",parentId:fresh.id});
+  assert.equal(operations.records.length,1);
+  assert.equal((await readOperations(owner,{domain:"scorecard_milestones",parentId:fresh.id})).records.length,2);
+  await assert.rejects(update({unit:"dollars"}),status(409));cfg={...cfg,unit:"registrations"};
+  await update({ownerId:other.id,calendarEventId:null});
+  assert.equal((await current()).calendarEventId,null);
+  await assert.rejects(appendScorecardMeasurement(owner,fresh.id,{value:8,note:"Transferred"}),status(403));
+  await deleteScorecardMeasurement(owner,second.id);
+  assert.equal((await getScorecardTracker(owner)).latest.some(e=>e.metricId===fresh.id),false);
+  await appendScorecardMeasurement(other,fresh.id,{value:8,note:"New owner"});
+  await update({active:false});
+  await assert.rejects(appendScorecardMeasurement(other,fresh.id,{value:9,note:"Archived"}),status(409));
+  await update({active:true,milestones:[]});
+  assert.equal((await getScorecardTracker(owner)).milestones.filter(m=>m.metricId===fresh.id).length,0);
+  await db.update(usersTable).set({active:false}).where(eq(usersTable.id,other.id));
+  await assert.rejects(appendScorecardMeasurement(other,fresh.id,{value:9,note:"Disabled"}),status(403));
+  await db.update(usersTable).set({active:true}).where(eq(usersTable.id,other.id));
 });
 test("revoked admins and inactive owners cannot bypass fresh write checks; every revision is audited", async () => {
   await db.update(usersTable).set({ role: "staff" }).where(eq(usersTable.id, "admin"));

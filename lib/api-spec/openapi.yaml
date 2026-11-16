@@ -520,6 +520,62 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ScorecardWorkspace" }
+  /svp/scorecard/tracker:
+    get:
+      operationId: getScorecardTracker
+      responses:
+        "200":
+          description: Current metrics, latest undeleted measurements and dated targets
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ScorecardTracker" }
+  /svp/scorecard/trend:
+    get:
+      operationId: getScorecardTrend
+      parameters:
+        - in: query
+          name: metricId
+          required: true
+          schema: { type: string }
+        - in: query
+          name: after
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 250 }
+      responses:
+        "200":
+          description: Chronological timestamped measurements with stable cursor pagination
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ScorecardTrend" }
+  /svp/scorecard/metrics/{id}/measurements:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    post:
+      operationId: appendScorecardMeasurement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ScorecardMeasurementInput" }
+      responses:
+        "201":
+          description: A new measurement appended, never an overwrite
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
+  /svp/scorecard/measurements/{id}:
+    parameters:
+      - $ref: "#/components/parameters/EntityId"
+    delete:
+      operationId: deleteScorecardMeasurement
+      responses:
+        "200":
+          description: Author or admin removed an entry from live history, retaining its audit trail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MutationResult" }
   /svp/scorecard/metrics:
     post:
       operationId: createScorecardMetric
@@ -559,17 +615,15 @@ paths:
         schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
     put:
       operationId: saveScorecardEntry
+      deprecated: true
       requestBody:
         required: true
         content:
           application/json:
             schema: { $ref: "#/components/schemas/ScorecardEntryInput" }
       responses:
-        "200":
-          description: Weekly value saved with immutable revision and goal snapshot
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/MutationResult" }
+        "410":
+          description: Weekly recording is retired; append a timestamped measurement instead
   /svp/accountability:
     get:
       operationId: getAccountability
@@ -1368,6 +1422,12 @@ components:
       additionalProperties: false
       required: [title, description, ownerId, areaId, unit, decimals, direction, target, upperTarget, linkedKeyResultId, sortOrder, active]
       properties:
+        calendarEventId: { type: [string, "null"] }
+        expectedUpdatedAt: { type: string, format: date-time }
+        milestones:
+          type: array
+          maxItems: 100
+          items: { $ref: "#/components/schemas/ScorecardMilestoneInput" }
         title: { type: string, minLength: 1, maxLength: 200 }
         description: { type: string, maxLength: 4000 }
         ownerId: { type: string }
@@ -1384,11 +1444,72 @@ components:
       allOf:
         - $ref: "#/components/schemas/ScorecardMetricInput"
         - type: object
-          required: [id, canEdit, canRecord]
+          required: [id, canEdit, canRecord, updatedAt]
           properties:
             id: { type: string }
             canEdit: { type: boolean }
             canRecord: { type: boolean }
+            updatedAt: { type: string, format: date-time }
+    ScorecardMilestoneInput:
+      type: object
+      additionalProperties: false
+      required: [dueDate, target, upperTarget]
+      properties:
+        dueDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
+        target: { type: number }
+        upperTarget: { type: [number, "null"] }
+    ScorecardMilestone:
+      allOf:
+        - $ref: "#/components/schemas/ScorecardMilestoneInput"
+        - type: object
+          required: [id, metricId]
+          properties:
+            id: { type: string }
+            metricId: { type: string }
+    ScorecardMeasurementInput:
+      type: object
+      additionalProperties: false
+      required: [value, note]
+      properties:
+        value: { type: number }
+        note: { type: string, maxLength: 4000 }
+    ScorecardMeasurement:
+      type: object
+      required: [id, metricId, value, note, authorId, unit, recordedAt, sourceWeekStart, legacyReason, canDelete]
+      properties:
+        id: { type: string }
+        metricId: { type: string }
+        value: { type: [number, "null"] }
+        note: { type: string }
+        authorId: { type: string }
+        unit: { type: string }
+        recordedAt: { type: string, format: date-time }
+        sourceWeekStart: { type: [string, "null"] }
+        legacyReason: { type: [string, "null"] }
+        canDelete: { type: boolean }
+    ScorecardTracker:
+      type: object
+      required: [asOf, today, metrics, milestones, latest]
+      properties:
+        asOf: { type: string, format: date-time }
+        today: { type: string }
+        metrics:
+          type: array
+          items: { $ref: "#/components/schemas/ScorecardMetric" }
+        milestones:
+          type: array
+          items: { $ref: "#/components/schemas/ScorecardMilestone" }
+        latest:
+          type: array
+          items: { $ref: "#/components/schemas/ScorecardMeasurement" }
+    ScorecardTrend:
+      type: object
+      required: [entries, nextCursor]
+      properties:
+        entries:
+          type: array
+          items: { $ref: "#/components/schemas/ScorecardMeasurement" }
+        nextCursor: { type: [string, "null"] }
     ScorecardEntryInput:
       type: object
       additionalProperties: false

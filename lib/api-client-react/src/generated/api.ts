@@ -51,6 +51,7 @@ import type {
   GetBrainParams,
   GetDevAuth200,
   GetScorecardParams,
+  GetScorecardTrendParams,
   GetSystemsOverview200,
   HealthStatus,
   KeyResultInput,
@@ -66,7 +67,10 @@ import type {
   RequestBrainUpload201,
   RequestProgramLogoUpload201,
   ScorecardEntryInput,
+  ScorecardMeasurementInput,
   ScorecardMetricInput,
+  ScorecardTracker,
+  ScorecardTrend,
   ScorecardWorkspace,
   SixItemInput,
   SixItemUpdate,
@@ -4097,6 +4101,354 @@ export function useGetScorecard<TData = Awaited<ReturnType<typeof getScorecard>>
 
 
 
+export const getGetScorecardTrackerUrl = () => {
+
+
+
+
+  return `/api/svp/scorecard/tracker`
+}
+
+export const getScorecardTracker = async ( options?: Parameters<typeof customFetch>[1]): Promise<ScorecardTracker> => {
+
+  return customFetch<ScorecardTracker>(getGetScorecardTrackerUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetScorecardTrackerQueryKey = () => {
+    return [
+    `/api/svp/scorecard/tracker`
+    ] as const;
+    }
+
+
+export const getGetScorecardTrackerQueryOptions = <TData = Awaited<ReturnType<typeof getScorecardTracker>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScorecardTracker>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetScorecardTrackerQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getScorecardTracker>>> = ({ signal }) => getScorecardTracker({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getScorecardTracker>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetScorecardTrackerQueryResult = NonNullable<Awaited<ReturnType<typeof getScorecardTracker>>>
+export type GetScorecardTrackerQueryError = ErrorType<unknown>
+
+
+export function useGetScorecardTracker<TData = Awaited<ReturnType<typeof getScorecardTracker>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScorecardTracker>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getScorecardTracker>>,
+          TError,
+          Awaited<ReturnType<typeof getScorecardTracker>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetScorecardTracker<TData = Awaited<ReturnType<typeof getScorecardTracker>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScorecardTracker>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getScorecardTracker>>,
+          TError,
+          Awaited<ReturnType<typeof getScorecardTracker>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetScorecardTracker<TData = Awaited<ReturnType<typeof getScorecardTracker>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScorecardTracker>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetScorecardTracker<TData = Awaited<ReturnType<typeof getScorecardTracker>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScorecardTracker>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetScorecardTrackerQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetScorecardTrendUrl = (params: GetScorecardTrendParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/svp/scorecard/trend?${stringifiedParams}` : `/api/svp/scorecard/trend`
+}
+
+export const getScorecardTrend = async (params: GetScorecardTrendParams, options?: Parameters<typeof customFetch>[1]): Promise<ScorecardTrend> => {
+
+  return customFetch<ScorecardTrend>(getGetScorecardTrendUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetScorecardTrendQueryKey = (params?: GetScorecardTrendParams,) => {
+    return [
+    `/api/svp/scorecard/trend`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetScorecardTrendQueryOptions = <TData = Awaited<ReturnType<typeof getScorecardTrend>>, TError = ErrorType<unknown>>(params: GetScorecardTrendParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScorecardTrend>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetScorecardTrendQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getScorecardTrend>>> = ({ signal }) => getScorecardTrend(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getScorecardTrend>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetScorecardTrendQueryResult = NonNullable<Awaited<ReturnType<typeof getScorecardTrend>>>
+export type GetScorecardTrendQueryError = ErrorType<unknown>
+
+
+export function useGetScorecardTrend<TData = Awaited<ReturnType<typeof getScorecardTrend>>, TError = ErrorType<unknown>>(
+ params: GetScorecardTrendParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScorecardTrend>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getScorecardTrend>>,
+          TError,
+          Awaited<ReturnType<typeof getScorecardTrend>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetScorecardTrend<TData = Awaited<ReturnType<typeof getScorecardTrend>>, TError = ErrorType<unknown>>(
+ params: GetScorecardTrendParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScorecardTrend>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getScorecardTrend>>,
+          TError,
+          Awaited<ReturnType<typeof getScorecardTrend>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetScorecardTrend<TData = Awaited<ReturnType<typeof getScorecardTrend>>, TError = ErrorType<unknown>>(
+ params: GetScorecardTrendParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScorecardTrend>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetScorecardTrend<TData = Awaited<ReturnType<typeof getScorecardTrend>>, TError = ErrorType<unknown>>(
+ params: GetScorecardTrendParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getScorecardTrend>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetScorecardTrendQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAppendScorecardMeasurementUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/scorecard/metrics/${id}/measurements`
+}
+
+export const appendScorecardMeasurement = async (id: string,
+    scorecardMeasurementInput: ScorecardMeasurementInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MutationResult>(getAppendScorecardMeasurementUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(scorecardMeasurementInput)
+  }
+);}
+
+
+
+
+
+export const getAppendScorecardMeasurementMutationKey = () => ['appendScorecardMeasurement'] as const;
+
+export const getAppendScorecardMeasurementMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof appendScorecardMeasurement>>, TError,AppendScorecardMeasurementMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof appendScorecardMeasurement>>, TError,AppendScorecardMeasurementMutationVariables, TContext> => {
+
+const mutationKey = getAppendScorecardMeasurementMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof appendScorecardMeasurement>>, AppendScorecardMeasurementMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  appendScorecardMeasurement(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AppendScorecardMeasurementMutationResult = NonNullable<Awaited<ReturnType<typeof appendScorecardMeasurement>>>
+    export type AppendScorecardMeasurementMutationBody = BodyType<ScorecardMeasurementInput>
+    export type AppendScorecardMeasurementMutationError = ErrorType<unknown>
+    export type AppendScorecardMeasurementMutationVariables = {id: string;data: BodyType<ScorecardMeasurementInput>}
+
+    export const useAppendScorecardMeasurement = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof appendScorecardMeasurement>>, TError,AppendScorecardMeasurementMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof appendScorecardMeasurement>>,
+        TError,
+        AppendScorecardMeasurementMutationVariables,
+        TContext
+      > => {
+      return useMutation(getAppendScorecardMeasurementMutationOptions(options), queryClient);
+    }
+
+export const getDeleteScorecardMeasurementUrl = (id: string,) => {
+
+
+
+
+  return `/api/svp/scorecard/measurements/${id}`
+}
+
+export const deleteScorecardMeasurement = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+
+  return customFetch<MutationResult>(getDeleteScorecardMeasurementUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteScorecardMeasurementMutationKey = () => ['deleteScorecardMeasurement'] as const;
+
+export const getDeleteScorecardMeasurementMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteScorecardMeasurement>>, TError,DeleteScorecardMeasurementMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteScorecardMeasurement>>, TError,DeleteScorecardMeasurementMutationVariables, TContext> => {
+
+const mutationKey = getDeleteScorecardMeasurementMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteScorecardMeasurement>>, DeleteScorecardMeasurementMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteScorecardMeasurement(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteScorecardMeasurementMutationResult = NonNullable<Awaited<ReturnType<typeof deleteScorecardMeasurement>>>
+
+    export type DeleteScorecardMeasurementMutationError = ErrorType<unknown>
+    export type DeleteScorecardMeasurementMutationVariables = {id: string}
+
+    export const useDeleteScorecardMeasurement = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteScorecardMeasurement>>, TError,DeleteScorecardMeasurementMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteScorecardMeasurement>>,
+        TError,
+        DeleteScorecardMeasurementMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteScorecardMeasurementMutationOptions(options), queryClient);
+    }
+
 export const getCreateScorecardMetricUrl = () => {
 
 
@@ -4271,9 +4623,12 @@ export const getSaveScorecardEntryUrl = (id: string,
   return `/api/svp/scorecard/metrics/${id}/entries/${weekStart}`
 }
 
+/**
+ * @deprecated
+ */
 export const saveScorecardEntry = async (id: string,
     weekStart: string,
-    scorecardEntryInput: ScorecardEntryInput, options?: Parameters<typeof customFetch>[1]): Promise<MutationResult> => {
+    scorecardEntryInput: ScorecardEntryInput, options?: Parameters<typeof customFetch>[1]): Promise<unknown> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -4289,7 +4644,7 @@ export const saveScorecardEntry = async (id: string,
     }
     return headers;
   };
-return customFetch<MutationResult>(getSaveScorecardEntryUrl(id,weekStart),
+return customFetch<unknown>(getSaveScorecardEntryUrl(id,weekStart),
   {
     ...options,
     method: 'PUT',
@@ -4304,7 +4659,7 @@ return customFetch<MutationResult>(getSaveScorecardEntryUrl(id,weekStart),
 
 export const getSaveScorecardEntryMutationKey = () => ['saveScorecardEntry'] as const;
 
-export const getSaveScorecardEntryMutationOptions = <TError = ErrorType<unknown>,
+export const getSaveScorecardEntryMutationOptions = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveScorecardEntry>>, TError,SaveScorecardEntryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof saveScorecardEntry>>, TError,SaveScorecardEntryMutationVariables, TContext> => {
 
@@ -4333,10 +4688,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type SaveScorecardEntryMutationResult = NonNullable<Awaited<ReturnType<typeof saveScorecardEntry>>>
     export type SaveScorecardEntryMutationBody = BodyType<ScorecardEntryInput>
-    export type SaveScorecardEntryMutationError = ErrorType<unknown>
+    export type SaveScorecardEntryMutationError = ErrorType<void>
     export type SaveScorecardEntryMutationVariables = {id: string;weekStart: string;data: BodyType<ScorecardEntryInput>}
 
-    export const useSaveScorecardEntry = <TError = ErrorType<unknown>,
+    /**
+ * @deprecated
+ */
+export const useSaveScorecardEntry = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveScorecardEntry>>, TError,SaveScorecardEntryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof saveScorecardEntry>>,

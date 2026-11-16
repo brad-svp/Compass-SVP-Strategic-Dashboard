@@ -24,3 +24,7 @@ for suite in narrative-plan-brain-ui dashboard-timeline; do
     "--outfile=$out/$suite.cjs" --log-level=warning
   node --test "$out/$suite.cjs"
 done
+pnpm --filter @workspace/api-server exec esbuild ../svp-os/tests/scorecard-tracker.test.ts \
+  --bundle --platform=node --format=cjs --tsconfig=../svp-os/tsconfig.json \
+  "--outfile=$out/scorecard-tracker.cjs" --log-level=warning
+node --test "$out/scorecard-tracker.cjs"

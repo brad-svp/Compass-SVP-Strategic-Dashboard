@@ -708,7 +708,20 @@ export const ScorecardMetricInputDirection = {
   range: 'range',
 } as const;
 
+export interface ScorecardMilestoneInput {
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  dueDate: string;
+  target: number;
+  /** @nullable */
+  upperTarget: number | null;
+}
+
 export interface ScorecardMetricInput {
+  /** @nullable */
+  calendarEventId?: string | null;
+  expectedUpdatedAt?: string;
+  /** @maxItems 100 */
+  milestones?: ScorecardMilestoneInput[];
   /**
      * @minLength 1
      * @maxLength 200
@@ -743,7 +756,49 @@ export type ScorecardMetric = ScorecardMetricInput & {
   id: string;
   canEdit: boolean;
   canRecord: boolean;
+  updatedAt: string;
 };
+
+export type ScorecardMilestone = ScorecardMilestoneInput & {
+  id: string;
+  metricId: string;
+};
+
+export interface ScorecardMeasurementInput {
+  value: number;
+  /** @maxLength 4000 */
+  note: string;
+}
+
+export interface ScorecardMeasurement {
+  id: string;
+  metricId: string;
+  /** @nullable */
+  value: number | null;
+  note: string;
+  authorId: string;
+  unit: string;
+  recordedAt: string;
+  /** @nullable */
+  sourceWeekStart: string | null;
+  /** @nullable */
+  legacyReason: string | null;
+  canDelete: boolean;
+}
+
+export interface ScorecardTracker {
+  asOf: string;
+  today: string;
+  metrics: ScorecardMetric[];
+  milestones: ScorecardMilestone[];
+  latest: ScorecardMeasurement[];
+}
+
+export interface ScorecardTrend {
+  entries: ScorecardMeasurement[];
+  /** @nullable */
+  nextCursor: string | null;
+}
 
 export interface ScorecardEntryInput {
   /** @nullable */
@@ -1355,6 +1410,16 @@ export type GetScorecardParams = {
  * @pattern ^\d{4}-\d{2}-\d{2}$
  */
 endWeek?: string;
+};
+
+export type GetScorecardTrendParams = {
+metricId: string;
+after?: string;
+/**
+ * @minimum 1
+ * @maximum 250
+ */
+limit?: number;
 };
 
 export type GetDevAuth200 = {

@@ -1321,6 +1321,9 @@ export const GetScorecardQueryParams = zod.object({
   "endWeek": zod.coerce.string().regex(getScorecardQueryEndWeekRegExp).optional()
 })
 
+export const getScorecardResponseMetricsItemOneMilestonesItemDueDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getScorecardResponseMetricsItemOneMilestonesMax = 100;
+
 export const getScorecardResponseMetricsItemOneTitleMax = 200;
 
 export const getScorecardResponseMetricsItemOneDescriptionMax = 4000;
@@ -1339,6 +1342,13 @@ export const GetScorecardResponse = zod.object({
   "weeks": zod.array(zod.string()),
   "endWeek": zod.string(),
   "metrics": zod.array(zod.object({
+  "calendarEventId": zod.string().nullish(),
+  "expectedUpdatedAt": zod.coerce.date().optional(),
+  "milestones": zod.array(zod.object({
+  "dueDate": zod.string().regex(getScorecardResponseMetricsItemOneMilestonesItemDueDateRegExp),
+  "target": zod.number(),
+  "upperTarget": zod.number().nullable()
+})).max(getScorecardResponseMetricsItemOneMilestonesMax).optional(),
   "title": zod.string().min(1).max(getScorecardResponseMetricsItemOneTitleMax),
   "description": zod.string().max(getScorecardResponseMetricsItemOneDescriptionMax),
   "ownerId": zod.string(),
@@ -1354,7 +1364,8 @@ export const GetScorecardResponse = zod.object({
 }).and(zod.object({
   "id": zod.string(),
   "canEdit": zod.boolean(),
-  "canRecord": zod.boolean()
+  "canRecord": zod.boolean(),
+  "updatedAt": zod.coerce.date()
 }))),
   "entries": zod.array(zod.object({
   "id": zod.string(),
@@ -1388,6 +1399,139 @@ export const GetScorecardResponse = zod.object({
 })
 
 
+export const getScorecardTrackerResponseMetricsItemOneMilestonesItemDueDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getScorecardTrackerResponseMetricsItemOneMilestonesMax = 100;
+
+export const getScorecardTrackerResponseMetricsItemOneTitleMax = 200;
+
+export const getScorecardTrackerResponseMetricsItemOneDescriptionMax = 4000;
+
+export const getScorecardTrackerResponseMetricsItemOneUnitMax = 40;
+
+export const getScorecardTrackerResponseMetricsItemOneDecimalsMin = 0;
+export const getScorecardTrackerResponseMetricsItemOneDecimalsMax = 4;
+
+export const getScorecardTrackerResponseMetricsItemOneSortOrderMin = 0;
+export const getScorecardTrackerResponseMetricsItemOneSortOrderMax = 1000000;
+
+export const getScorecardTrackerResponseMilestonesItemOneDueDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const GetScorecardTrackerResponse = zod.object({
+  "asOf": zod.coerce.date(),
+  "today": zod.string(),
+  "metrics": zod.array(zod.object({
+  "calendarEventId": zod.string().nullish(),
+  "expectedUpdatedAt": zod.coerce.date().optional(),
+  "milestones": zod.array(zod.object({
+  "dueDate": zod.string().regex(getScorecardTrackerResponseMetricsItemOneMilestonesItemDueDateRegExp),
+  "target": zod.number(),
+  "upperTarget": zod.number().nullable()
+})).max(getScorecardTrackerResponseMetricsItemOneMilestonesMax).optional(),
+  "title": zod.string().min(1).max(getScorecardTrackerResponseMetricsItemOneTitleMax),
+  "description": zod.string().max(getScorecardTrackerResponseMetricsItemOneDescriptionMax),
+  "ownerId": zod.string(),
+  "areaId": zod.string(),
+  "unit": zod.string().max(getScorecardTrackerResponseMetricsItemOneUnitMax),
+  "decimals": zod.number().int().min(getScorecardTrackerResponseMetricsItemOneDecimalsMin).max(getScorecardTrackerResponseMetricsItemOneDecimalsMax),
+  "direction": zod.enum(['at_least', 'at_most', 'range']),
+  "target": zod.number(),
+  "upperTarget": zod.number().nullable(),
+  "linkedKeyResultId": zod.string().nullable(),
+  "sortOrder": zod.number().int().min(getScorecardTrackerResponseMetricsItemOneSortOrderMin).max(getScorecardTrackerResponseMetricsItemOneSortOrderMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "id": zod.string(),
+  "canEdit": zod.boolean(),
+  "canRecord": zod.boolean(),
+  "updatedAt": zod.coerce.date()
+}))),
+  "milestones": zod.array(zod.object({
+  "dueDate": zod.string().regex(getScorecardTrackerResponseMilestonesItemOneDueDateRegExp),
+  "target": zod.number(),
+  "upperTarget": zod.number().nullable()
+}).and(zod.object({
+  "id": zod.string(),
+  "metricId": zod.string()
+}))),
+  "latest": zod.array(zod.object({
+  "id": zod.string(),
+  "metricId": zod.string(),
+  "value": zod.number().nullable(),
+  "note": zod.string(),
+  "authorId": zod.string(),
+  "unit": zod.string(),
+  "recordedAt": zod.coerce.date(),
+  "sourceWeekStart": zod.string().nullable(),
+  "legacyReason": zod.string().nullable(),
+  "canDelete": zod.boolean()
+}))
+})
+
+
+export const getScorecardTrendQueryLimitMax = 250;
+
+
+
+export const GetScorecardTrendQueryParams = zod.object({
+  "metricId": zod.coerce.string(),
+  "after": zod.coerce.string().optional(),
+  "limit": zod.coerce.number().int().min(1).max(getScorecardTrendQueryLimitMax).optional()
+})
+
+export const GetScorecardTrendResponse = zod.object({
+  "entries": zod.array(zod.object({
+  "id": zod.string(),
+  "metricId": zod.string(),
+  "value": zod.number().nullable(),
+  "note": zod.string(),
+  "authorId": zod.string(),
+  "unit": zod.string(),
+  "recordedAt": zod.coerce.date(),
+  "sourceWeekStart": zod.string().nullable(),
+  "legacyReason": zod.string().nullable(),
+  "canDelete": zod.boolean()
+})),
+  "nextCursor": zod.string().nullable()
+})
+
+
+
+
+
+export const AppendScorecardMeasurementParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const appendScorecardMeasurementBodyNoteMax = 4000;
+
+
+
+export const AppendScorecardMeasurementBody = zod.object({
+  "value": zod.number(),
+  "note": zod.string().max(appendScorecardMeasurementBodyNoteMax)
+})
+
+export const AppendScorecardMeasurementResponse = zod.object({
+  "id": zod.string()
+})
+
+
+
+
+
+export const DeleteScorecardMeasurementParams = zod.object({
+  "id": zod.coerce.string().min(1)
+})
+
+export const DeleteScorecardMeasurementResponse = zod.object({
+  "id": zod.string()
+})
+
+
+export const createScorecardMetricBodyMilestonesItemDueDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createScorecardMetricBodyMilestonesMax = 100;
+
 export const createScorecardMetricBodyTitleMax = 200;
 
 export const createScorecardMetricBodyDescriptionMax = 4000;
@@ -1403,6 +1547,13 @@ export const createScorecardMetricBodySortOrderMax = 1000000;
 
 
 export const CreateScorecardMetricBody = zod.object({
+  "calendarEventId": zod.string().nullish(),
+  "expectedUpdatedAt": zod.coerce.date().optional(),
+  "milestones": zod.array(zod.object({
+  "dueDate": zod.string().regex(createScorecardMetricBodyMilestonesItemDueDateRegExp),
+  "target": zod.number(),
+  "upperTarget": zod.number().nullable()
+})).max(createScorecardMetricBodyMilestonesMax).optional(),
   "title": zod.string().min(1).max(createScorecardMetricBodyTitleMax),
   "description": zod.string().max(createScorecardMetricBodyDescriptionMax),
   "ownerId": zod.string(),
@@ -1429,6 +1580,9 @@ export const UpdateScorecardMetricParams = zod.object({
   "id": zod.coerce.string().min(1)
 })
 
+export const updateScorecardMetricBodyMilestonesItemDueDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const updateScorecardMetricBodyMilestonesMax = 100;
+
 export const updateScorecardMetricBodyTitleMax = 200;
 
 export const updateScorecardMetricBodyDescriptionMax = 4000;
@@ -1444,6 +1598,13 @@ export const updateScorecardMetricBodySortOrderMax = 1000000;
 
 
 export const UpdateScorecardMetricBody = zod.object({
+  "calendarEventId": zod.string().nullish(),
+  "expectedUpdatedAt": zod.coerce.date().optional(),
+  "milestones": zod.array(zod.object({
+  "dueDate": zod.string().regex(updateScorecardMetricBodyMilestonesItemDueDateRegExp),
+  "target": zod.number(),
+  "upperTarget": zod.number().nullable()
+})).max(updateScorecardMetricBodyMilestonesMax).optional(),
   "title": zod.string().min(1).max(updateScorecardMetricBodyTitleMax),
   "description": zod.string().max(updateScorecardMetricBodyDescriptionMax),
   "ownerId": zod.string(),
@@ -1463,6 +1624,9 @@ export const UpdateScorecardMetricResponse = zod.object({
 })
 
 
+/**
+ * @deprecated
+ */
 
 export const saveScorecardEntryPathWeekStartRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 
@@ -1487,9 +1651,7 @@ export const SaveScorecardEntryBody = zod.object({
   "expectedVersion": zod.number().int().min(saveScorecardEntryBodyExpectedVersionMin)
 })
 
-export const SaveScorecardEntryResponse = zod.object({
-  "id": zod.string()
-})
+export const SaveScorecardEntryResponse = zod.void()
 
 
 export const getAccountabilityResponseOneTitleMax = 200;

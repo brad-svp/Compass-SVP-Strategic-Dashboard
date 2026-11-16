@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { db, usersTable, areasTable, objectivesTable, keyResultsTable, auditLogTable, scorecardMetricsTable as metrics, scorecardEntriesTable as entries, scorecardRevisionsTable as revisions } from "@workspace/db";
+import { db, usersTable, areasTable, objectivesTable, keyResultsTable, auditLogTable, calendarEventsTable, scorecardMilestonesTable as milestones, scorecardMeasurementsTable as measurements, scorecardMetricsTable as metrics, scorecardEntriesTable as entries, scorecardRevisionsTable as revisions } from "@workspace/db";
 import { and, asc, eq, gte, lte, sql, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { AppError, requireAdmin, requireOwner, type StaffActor } from "./permissions";
 import { scorecardStatus, scorecardWeeks, validateWeek, weekStart } from "./scorecardMath";
+import { isCalendarDate } from "./calendarDates";
 
 const id = z.string().min(1);
 const metricInput = z.object({
@@ -12,13 +13,17 @@ const metricInput = z.object({
   direction: z.enum(["at_least", "at_most", "range"]),
   target: z.number().finite(), upperTarget: z.number().finite().nullable(),
   linkedKeyResultId: id.nullable(), sortOrder: z.number().int().min(0).max(1000000), active: z.boolean(),
+  calendarEventId:id.nullable().optional(),
+  // Generated OpenAPI body validation coerces date-time strings into Dates.
+  expectedUpdatedAt:z.preprocess(v=>v instanceof Date?v.toISOString():v,z.string().datetime()).optional(),
+  milestones:z.array(z.object({dueDate:z.string().refine(isCalendarDate,"Enter a valid target date."),target:z.number().finite(),upperTarget:z.number().finite().nullable()}).strict()).max(100).optional(),
 }).strict();
 const entryInput = z.object({
   value: z.number().finite().nullable(), note: z.string().trim().max(4000),
   reason: z.string().trim().max(1000), expectedVersion: z.number().int().min(0),
 }).strict();
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
-async function currentActor(tx: Tx, actor: StaffActor) {
+export async function currentScorecardActor(tx: Tx, actor: StaffActor) {
   await tx.execute(sql`select pg_advisory_xact_lock(742810)`);
   const [current] = await tx.select().from(usersTable).where(eq(usersTable.id, actor.id));
   if (!current?.active) throw new AppError(403, "Your staff access is no longer available.");
@@ -26,12 +31,22 @@ async function currentActor(tx: Tx, actor: StaffActor) {
 }
 
 export async function saveScorecardMetric(actor: StaffActor, raw: unknown, metricId?: string) {
-  const data = metricInput.parse(raw);
+  const {milestones:targetDates,expectedUpdatedAt,...data} = metricInput.parse(raw);
   return db.transaction(async tx => {
-    actor = await currentActor(tx, actor);
+    actor = await currentScorecardActor(tx, actor);
     requireAdmin(actor);
-    const [before] = metricId ? await tx.select().from(metrics).where(eq(metrics.id, metricId)) : [];
+    const [before] = metricId ? await tx.select().from(metrics).where(eq(metrics.id, metricId)).for("update") : [];
     if (metricId && !before) throw new AppError(404, "Metric not found.");
+    if(before && ((expectedUpdatedAt && before.updatedAt.toISOString()!==expectedUpdatedAt)|| (targetDates!==undefined && !expectedUpdatedAt)))throw new AppError(409,"This metric changed, or its version is missing. Reopen it before saving dated targets.");
+    const oldDates=before?await tx.select().from(milestones).where(eq(milestones.metricId,before.id)):[];
+    const datesToCheck=targetDates??oldDates;
+    if(new Set(datesToCheck.map(t=>t.dueDate)).size!==datesToCheck.length)throw new AppError(400,"Use one target per date.");
+    if(datesToCheck.some(t=>data.direction==="range"?(t.upperTarget===null||t.upperTarget<t.target):t.upperTarget!==null))throw new AppError(400,"Dated targets must match the metric's comparison and range.");
+    if(before && before.unit!==data.unit && (await tx.select({id:measurements.id}).from(measurements).where(eq(measurements.metricId,before.id)).limit(1)).length)throw new AppError(409,"Units cannot change after values are recorded. Create another metric for a different unit.");
+    if(data.calendarEventId){
+      const [event]=await tx.select().from(calendarEventsTable).where(eq(calendarEventsTable.id,data.calendarEventId));
+      if(!event || (event.deletedAt && before?.calendarEventId!==event.id))throw new AppError(400,"Choose an available calendar event.");
+    }
     if (data.direction === "range" ? data.upperTarget === null || data.upperTarget < data.target : data.upperTarget !== null) {
       throw new AppError(400, "A range needs an upper target at least as large as the lower target. Other goals must not have an upper target.");
     }
@@ -48,11 +63,15 @@ export async function saveScorecardMetric(actor: StaffActor, raw: unknown, metri
     }
     const entityId = metricId ?? randomUUID();
     const [after] = metricId
-      ? await tx.update(metrics).set({ ...data, updatedAt: new Date() }).where(eq(metrics.id, metricId)).returning()
+      ? await tx.update(metrics).set({ ...data, updatedAt: new Date(Math.max(Date.now(),before!.updatedAt.getTime()+1)) }).where(eq(metrics.id, metricId)).returning()
       : await tx.insert(metrics).values({ ...data, id: entityId }).returning();
+    if(targetDates!==undefined){
+      await tx.delete(milestones).where(eq(milestones.metricId,entityId));
+      if(targetDates.length)await tx.insert(milestones).values(targetDates.map(t=>({...t,id:randomUUID(),metricId:entityId})));
+    }
     await tx.insert(auditLogTable).values({
       id: randomUUID(), actorId: actor.id, action: metricId ? "update" : "create", entityType: "scorecard_metric",
-      entityId, before: before ?? null, after, via: "web",
+      entityId, before: before?{...before,milestones:oldDates}:null, after:{...after,milestones:targetDates??oldDates}, via: "web",
     });
     return { id: entityId };
   });
@@ -62,7 +81,7 @@ export async function saveScorecardEntry(actor: StaffActor, metricId: string, we
   const data = entryInput.parse(raw);
   validateWeek(week, now);
   return db.transaction(async tx => {
-    actor = await currentActor(tx, actor);
+    actor = await currentScorecardActor(tx, actor);
     const [metric] = await tx.select().from(metrics).where(eq(metrics.id, metricId));
     if (!metric) throw new AppError(404, "Metric not found.");
     if (!metric.active) throw new AppError(409, "Restore this archived metric before recording results.");

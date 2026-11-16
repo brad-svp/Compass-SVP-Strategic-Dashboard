@@ -11,4 +11,5 @@ export type ScorecardMetric = ScorecardMetricInput & {
   id: string;
   canEdit: boolean;
   canRecord: boolean;
+  updatedAt: Date;
 };

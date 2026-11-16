@@ -1,7 +1,8 @@
-import { pgTable, text, integer, boolean, timestamp, date, doublePrecision, check, uniqueIndex, index } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, boolean, timestamp, date, doublePrecision, bigserial, check, uniqueIndex, index } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { usersTable, areasTable } from "./foundation";
 import { keyResultsTable } from "./okrs";
+import { calendarEventsTable } from "./calendar";
 
 const goal = () => ({
   direction: text("direction", { enum: ["at_least", "at_most", "range"] }).notNull(),
@@ -20,6 +21,7 @@ export const scorecardMetricsTable = pgTable("scorecard_metrics", {
   areaId: text("area_id").notNull().references(() => areasTable.id),
   ...goal(), decimals: integer("decimals").notNull().default(0),
   linkedKeyResultId: text("linked_key_result_id").references(() => keyResultsTable.id),
+  calendarEventId: text("calendar_event_id").references(() => calendarEventsTable.id),
   sortOrder: integer("sort_order").notNull().default(0),
   active: boolean("active").notNull().default(true), ...timestamps(),
 }, t => [
@@ -47,4 +49,23 @@ export const scorecardRevisionsTable = pgTable("scorecard_revisions", {
 }, t => [
   uniqueIndex("scorecard_revision_version_idx").on(t.entryId, t.version),
   index("scorecard_revision_entry_idx").on(t.entryId),
+]);
+
+export const scorecardMilestonesTable = pgTable("scorecard_milestones", {
+  id:text("id").primaryKey(), metricId:text("metric_id").notNull().references(()=>scorecardMetricsTable.id),
+  dueDate:date("due_date").notNull(), target:doublePrecision("target").notNull(), upperTarget:doublePrecision("upper_target"),
+},t=>[uniqueIndex("scorecard_milestone_date_idx").on(t.metricId,t.dueDate)]);
+
+export const scorecardMeasurementsTable = pgTable("scorecard_measurements", {
+  sequence:bigserial("sequence",{mode:"number"}).notNull(),
+  id:text("id").primaryKey(), metricId:text("metric_id").notNull().references(()=>scorecardMetricsTable.id),
+  value:doublePrecision("value"), note:text("note").notNull().default(""),
+  authorId:text("author_id").notNull().references(()=>usersTable.id), unit:text("unit").notNull(),
+  recordedAt:timestamp("recorded_at",{withTimezone:true}).notNull().defaultNow(),
+  sourceWeekStart:date("source_week_start"), legacyRevisionId:text("legacy_revision_id").references(()=>scorecardRevisionsTable.id),
+  legacyReason:text("legacy_reason"), deletedAt:timestamp("deleted_at",{withTimezone:true}),
+  deletedBy:text("deleted_by").references(()=>usersTable.id),
+},t=>[
+  index("scorecard_measurement_trend_idx").on(t.metricId,t.recordedAt,t.id),
+  uniqueIndex("scorecard_measurement_legacy_idx").on(t.legacyRevisionId),
 ]);

@@ -85,6 +85,20 @@
       "when": 1794839272545,
       "tag": "0011_calendar_planning_month",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794841299295,
+      "tag": "0012_scorecard_measurements",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794841613749,
+      "tag": "0013_scorecard_measurement_order",
+      "breakpoints": true
     }
   ]
 }

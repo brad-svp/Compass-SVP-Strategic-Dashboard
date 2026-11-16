@@ -6,8 +6,14 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ScorecardMetricInputDirection } from './scorecardMetricInputDirection';
+import type { ScorecardMilestoneInput } from './scorecardMilestoneInput';
 
 export interface ScorecardMetricInput {
+  /** @nullable */
+  calendarEventId?: string | null;
+  expectedUpdatedAt?: Date;
+  /** @maxItems 100 */
+  milestones?: ScorecardMilestoneInput[];
   /**
      * @minLength 1
      * @maxLength 200

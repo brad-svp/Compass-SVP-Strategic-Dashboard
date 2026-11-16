@@ -1,21 +1,25 @@
 import { useMemo, useState } from 'react';
 import { useLocation, useSearch } from 'wouter';
-import { ChevronLeft, ChevronRight, Download, Plus } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { Download, Plus } from 'lucide-react';
 import type { Foundation, ScorecardMetric } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { WithFoundation } from '@/components/with-foundation';
 import { ErrorPanel, PageHeader, PageSkeleton, Panel } from '@/components/ui-bits';
 import { NativeSelect } from '@/components/native-select';
-import { MetricDialog, type KrOption } from '@/components/scorecard/metric-dialog';
-import { EntryDialog } from '@/components/scorecard/entry-dialog';
-import { ScorecardTable, type KrLink } from '@/components/scorecard/scorecard-table';
+import { TrackerMetricForm, type KrOption } from '@/components/scorecard/tracker-metric-form';
+import { TrackerRow, type KrLink } from '@/components/scorecard/tracker-row';
+import { MetricDetail } from '@/components/scorecard/metric-detail';
 import { useStaffSession } from '@/lib/session-context';
 import { useOkrWorkspace } from '@/lib/okr';
+import { useMasterCalendar } from '@/lib/calendar-hooks';
 import { isQbo } from '@/lib/qbo';
-import {
-  addWeeks, buildCsv, bySortTitle, currentMonday, downloadCsv, isMonday, metricToInput, revisionsFor, useScorecard, useScorecardActions, weekLabel,
-} from '@/lib/scorecard';
+import { bySortTitle, downloadCsv } from '@/lib/scorecard';
+import { fetchAllTrend, trendAllKey, useTracker, useTrackerActions } from '@/lib/scorecard-tracker-hooks';
+import { buildMeasurementCsv, dayLabel, latestFor, milestonesFor, structuralPayload } from '@/lib/scorecard-tracker';
+import { useToast } from '@/hooks/use-toast';
 import { errorMessage } from '@/lib/format';
+import type { ScorecardMeasurement } from '@workspace/api-client-react';
 
 const ALL = 'all';
 
@@ -25,19 +29,20 @@ function ScorecardBody({ foundation }: { foundation: Foundation }) {
   const search = useSearch();
   const [, setLocation] = useLocation();
   const sp = new URLSearchParams(search);
-  const today = currentMonday();
-  const rawEnd = sp.get('week');
-  const endWeek = isMonday(rawEnd) && rawEnd < today ? rawEnd : undefined;
   const owner = sp.get('owner') ?? ALL;
   const area = sp.get('area') ?? ALL;
   const showArchived = sp.get('archived') === '1';
+  const openId = sp.get('metric');
 
-  const q = useScorecard(endWeek);
+  const q = useTracker();
   const okr = useOkrWorkspace();
-  const actions = useScorecardActions();
-  const [metricOpen, setMetricOpen] = useState(false);
+  const cal = useMasterCalendar();
+  const actions = useTrackerActions();
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<ScorecardMetric | null>(null);
-  const [cell, setCell] = useState<{ metricId: string; week: string } | null>(null);
+  const [exporting, setExporting] = useState<string | null>(null);
 
   const go = (patch: Record<string, string | null>) => {
     const next = new URLSearchParams(search);
@@ -60,108 +65,107 @@ function ScorecardBody({ foundation }: { foundation: Foundation }) {
     }
     return { krOptions: opts, krLinks: links };
   }, [okr.data]);
+  const events = cal.data?.events ?? [];
 
   if (q.isLoading) return <PageSkeleton />;
   if (q.isError || !q.data) return <ErrorPanel message={errorMessage(q.error)} onRetry={() => q.refetch()} />;
-  const sc = q.data;
-  const all = [...sc.metrics].sort(bySortTitle);
-  const activeSorted = all.filter((m) => m.active);
+  const t = q.data;
+  const all = [...t.metrics].sort(bySortTitle);
   const visible = all.filter((m) => (showArchived || m.active) && (owner === ALL || m.ownerId === owner) && (area === ALL || m.areaId === area));
-  const staffName = (id: string) => foundation.staff.find((s) => s.id === id)?.name ?? 'Unknown';
-  const winStart = sc.weeks[0];
-  const winEnd = sc.weeks[sc.weeks.length - 1];
-  const atToday = sc.endWeek >= today;
-  const newer = addWeeks(sc.endWeek, 13);
-  const archivedCount = all.length - activeSorted.length;
-
-  const cellMetric = cell ? all.find((m) => m.id === cell.metricId) : undefined;
-  const cellEntry = cell ? sc.entries.find((e) => e.metricId === cell.metricId && e.weekStart === cell.week) : undefined;
+  const archivedCount = all.filter((m) => !m.active).length;
+  const opened = openId ? all.find((m) => m.id === openId) : undefined;
+  const editingMs = editing ? milestonesFor(t.milestones, editing.id) : [];
+  const hasData = editing ? t.latest.some((e) => e.metricId === editing.id) : false;
 
   const move = async (index: number, dir: -1 | 1) => {
     const a = visible[index]; const b = visible[index + dir];
     if (!a || !b) return;
     if (a.sortOrder !== b.sortOrder) {
-      const r = await actions.updateMetric(a.id, { ...metricToInput(a), sortOrder: b.sortOrder }, 'Order updated');
-      if (r.ok) await actions.updateMetric(b.id, { ...metricToInput(b), sortOrder: a.sortOrder }, 'Order updated');
+      const r = await actions.updateMetric(a.id, structuralPayload(a, { sortOrder: b.sortOrder }), 'Order updated', true);
+      if (r.ok) await actions.updateMetric(b.id, structuralPayload(b, { sortOrder: a.sortOrder }), 'Order updated');
       return;
     }
     const list = [...all]; const ia = list.indexOf(a); const ib = list.indexOf(b);
     list[ia] = b; list[ib] = a;
     for (const [i, m] of list.entries()) {
-      if (m.sortOrder !== i) { const r = await actions.updateMetric(m.id, { ...metricToInput(m), sortOrder: i }, 'Order updated'); if (!r.ok) return; }
+      if (m.sortOrder !== i) { const r = await actions.updateMetric(m.id, structuralPayload(m, { sortOrder: i }), 'Order updated', true); if (!r.ok) return; }
     }
   };
   const toggleActive = (m: ScorecardMetric) =>
-    actions.updateMetric(m.id, { ...metricToInput(m), active: !m.active }, m.active ? 'Metric archived; history kept' : 'Metric restored');
+    actions.updateMetric(m.id, structuralPayload(m, { active: !m.active }), m.active ? 'Metric archived; history kept' : 'Metric restored');
+
+  const exportCsv = async () => {
+    const byMetric: Record<string, ScorecardMeasurement[]> = {};
+    try {
+      for (const [i, m] of visible.entries()) {
+        setExporting(`${i + 1}/${visible.length}`);
+        byMetric[m.id] = await qc.fetchQuery({ queryKey: trendAllKey(m.id), queryFn: () => fetchAllTrend(m.id), staleTime: 10_000 });
+      }
+      downloadCsv(`scorecard-measurements-${t.today}.csv`, buildMeasurementCsv(visible, byMetric, foundation.staff));
+    } catch (e) {
+      toast({ title: 'Export stopped', description: `Full history could not load (${errorMessage(e)}). No partial file was saved; try again.`, variant: 'destructive' });
+    } finally { setExporting(null); }
+  };
 
   return (
     <>
-      <PageHeader eyebrow={`Weekly scorecard · ${weekLabel(winStart)} to ${weekLabel(winEnd).split(' to ')[1]}`} title="The numbers, every week."
+      <PageHeader eyebrow={`Scorecard · as of ${dayLabel(t.today)}`} title="The numbers that matter, as they move."
         actions={<>
-          <Button variant="outline" className="bg-card" disabled={visible.length === 0}
-            onClick={() => downloadCsv(`scorecard-${winStart}-to-${winEnd}.csv`, buildCsv(visible, sc.weeks, sc.entries, staffName))} data-testid="button-export-csv">
-            <Download className="mr-1.5 h-4 w-4" />CSV
+          <Button variant="outline" className="bg-card" disabled={visible.length === 0 || !!exporting} onClick={exportCsv} data-testid="button-export-csv">
+            <Download className="mr-1.5 h-4 w-4" />{exporting ? `Exporting ${exporting}` : 'CSV'}
           </Button>
-          {isAdmin && <Button onClick={() => { setEditing(null); setMetricOpen(true); }} className="bg-[#0A2540] text-white" data-testid="button-new-metric"><Plus className="mr-1.5 h-4 w-4" />Metric</Button>}
+          {isAdmin && <Button onClick={() => { setEditing(null); setFormOpen(true); }} className="bg-[#0A2540] text-white" data-testid="button-new-metric"><Plus className="mr-1.5 h-4 w-4" />Metric</Button>}
         </>}>
-        Thirteen weeks, Monday to Sunday. Each number has one owner and one goal; green or red is decided by the goal in force when it was recorded.
+        Record a value whenever it changes. Every save is kept; open a metric to see its whole history against the targets in force.
       </PageHeader>
 
-      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-1.5" data-testid="nav-window">
-          <Button variant="outline" size="sm" className="bg-card" onClick={() => go({ week: addWeeks(sc.endWeek, -13) })} data-testid="button-window-older"><ChevronLeft className="mr-1 h-4 w-4" />Older</Button>
-          <Button variant="outline" size="sm" className="bg-card" disabled={atToday} onClick={() => go({ week: newer >= today ? null : newer })} data-testid="button-window-newer">Newer<ChevronRight className="ml-1 h-4 w-4" /></Button>
-          <Button variant="ghost" size="sm" disabled={atToday} onClick={() => go({ week: null })} className="font-semibold text-[#1D8BC4]" data-testid="button-window-today">Today</Button>
-        </div>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-[180px_180px_auto] sm:items-center">
-          <NativeSelect value={owner} onChange={(e) => go({ owner: e.target.value })} aria-label="Owner" data-testid="filter-scorecard-owner">
-            <option value={ALL}>All owners</option>
-            {foundation.staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </NativeSelect>
-          <NativeSelect value={area} onChange={(e) => go({ area: e.target.value })} aria-label="Area" data-testid="filter-scorecard-area">
-            <option value={ALL}>All areas</option>
-            {foundation.areas.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-          </NativeSelect>
-          <label className="flex items-center gap-2 text-[13px] font-medium text-[#3A4E63]">
-            <input type="checkbox" checked={showArchived} onChange={(e) => go({ archived: e.target.checked ? '1' : null })} className="h-4 w-4 accent-[#1D8BC4]" data-testid="toggle-archived" />
-            Show archived ({archivedCount})
-          </label>
-        </div>
-      </div>
-
-      <div className="mb-4 flex flex-wrap gap-x-5 gap-y-1 text-[12px] text-[#3A4E63]" data-testid="legend-scorecard">
-        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-[#49B949]/30" />On track</span>
-        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-[#B03E71]/25" />Off track</span>
-        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded border border-dashed border-[#0A2540]/25" />No entry or missing</span>
-        <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#1D8BC4]" />Has note</span>
-        <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#ECA519]" />Judged against an earlier goal</span>
+      <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-[200px_200px_auto] sm:items-center">
+        <NativeSelect value={owner} onChange={(e) => go({ owner: e.target.value })} aria-label="Owner" data-testid="filter-scorecard-owner">
+          <option value={ALL}>All owners</option>
+          {foundation.staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </NativeSelect>
+        <NativeSelect value={area} onChange={(e) => go({ area: e.target.value })} aria-label="Area" data-testid="filter-scorecard-area">
+          <option value={ALL}>All areas</option>
+          {foundation.areas.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+        </NativeSelect>
+        <label className="flex items-center gap-2 text-[13px] font-medium text-[#3A4E63]">
+          <input type="checkbox" checked={showArchived} onChange={(e) => go({ archived: e.target.checked ? '1' : null })} className="h-4 w-4 accent-[#1D8BC4]" data-testid="toggle-archived" />
+          Show archived ({archivedCount})
+        </label>
       </div>
 
       {all.length === 0 ? (
         <Panel className="rise flex flex-col items-start gap-4 border-dashed border-[#1D8BC4]/40 bg-[#1D8BC4]/[0.04] py-10">
           <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#1D8BC4]">Scorecard</div>
-          <p className="font-display text-2xl text-[#0A2540] md:text-3xl" data-testid="text-empty-scorecard">No weekly metrics yet.</p>
+          <p className="font-display text-2xl text-[#0A2540] md:text-3xl" data-testid="text-empty-scorecard">No metrics yet.</p>
           <p className="max-w-lg text-[14px] text-muted-foreground">
-            {isAdmin ? 'Most teams settle on five to fifteen numbers: anything you can count weekly, in people, dollars, hours or percent.' : 'An admin sets up the weekly metrics. Once they exist, owners record a number each week.'}
+            {isAdmin ? 'Start with the numbers staff already chase: event registrations, volunteer applications, dollars raised. Link one to a calendar event and set dated targets.' : 'An admin sets up the metrics. Once they exist, owners record the latest value here.'}
           </p>
-          {isAdmin && <Button onClick={() => { setEditing(null); setMetricOpen(true); }} className="bg-[#0A2540] text-white" data-testid="button-empty-new-metric"><Plus className="mr-1.5 h-4 w-4" />Add the first metric</Button>}
+          {isAdmin && <Button onClick={() => { setEditing(null); setFormOpen(true); }} className="bg-[#0A2540] text-white" data-testid="button-empty-new-metric"><Plus className="mr-1.5 h-4 w-4" />Add the first metric</Button>}
         </Panel>
       ) : visible.length === 0 ? (
         <Panel className="border-dashed text-[14px] text-muted-foreground" data-testid="text-scorecard-filtered-empty">No metrics match these filters.</Panel>
       ) : (
-        <ScorecardTable metrics={visible} weeks={sc.weeks} entries={sc.entries} foundation={foundation} krLinks={krLinks}
-          onCell={(m, w) => setCell({ metricId: m.id, week: w })} onEdit={(m) => { setEditing(m); setMetricOpen(true); }}
-          onMove={move} onToggleActive={toggleActive} />
+        <div className="space-y-2.5" data-testid="list-metrics">
+          {visible.map((m, i) => (
+            <TrackerRow key={m.id} metric={m} milestones={milestonesFor(t.milestones, m.id)} latest={latestFor(t.latest, m.id)} today={t.today}
+              foundation={foundation} event={m.calendarEventId ? events.find((e) => e.id === m.calendarEventId) : undefined}
+              krLink={m.linkedKeyResultId ? krLinks[m.linkedKeyResultId] : undefined} isAdmin={isAdmin}
+              canUp={i > 0} canDown={i < visible.length - 1} actions={actions}
+              onOpen={() => go({ metric: m.id })} onEdit={() => { setEditing(m); setFormOpen(true); }}
+              onMove={(dir) => void move(i, dir)} onToggleActive={() => void toggleActive(m)} />
+          ))}
+        </div>
       )}
-      <p className="mt-3 text-[12px] text-muted-foreground">Weekly values are context for QBO key results and never change their quarterly progress. Window counts are per metric; different units are never added together.</p>
+      <p className="mt-3 text-[12px] text-muted-foreground">Values are context for QBO key results and never change their progress. Dated targets count only from their due date; different units are never added together.</p>
 
       {isAdmin && (
-        <MetricDialog open={metricOpen} onOpenChange={setMetricOpen} foundation={foundation} krOptions={krOptions} actions={actions} editing={editing}
-          nextSort={all.reduce((mx, m) => Math.max(mx, m.sortOrder + 1), 0)} />
+        <TrackerMetricForm open={formOpen} onOpenChange={setFormOpen} foundation={foundation} krOptions={krOptions} events={events} actions={actions}
+          editing={editing} milestones={editingMs} hasData={hasData} nextSort={all.reduce((mx, m) => Math.max(mx, m.sortOrder + 1), 0)} />
       )}
-      {cell && cellMetric && (
-        <EntryDialog open onOpenChange={(o) => { if (!o) setCell(null); }} metric={cellMetric} weekStart={cell.week} entry={cellEntry}
-          revisions={revisionsFor(sc.revisions, cellEntry?.id)} staff={foundation.staff} actions={actions} />
+      {opened && (
+        <MetricDetail key={opened.id} metric={opened} milestones={milestonesFor(t.milestones, opened.id)} today={t.today} foundation={foundation}
+          event={opened.calendarEventId ? events.find((e) => e.id === opened.calendarEventId) : undefined} actions={actions} onClose={() => go({ metric: null })} />
       )}
     </>
   );
