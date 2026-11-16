@@ -45,7 +45,7 @@ export async function saveScorecardMetric(actor: StaffActor, raw: unknown, metri
     if(before && before.unit!==data.unit && (await tx.select({id:measurements.id}).from(measurements).where(eq(measurements.metricId,before.id)).limit(1)).length)throw new AppError(409,"Units cannot change after values are recorded. Create another metric for a different unit.");
     if(data.calendarEventId){
       const [event]=await tx.select().from(calendarEventsTable).where(eq(calendarEventsTable.id,data.calendarEventId));
-      if(!event || (event.deletedAt && before?.calendarEventId!==event.id))throw new AppError(400,"Choose an available calendar event.");
+      if(!event || event.kind === "planning_note" || (event.deletedAt && before?.calendarEventId!==event.id))throw new AppError(400,"Choose an available calendar event, not a planning note.");
     }
     if (data.direction === "range" ? data.upperTarget === null || data.upperTarget < data.target : data.upperTarget !== null) {
       throw new AppError(400, "A range needs an upper target at least as large as the lower target. Other goals must not have an upper target.");

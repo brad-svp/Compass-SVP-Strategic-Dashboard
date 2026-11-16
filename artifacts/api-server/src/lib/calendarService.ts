@@ -12,6 +12,7 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 const date = z.string().refine(isCalendarDate, "Enter a valid YYYY-MM-DD date.").nullable();
 const time = z.string().datetime({ offset: true }).nullable();
 const input = z.object({
+  kind: z.enum(["event", "planning_note"]).optional(),
   title: z.string().trim().min(1).max(300), program: z.string().trim().max(120),
   planningYear: z.number().int().min(1900).max(9999), planningMonth:z.number().int().min(1).max(12).nullable().optional(), startDate: date, endDate: date,
   allDay: z.boolean(), startsAt: time, endsAt: time,
@@ -33,8 +34,14 @@ async function actorNow(tx: Tx, actor: StaffActor) {
 function versionMatches(expected: number, actual: number) {
   if (expected !== actual) throw new AppError(409, "This event changed while you were editing. Your draft was not saved. Reopen it to review the latest version.");
 }
+function validatePlanningNote(data: { kind?: string; allDay: boolean; startDate: string | null; endDate: string | null }) {
+  if (data.kind === "planning_note" && (!data.allDay || !data.startDate || data.endDate !== data.startDate)) {
+    throw new AppError(400, "Choose a single calendar date for this planning note. Notes are all-day, date-specific entries.");
+  }
+}
 export function validateCalendarEvent(raw: unknown) {
   const data = input.parse(raw);
+  validatePlanningNote(data);
   if (data.startDate === null || data.endDate === null) {
     if (data.startDate !== null || data.endDate !== null || !data.allDay || data.startsAt || data.endsAt) throw new AppError(400, "An unscheduled event must have no dates or times.");
   } else {
@@ -59,13 +66,15 @@ export async function saveCalendarEvent(actor: StaffActor, raw: unknown, id?: st
     const [before] = id ? await tx.select().from(events).where(eq(events.id, id)) : [];
     if (id && (!before || before.deletedAt)) throw new AppError(404, "Event not found.");
     versionMatches(expectedVersion, before?.version ?? 0);
+    const kind = data.kind ?? before?.kind ?? "event";
+    validatePlanningNote({ ...data, kind });
     if (data.ownerId) {
       const [person] = await tx.select().from(usersTable).where(eq(usersTable.id, data.ownerId));
       if (!person || (!person.active && before?.ownerId !== person.id)) throw new AppError(400, "Choose an active owner.");
     }
     const entityId = id ?? randomUUID();
     const program = await resolveCalendarProgram(tx, data.program, before?.programId);
-    const values = { ...data, program: program?.name ?? "", programId: program?.id ?? null, startsAt: data.startsAt ? new Date(data.startsAt) : null, endsAt: data.endsAt ? new Date(data.endsAt) : null };
+    const values = { ...data, kind, program: program?.name ?? "", programId: program?.id ?? null, startsAt: data.startsAt ? new Date(data.startsAt) : null, endsAt: data.endsAt ? new Date(data.endsAt) : null };
     const [after] = id
       ? await tx.update(events).set({ ...values, version: before!.version + 1, updatedAt: new Date() }).where(eq(events.id, id)).returning()
       : await tx.insert(events).values({ ...values, id: entityId }).returning();

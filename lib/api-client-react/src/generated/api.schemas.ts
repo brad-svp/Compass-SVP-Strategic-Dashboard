@@ -466,6 +466,14 @@ export type SvpSystem = SvpSystemInput & {
   updatedAt: string;
 };
 
+export type CalendarEventInputKind = typeof CalendarEventInputKind[keyof typeof CalendarEventInputKind];
+
+
+export const CalendarEventInputKind = {
+  event: 'event',
+  planning_note: 'planning_note',
+} as const;
+
 export type CalendarEventInputDateStatus = typeof CalendarEventInputDateStatus[keyof typeof CalendarEventInputDateStatus];
 
 
@@ -487,6 +495,7 @@ export const CalendarEventInputLocationStatus = {
 } as const;
 
 export interface CalendarEventInput {
+  kind?: CalendarEventInputKind;
   /**
      * @minLength 1
      * @maxLength 300

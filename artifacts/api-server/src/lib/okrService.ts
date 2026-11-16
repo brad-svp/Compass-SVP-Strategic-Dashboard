@@ -131,7 +131,7 @@ export async function saveKeyResult(actor: StaffActor, raw: unknown, itemId?: st
       if (data.measurementType !== "metric") throw new AppError(400, "Event metrics need numeric measurement.");
       if (data.calendarEventId !== before?.calendarEventId) {
         const [event] = await tx.select().from(calendarEventsTable).where(eq(calendarEventsTable.id, data.calendarEventId));
-        if (!event || event.deletedAt) throw new AppError(400, "Choose an existing calendar event.");
+        if (!event || event.deletedAt || event.kind === "planning_note") throw new AppError(400, "Choose an existing calendar event, not a planning note.");
       }
     }
     const entityId = itemId ?? crypto.randomUUID();

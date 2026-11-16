@@ -6,9 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { CalendarEventInputDateStatus } from './calendarEventInputDateStatus';
+import type { CalendarEventInputKind } from './calendarEventInputKind';
 import type { CalendarEventInputLocationStatus } from './calendarEventInputLocationStatus';
 
 export interface CalendarEventInput {
+  kind?: CalendarEventInputKind;
   /**
      * @minLength 1
      * @maxLength 300

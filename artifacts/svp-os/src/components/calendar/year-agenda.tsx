@@ -1,8 +1,8 @@
 import { Fragment, useCallback, useLayoutEffect, useMemo, useRef } from 'react';
-import { ArrowDown, ArrowUp, CalendarX2, MapPin, Users } from 'lucide-react';
+import { ArrowDown, ArrowUp, CalendarX2, MapPin, StickyNote, Users } from 'lucide-react';
 import type { CalendarEvent } from '@workspace/api-client-react';
 import { MONTHS, fmtDay } from '@/lib/calendar-time';
-import { LOCATION_STATUS, programColor, spanOf, whenLabel } from '@/lib/calendar';
+import { LOCATION_STATUS, NOTE_COLOR, isNote, programColor, spanOf, whenLabel } from '@/lib/calendar';
 import { buildTimeline, scrollDeltaTo, type TimelineMonth } from '@/lib/calendar-timeline';
 import { DateStatusBadge, ProgramTag } from './calendar-bits';
 import { EventProgramMark } from './program-mark';
@@ -12,6 +12,16 @@ function Marker({ e, from }: { e: CalendarEvent; from?: string }) {
   const c = programColor(e.program);
   const confirmed = e.dateStatus === 'confirmed';
   const day = s ? (from && s.start < from ? from : s.start) : null;
+  if (isNote(e)) {
+    return (
+      <div className="relative z-10 flex w-12 shrink-0 flex-col items-center pt-3 md:w-16">
+        <span className="grid h-9 w-9 place-items-center rounded-md border-2 bg-[#E8F3F1] text-[13px] font-semibold tabular-nums text-[#1F5E5B] md:h-10 md:w-10" style={{ borderColor: NOTE_COLOR }}>
+          {day ? Number(day.slice(8)) : '?'}
+        </span>
+        {day && <span className="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">{fmtDay(day, { weekday: 'short' })}</span>}
+      </div>
+    );
+  }
   return (
     <div className="relative z-10 flex w-12 shrink-0 flex-col items-center pt-3 md:w-16">
       <span className={`grid h-9 w-9 place-items-center rounded-full border-2 text-[13px] font-semibold tabular-nums md:h-10 md:w-10 ${confirmed ? 'text-[#FBFAF6]' : 'border-dashed bg-[#FBFAF6] text-[#0A2540]'}`}
@@ -25,6 +35,21 @@ function Marker({ e, from }: { e: CalendarEvent; from?: string }) {
 
 function Card({ e, onOpen, continued }: { e: CalendarEvent; onOpen: (e: CalendarEvent) => void; continued?: boolean }) {
   const c = programColor(e.program);
+  if (isNote(e)) {
+    return (
+      <button type="button" onClick={() => onOpen(e)}
+        className="relative min-w-0 flex-1 rounded-xl border border-[#2E7D7A]/30 bg-[#E8F3F1] px-4 py-3 text-left transition-transform hover:-translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2E7D7A]"
+        data-testid={`row-note-${e.id}`}>
+        <span className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.16em]" style={{ color: NOTE_COLOR }}><StickyNote className="h-3.5 w-3.5" /> Planning note</span>
+        <span className="mt-1 block font-semibold leading-snug text-[#0A2540]">{e.title}</span>
+        {e.notes && <span className="mt-1 block whitespace-pre-wrap text-[12.5px] text-[#3A4E63]">{e.notes}</span>}
+        <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
+          <span className="tabular-nums">{whenLabel(e).replace(' · all day', '')}</span>
+          {e.program && <ProgramTag e={e} />}
+        </span>
+      </button>
+    );
+  }
   return (
     <button type="button" onClick={() => onOpen(e)}
       className="group relative min-w-0 flex-1 rounded-xl border border-card-border bg-card px-4 py-3 text-left shadow-[0_1px_0_rgba(10,37,64,0.04)] transition-[transform,border-color] hover:-translate-y-px hover:border-[#1D8BC4]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1D8BC4]"

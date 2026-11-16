@@ -36,6 +36,7 @@ export * from './brainWorkspace';
 export * from './calendarEvent';
 export * from './calendarEventInput';
 export * from './calendarEventInputDateStatus';
+export * from './calendarEventInputKind';
 export * from './calendarEventInputLocationStatus';
 export * from './calendarImportInfo';
 export * from './calendarProgram';

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { CalendarEvent } from '@workspace/api-client-react';
 import { zonedToUtc, utcToZoned, isValidIsoDate } from '../src/lib/calendar-time';
-import { blankDraft, buildInput, inYear, monthWeeks, weekBars, parseAudience } from '../src/lib/calendar';
+import { blankDraft, buildInput, eventToDraft, inYear, monthWeeks, notesOn, timedOn, weekBars, parseAudience } from '../src/lib/calendar';
 
 test('winter PST and summer PDT conversion', () => {
   assert.deepEqual(zonedToUtc('2026-01-15', '18:30'), { ok: true, iso: '2026-01-16T02:30:00.000Z', ambiguous: false });
@@ -17,6 +17,21 @@ test('nonexistent spring-forward and ambiguous fall-back', () => {
 });
 const ev = (o: Partial<CalendarEvent>) => ({ id: 'e', title: 't', program: 'Board', planningYear: 2026, startDate: null, endDate: null, allDay: true, startsAt: null, endsAt: null,
   location: '', dateStatus: 'confirmed', locationStatus: 'tbd', audience: [], wixUrl: '', notes: '', ownerId: null, expectedVersion: 1, version: 1, sourceUrl: null, imported: false, canEdit: true, updatedAt: '', ...o }) as CalendarEvent;
+test('planning notes retain their type and date without entering event lanes', () => {
+  const draft = { ...blankDraft(2027, '2027-04-05', 'planning_note'), title: 'Applications open', notes: 'Share instructions.' };
+  const built = buildInput(draft, 0);
+  assert.ok(built.ok);
+  if (!built.ok) return;
+  assert.equal(built.input.kind, 'planning_note'); assert.equal(built.input.endDate, '2027-04-05');
+  assert.equal(built.input.allDay, true); assert.equal(built.input.startsAt, null);
+  assert.equal(buildInput({ ...draft, startDate: '' }, 0).ok, false);
+  const note = ev({ ...built.input, id: 'note' });
+  assert.equal(eventToDraft(note).kind, 'planning_note');
+  assert.equal(notesOn('2027-04-05', [note]).length, 1);
+  assert.equal(notesOn('2027-04-06', [note]).length, 0);
+  assert.equal(timedOn('2027-04-05', [note]).length, 0);
+  assert.equal(weekBars(monthWeeks(2027, 3).find(w => w.includes('2027-04-05'))!, [note]).bars.length, 0);
+});
 test('cross-year all-day overlaps both years; TBD uses planning year', () => {
   const x = ev({ startDate: '2026-12-30', endDate: '2027-01-02', planningYear: 2026 });
   assert.equal(inYear(x, 2026), true); assert.equal(inYear(x, 2027), true); assert.equal(inYear(x, 2028), false);

@@ -26,6 +26,7 @@ export function EventForm({ event, seed, staff, programs, actions, onDone, onReo
   const [initialProgram] = useState(() => (event ? eventToDraft(event) : seed).program);
   const choices = programChoices(programs, initialProgram);
   const currentChoice = choices.find((c) => c.value === d.program);
+  const note = d.kind === 'planning_note';
   const owners = staff.filter((s) => s.active || s.id === event?.ownerId);
 
   async function submit(e: FormEvent) {
@@ -63,6 +64,11 @@ export function EventForm({ event, seed, staff, programs, actions, onDone, onReo
             : `"${currentChoice.value}" is retired. This event keeps it, but it cannot be newly assigned elsewhere.`}
         </p>
       )}
+      {note ? (
+        <Field label="Date" hint="Notes sit on one specific day, all day.">
+          <input type="date" required min="1900-01-01" max="9999-12-31" className={inputCls} value={d.startDate} onChange={(e) => set({ startDate: e.target.value, endDate: e.target.value })} data-testid="input-note-date" />
+        </Field>
+      ) : (<>
       <fieldset className="space-y-3">
         <legend className="mb-1.5 text-[12px] font-semibold uppercase tracking-wider text-[#3A4E63]">When</legend>
         <div className="inline-flex rounded-lg border border-border bg-card p-0.5" role="radiogroup" aria-label="Date type">
@@ -116,6 +122,7 @@ export function EventForm({ event, seed, staff, programs, actions, onDone, onReo
       <Field label="Audience" hint="Separate with commas, e.g. Partners, Board, Investees.">
         <input className={inputCls} value={d.audience} onChange={(e) => set({ audience: e.target.value })} data-testid="input-event-audience" />
       </Field>
+      </>)}
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Owner (optional)">
           <NativeSelect value={d.ownerId} onChange={(e) => set({ ownerId: e.target.value })} data-testid="select-event-owner">
@@ -124,12 +131,12 @@ export function EventForm({ event, seed, staff, programs, actions, onDone, onReo
           </NativeSelect>
         </Field>
       </div>
-      <Field label="Notes"><textarea className={`${inputCls} min-h-[88px]`} maxLength={16000} value={d.notes} onChange={(e) => set({ notes: e.target.value })} data-testid="input-event-notes" /></Field>
+      <Field label={note ? 'Details (optional)' : 'Notes'}><textarea className={`${inputCls} min-h-[88px]`} maxLength={16000} value={d.notes} onChange={(e) => set({ notes: e.target.value })} data-testid="input-event-notes" /></Field>
       {notice && <p className="rounded-lg bg-[#ECA519]/10 px-3 py-2 text-[13px] text-[#6B4600]" data-testid="text-dst-notice">{notice}</p>}
       <FormError message={conflict ? null : error} />
       {confirmDelete ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#B03E71]/30 bg-[#B03E71]/[0.05] px-3 py-2.5" data-testid="confirm-delete-event">
-          <span className="text-sm text-[#8E2D58]">Delete "{event?.title}" from the master calendar? Subscribed calendars drop it on their next refresh.</span>
+          <span className="text-sm text-[#8E2D58]">Delete {note ? 'planning note' : ''} "{event?.title}" from the master calendar? Subscribed calendars drop it on their next refresh.</span>
           <div className="flex gap-2">
             <Btn tone="ghost" type="button" onClick={() => setConfirmDelete(false)} disabled={busy}>Keep</Btn>
             <Btn tone="danger" type="button" onClick={remove} disabled={busy} data-testid="button-confirm-delete-event">{busy ? 'Deleting' : 'Delete'}</Btn>
@@ -144,7 +151,7 @@ export function EventForm({ event, seed, staff, programs, actions, onDone, onReo
           ) : <span />}
           <div className="flex gap-2">
             <Btn tone="ghost" type="button" onClick={onDone}>Cancel</Btn>
-            <Btn type="submit" disabled={busy || conflict} data-testid="button-save-event">{busy ? 'Saving' : event ? 'Save event' : 'Add event'}</Btn>
+            <Btn type="submit" disabled={busy || conflict} data-testid="button-save-event">{busy ? 'Saving' : note ? (event ? 'Save note' : 'Add note') : event ? 'Save event' : 'Add event'}</Btn>
           </div>
         </div>
       )}

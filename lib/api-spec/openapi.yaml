@@ -1263,6 +1263,7 @@ components:
       additionalProperties: false
       required: [title, program, planningYear, startDate, endDate, allDay, startsAt, endsAt, location, dateStatus, locationStatus, audience, wixUrl, notes, ownerId, expectedVersion]
       properties:
+        kind: { type: string, enum: [event, planning_note] }
         title: { type: string, minLength: 1, maxLength: 300 }
         program: { type: string, maxLength: 120 }
         planningYear: { type: integer, minimum: 1900, maximum: 9999 }

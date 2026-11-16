@@ -1,4 +1,4 @@
-import type { CalendarEvent, CalendarEventInput, CalendarEventInputDateStatus, CalendarEventInputLocationStatus } from '@workspace/api-client-react';
+import type { CalendarEvent, CalendarEventInput, CalendarEventInputDateStatus, CalendarEventInputKind, CalendarEventInputLocationStatus } from '@workspace/api-client-react';
 import { CAL_TZ, MONTHS, addDaysIso, dayOfWeek, fmtDay, fmtTime, isValidIsoDate, utcToZoned, zonedToUtc } from './calendar-time';
 
 export const DATE_STATUS: Record<string, { label: string; cls: string }> = {
@@ -23,6 +23,10 @@ export function programColor(program: string) {
 }
 
 /* ---------- spans & filtering ---------- */
+
+/** Planning notes are date-specific reminders (kind=planning_note); missing kind means a normal event. */
+export function isNote(e: Pick<CalendarEvent, 'kind'>) { return e.kind === 'planning_note'; }
+export const NOTE_COLOR = '#2E7D7A';
 
 export function isUndated(e: Pick<CalendarEvent, 'startDate' | 'endDate'>) { return !e.startDate; }
 /** Inclusive civil-date span, or null for TBD. */
@@ -80,7 +84,7 @@ export function weekBars(week: string[], events: CalendarEvent[]) {
   const from = week[0], to = week[6];
   const bars: Bar[] = [];
   const lanes: string[][] = [];
-  const multi = sortEvents(events.filter((e) => (e.allDay || spanOf(e)!.start !== spanOf(e)!.end) && overlaps(e, from, to)));
+  const multi = sortEvents(events.filter((e) => !isNote(e) && (e.allDay || spanOf(e)!.start !== spanOf(e)!.end) && overlaps(e, from, to)));
   for (const e of multi) {
     const s = spanOf(e)!;
     const a = s.start < from ? from : s.start, b = s.end > to ? to : s.end;
@@ -92,8 +96,12 @@ export function weekBars(week: string[], events: CalendarEvent[]) {
   }
   return { bars, laneCount: lanes.length };
 }
+/** Planning notes placed on their single day (shown as in-cell cards, never as bars). */
+export function notesOn(day: string, events: CalendarEvent[]) {
+  return sortEvents(events.filter((e) => isNote(e) && spanOf(e)?.start === day));
+}
 export function timedOn(day: string, events: CalendarEvent[]) {
-  return sortEvents(events.filter((e) => !e.allDay && spanOf(e)?.start === day && spanOf(e)?.end === day));
+  return sortEvents(events.filter((e) => !isNote(e) && !e.allDay && spanOf(e)?.start === day && spanOf(e)?.end === day));
 }
 
 /* ---------- labels ---------- */
@@ -122,10 +130,15 @@ export type EventDraft = {
   startDate: string; endDate: string; startTime: string; endTime: string;
   location: string; dateStatus: CalendarEventInputDateStatus; locationStatus: CalendarEventInputLocationStatus;
   audience: string; wixUrl: string; notes: string; ownerId: string;
+  kind?: CalendarEventInputKind;
 };
 
-export function blankDraft(year: number, day?: string): EventDraft {
-  return { title: '', program: '', planningYear: String(year), planningMonth: '', mode: day ? 'allday' : 'tbd', startDate: day ?? '', endDate: day ?? '',
+export function blankDraft(year: number, day?: string, kind?: CalendarEventInputKind): EventDraft {
+  if (kind === 'planning_note') {
+    return { title: '', program: '', planningYear: String(year), planningMonth: '', mode: 'allday', startDate: day ?? '', endDate: day ?? '',
+      startTime: '09:00', endTime: '10:00', location: '', dateStatus: 'confirmed', locationStatus: 'not_applicable', audience: '', wixUrl: '', notes: '', ownerId: '', kind };
+  }
+  return { kind, title: '', program: '', planningYear: String(year), planningMonth: '', mode: day ? 'allday' : 'tbd', startDate: day ?? '', endDate: day ?? '',
     startTime: '09:00', endTime: '10:00', location: '', dateStatus: 'proposed', locationStatus: 'tbd', audience: '', wixUrl: '', notes: '', ownerId: '' };
 }
 export function eventToDraft(e: CalendarEvent, tz = CAL_TZ): EventDraft {
@@ -137,6 +150,7 @@ export function eventToDraft(e: CalendarEvent, tz = CAL_TZ): EventDraft {
     endTime: e.endsAt ? utcToZoned(Date.parse(e.endsAt), tz).time : '10:00',
     location: e.location, dateStatus: e.dateStatus, locationStatus: e.locationStatus,
     audience: e.audience.join(', '), wixUrl: e.wixUrl, notes: e.notes, ownerId: e.ownerId ?? '',
+    kind: e.kind ?? undefined,
   };
 }
 export function parseAudience(s: string) { return distinct(s.split(/[,\n]/)); }
@@ -148,10 +162,16 @@ export type BuildResult = { ok: true; input: CalendarEventInput; notice: string 
 export function buildInput(d: EventDraft, expectedVersion: number, tz = CAL_TZ): BuildResult {
   const title = d.title.trim();
   if (!title) return { ok: false, error: 'Add a title.' };
+  if (d.kind === 'planning_note') {
+    if (!isValidIsoDate(d.startDate)) return { ok: false, error: 'Pick the date this note belongs to (years 1900 to 9999).' };
+    return { ok: true, notice: null, input: { title, kind: 'planning_note', program: d.program.trim(), location: '', dateStatus: d.dateStatus, locationStatus: 'not_applicable',
+      audience: [], wixUrl: '', notes: d.notes, ownerId: d.ownerId || null, expectedVersion, planningYear: Number(d.startDate.slice(0, 4)), planningMonth: null,
+      startDate: d.startDate, endDate: d.startDate, allDay: true, startsAt: null, endsAt: null } };
+  }
   if (d.wixUrl.trim() && !isHttpUrl(d.wixUrl.trim())) return { ok: false, error: 'Wix URL must start with http:// or https://.' };
   const audience = parseAudience(d.audience);
   const base = { title, program: d.program.trim(), location: d.location.trim(), dateStatus: d.dateStatus, locationStatus: d.locationStatus,
-    audience, wixUrl: d.wixUrl.trim(), notes: d.notes, ownerId: d.ownerId || null, expectedVersion };
+    audience, wixUrl: d.wixUrl.trim(), notes: d.notes, ownerId: d.ownerId || null, expectedVersion, ...(d.kind ? { kind: d.kind } : {}) };
   if (d.mode === 'tbd') {
     const y = Number(d.planningYear);
     if (!Number.isInteger(y) || y < 1900 || y > 9999) return { ok: false, error: 'Planning year must be between 1900 and 9999.' };

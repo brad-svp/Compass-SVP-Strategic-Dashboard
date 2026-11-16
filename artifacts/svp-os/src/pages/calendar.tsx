@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearch } from 'wouter';
-import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, GitCommitVertical, Layers, Rss } from 'lucide-react';
+import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, GitCommitVertical, Layers, Rss, StickyNote } from 'lucide-react';
 import type { CalendarEvent, Foundation, MasterCalendar } from '@workspace/api-client-react';
 import { WithFoundation } from '@/components/with-foundation';
 import { ErrorPanel, PageHeader, PageSkeleton, Panel } from '@/components/ui-bits';
@@ -73,13 +73,15 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
   const tbdThisMonth = sortEvents(yearEvents.filter((e) => !spanOf(e) && planningMonthOf(e) === month + 1));
   const tbdThisYear = sortEvents(yearEvents.filter((e) => !spanOf(e) && !planningMonthOf(e)));
   const countBase = view === 'year' ? filtered : yearEvents;
-  const counts = { total: countBase.length, confirmed: countBase.filter((e) => e.dateStatus === 'confirmed').length, tentative: countBase.filter((e) => e.dateStatus === 'proposed' || e.dateStatus === 'tbd').length };
+  const countedEvents = countBase.filter((e) => e.kind !== 'planning_note');
+  const counts = { total: countedEvents.length, notes: countBase.length - countedEvents.length, confirmed: countedEvents.filter((e) => e.dateStatus === 'confirmed').length, tentative: countedEvents.filter((e) => e.dateStatus === 'proposed' || e.dateStatus === 'tbd').length };
   const anchorKey = JSON.stringify(filters);
 
   const shiftMonth = (n: number) => { const m = month + n; setYear(year + Math.floor(m / 12)); setMonth(((m % 12) + 12) % 12); };
   const goToday = () => { setYear(thisYear); setMonth(Number(today.slice(5, 7)) - 1); setTodayNonce((n) => n + 1); };
   const open = (e: CalendarEvent) => setTarget({ event: e, seed: blankDraft(year), editing: false, nonce: 0 });
-  const addNew = (day?: string) => setTarget({ event: null, seed: blankDraft(day ? Number(day.slice(0, 4)) : year, day), editing: true, nonce: 0 });
+  const addNew = (day?: string, kind?: 'planning_note') => setTarget({ event: null, seed: blankDraft(day ? Number(day.slice(0, 4)) : year, day, kind), editing: true, nonce: 0 });
+  const addNote = () => addNew(view === 'month' ? (today.slice(0, 7) === `${year}-${mm}` ? today : `${year}-${mm}-01`) : today, 'planning_note');
   const reopen = () => {
     if (!target?.event) return;
     const latest = cal.events.find((x) => x.id === target.event!.id);
@@ -92,6 +94,7 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
         actions={<>
           {isAdmin && <button type="button" className={ghost} onClick={() => setProgramsOpen(true)} data-testid="button-manage-programs"><Layers className="h-4 w-4" /> Programs</button>}
           <button type="button" className={ghost} onClick={() => setSubOpen(true)} data-testid="button-subscribe"><Rss className="h-4 w-4" /> Subscribe</button>
+          {isAdmin && <button type="button" className={ghost} onClick={addNote} data-testid="button-new-note"><StickyNote className="h-4 w-4 text-[#2E7D7A]" /> Add planning note</button>}
           {isAdmin && <button type="button" onClick={() => addNew()} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0A2540] px-3.5 text-[13px] font-semibold text-[#FBFAF6]" data-testid="button-new-event"><CalendarPlus className="h-4 w-4" /> New event</button>}
         </>}>
         Think Tanks, 100x, Fast Pitch, AI for Good, Impact Tours, Board and partner socials. Times are Sacramento time. Hatched means proposed, solid means confirmed.
@@ -120,7 +123,7 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
             <button type="button" className={ghost} onClick={() => shiftMonth(1)} aria-label="Next month" data-testid="button-month-next"><ChevronRight className="h-4 w-4" /></button>
           </>)}
           <button type="button" className={ghost} onClick={goToday} data-testid="button-today">Today</button>
-          <span className="ml-auto text-[12px] text-muted-foreground" data-testid="text-year-counts">{view === 'year' ? 'All years' : year}: {counts.total} events · {counts.confirmed} confirmed · {counts.tentative} tentative</span>
+          <span className="ml-auto text-[12px] text-muted-foreground" data-testid="text-year-counts">{view === 'year' ? 'All years' : year}: {counts.total} events · {counts.confirmed} confirmed · {counts.tentative} tentative{counts.notes > 0 && ` · ${counts.notes} planning ${counts.notes === 1 ? 'note' : 'notes'}`}</span>
         </div>
         <FiltersBar value={filters} onChange={setFilters} programs={programs} audiences={audiences} />
       </Panel>
@@ -135,7 +138,7 @@ function CalendarBoard({ foundation, cal }: { foundation: Foundation; cal: Maste
       ) : (
         <Panel className="overflow-hidden p-0 md:p-0">
           {view === 'month'
-            ? <MonthView year={year} month={month} events={monthEvents} today={today} onOpen={open} onAddOn={isAdmin ? addNew : undefined} />
+            ? <MonthView year={year} month={month} events={monthEvents} today={today} onOpen={open} onAddOn={isAdmin ? (d) => addNew(d) : undefined} />
             : <YearAgenda events={filtered} today={today} onOpen={open} anchorKey={anchorKey} todayNonce={todayNonce} />}
           {view === 'month' && (tbdThisMonth.length > 0 || tbdThisYear.length > 0) && (
             <div className="space-y-3 border-t border-border bg-[#ECA519]/[0.06] px-4 py-3" data-testid="list-month-tbd">

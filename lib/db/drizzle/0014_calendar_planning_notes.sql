@@ -1,0 +1,3 @@
+ALTER TABLE "calendar_events" ADD COLUMN "kind" text DEFAULT 'event' NOT NULL;--> statement-breakpoint
+ALTER TABLE "calendar_events" ADD CONSTRAINT "calendar_kind_check" CHECK ("calendar_events"."kind" in ('event', 'planning_note'));--> statement-breakpoint
+ALTER TABLE "calendar_events" ADD CONSTRAINT "calendar_note_date_check" CHECK ("calendar_events"."kind" <> 'planning_note' or ("calendar_events"."all_day" and "calendar_events"."start_date" is not null and "calendar_events"."end_date" = "calendar_events"."start_date"));

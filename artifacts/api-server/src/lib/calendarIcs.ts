@@ -31,8 +31,9 @@ export function renderCalendarIcs(events: Event[]) {
       lines.push(`DTSTART:${instant(event.startsAt)}`, `DTEND:${instant(event.endsAt)}`);
     } else { lines.push("END:VEVENT"); continue; }
     const tentative = event.dateStatus !== "confirmed" && !cancelled;
-    lines.push(`SUMMARY:${text(event.deletedAt ? "Cancelled event" : `${tentative ? "[Proposed] " : ""}${event.title}`)}`,
+    lines.push(`SUMMARY:${text(event.deletedAt ? (event.kind === "planning_note" ? "Cancelled planning note" : "Cancelled event") : `${event.kind === "planning_note" ? "[Planning note] " : ""}${tentative ? "[Proposed] " : ""}${event.title}`)}`,
       `STATUS:${cancelled ? "CANCELLED" : tentative ? "TENTATIVE" : "CONFIRMED"}`);
+    if (event.kind === "planning_note") lines.push("TRANSP:TRANSPARENT");
     if (!event.deletedAt) {
       lines.push(`CATEGORIES:${text(event.program)}`, `LOCATION:${text(event.location)}`,
         `DESCRIPTION:${text([

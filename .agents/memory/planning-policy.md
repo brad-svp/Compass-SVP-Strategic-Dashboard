@@ -13,6 +13,12 @@ The calendar timeline opens at today and must allow scrolling backward and forwa
 
 Use the name **Master Calendar**. Date TBD events may have an optional planning month; show them within that month as **Day TBD**, never as a fabricated actual day or subscription date. Wix page URLs are legacy data, not current form/detail fields.
 
+The Master Calendar also includes date-specific planning notes, not just events: for example, “FP applications are released” and other notable planning activities.
+
+**Why:** The user requested these alongside events on 2026-11-16 so operational preparation appears on the same calendar.
+
+**How to apply:** Distinguish planning notes from actual events and event attendance/registration metrics, without inventing event times or locations.
+
 **Why:** The user explicitly chose independent personal priorities and asked to separate the current-work dashboard from historical/future navigation. They corrected a misunderstanding: viewing teammates is never restricted to administrators; only editing is role-restricted.
 
 **How to apply:** Preserve these distinctions when changing planning models, dashboard widgets, calendar navigation or MCP explanations. Do not reintroduce shared company priority titles or home date selectors.

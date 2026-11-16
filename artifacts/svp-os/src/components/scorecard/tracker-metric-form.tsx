@@ -81,7 +81,7 @@ export function TrackerMetricForm({ open, onOpenChange, foundation, krOptions, e
     if (res.ok) onOpenChange(false); else setError(res.message);
   };
 
-  const eventOpts = events.filter((e) => e.dateStatus !== 'cancelled' || e.id === d.eventId)
+  const eventOpts = events.filter((e) => e.kind !== 'planning_note' && (e.dateStatus !== 'cancelled' || e.id === d.eventId))
     .sort((a, b) => (a.startDate ?? `${a.planningYear}-99`).localeCompare(b.startDate ?? `${b.planningYear}-99`));
 
   return (

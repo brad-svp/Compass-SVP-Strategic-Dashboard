@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
-import { ExternalLink, MapPin, Pencil, Users } from 'lucide-react';
+import { MapPin, Pencil, StickyNote, Users } from 'lucide-react';
 import type { CalendarEvent, CalendarProgram, Staff } from '@workspace/api-client-react';
 import { BrowserDialog } from '@/components/browser-dialog';
 import { Btn } from '@/components/six-by-six/form-kit';
 import { fmtDate } from '@/lib/format';
-import { LOCATION_STATUS, isHttpUrl, isTentative, whenLabel, type EventDraft } from '@/lib/calendar';
+import { LOCATION_STATUS, NOTE_COLOR, isHttpUrl, isNote, isTentative, whenLabel, type EventDraft } from '@/lib/calendar';
 import type { CalendarActions } from '@/lib/calendar-hooks';
 import { DateStatusBadge, ProgramTag } from './calendar-bits';
 import { EventForm } from './event-form';
@@ -17,8 +17,9 @@ export function EventDialog({ target, staff, programs, isAdmin, actions, onClose
 }) {
   const e = target?.event ?? null;
   const editing = !!target?.editing;
-  const title = !target ? '' : editing ? (e ? 'Edit event' : 'New event') : e?.title ?? '';
-  const desc = !target ? '' : editing ? 'Times are Sacramento (Pacific) time. Source provenance is kept read-only.' : e ? whenLabel(e) : '';
+  const note = e ? isNote(e) : target?.seed.kind === 'planning_note';
+  const title = !target ? '' : editing ? (note ? (e ? 'Edit planning note' : 'New planning note') : e ? 'Edit event' : 'New event') : e?.title ?? '';
+  const desc = !target ? '' : editing ? (note ? 'A date-specific reminder for staff, such as an application release or deadline. Shows on Month and Timeline.' : 'Times are Sacramento (Pacific) time. Source provenance is kept read-only.') : e ? (note ? whenLabel(e).replace(' · all day', '') : whenLabel(e)) : '';
   return (
     <BrowserDialog open={!!target} onOpenChange={(o) => { if (!o) onClose(); }} title={title} description={desc}>
       {target && editing && (
@@ -43,17 +44,18 @@ function EventDetails({ e, staff, canEdit, onEdit, onClose }: { e: CalendarEvent
   return (
     <div data-testid={`detail-event-${e.id}`}>
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <DateStatusBadge status={e.dateStatus} /><ProgramTag e={e} />
+        {isNote(e) ? <span className="inline-flex items-center gap-1 rounded-full bg-[#E8F3F1] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-inset ring-[#2E7D7A]/35" style={{ color: NOTE_COLOR }} data-testid="badge-planning-note"><StickyNote className="h-3 w-3" /> Planning note</span> : <DateStatusBadge status={e.dateStatus} />}
+        {e.program && <ProgramTag e={e} />}
       </div>
-      {isTentative(e) && e.dateStatus !== 'tbd' && (
+      {!isNote(e) && isTentative(e) && e.dateStatus !== 'tbd' && (
         <p className="mb-3 rounded-lg bg-[#ECA519]/10 px-3 py-2 text-[13px] text-[#6B4600]">Tentative: this date is proposed, not confirmed.</p>
       )}
       <dl className="divide-y divide-border/70">
         <Row label="When">{whenLabel(e)}</Row>
-        <Row label="Where"><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5 text-muted-foreground" />{e.location || 'Not set'}</span> <span className="text-muted-foreground">· {LOCATION_STATUS[e.locationStatus]}</span></Row>
-        <Row label="Audience"><span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5 text-muted-foreground" />{e.audience.length ? e.audience.join(', ') : 'Not set'}</span></Row>
+        {!isNote(e) && <Row label="Where"><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5 text-muted-foreground" />{e.location || 'Not set'}</span> <span className="text-muted-foreground">· {LOCATION_STATUS[e.locationStatus]}</span></Row>}
+        {!isNote(e) && <>        <Row label="Audience"><span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5 text-muted-foreground" />{e.audience.length ? e.audience.join(', ') : 'Not set'}</span></Row></>}
         <Row label="Owner">{owner ? owner.name : 'No owner'}</Row>
-        {e.notes && <Row label="Notes"><span className="whitespace-pre-wrap">{e.notes}</span></Row>}
+        {e.notes && <Row label={isNote(e) ? 'Details' : 'Notes'}><span className="whitespace-pre-wrap">{e.notes}</span></Row>}
         <Row label="Source">
           {e.imported ? (
             <span>Imported once from the Notion master calendar{e.sourceUrl && isHttpUrl(e.sourceUrl) && <> (<a href={e.sourceUrl} target="_blank" rel="noreferrer noopener" className="text-[#125F88] underline" data-testid="link-event-source">Source calendar</a>)</>}. Not a live sync; edits here do not change Notion.</span>

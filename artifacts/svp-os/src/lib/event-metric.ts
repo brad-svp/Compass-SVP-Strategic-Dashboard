@@ -48,6 +48,7 @@ export function eventYear(e: Pick<CalendarEvent, 'startDate' | 'planningYear'>) 
 
 /** Selectable: dated overlap with the quarter, or TBD in the cycle's year. Without a quarter, fall back to cycle span. */
 export function isEligible(e: CalendarEvent, cycle: Cycle | undefined, scope: string) {
+  if (e.kind === 'planning_note') return false;
   if (e.dateStatus === 'cancelled') return false;
   if (!cycle) return true;
   const range = quarterRange(cycle, scope) ?? { from: cycle.startDate, to: cycle.endDate };

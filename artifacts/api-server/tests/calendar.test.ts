@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { before, after, test } from "node:test";
 import { readFile } from "node:fs/promises";
+import { readdirSync } from "node:fs";
 import { db, pool, usersTable, areasTable, cyclesTable, calendarEventsTable, calendarSubscriptionsTable, calendarProgramsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { GetMasterCalendarResponse } from "@workspace/api-zod";
@@ -19,11 +20,11 @@ const base = {
   wixUrl: "", notes: "Dates proposed, pending confirmation", ownerId: null, expectedVersion: 0,
 };
 before(async () => {
-  pool.options.options = `-c search_path=${schema}`;
+  pool.options.options = `-c search_path=${schema},public`;
   const client = await pool.connect();
   try {
-    await client.query(`CREATE SCHEMA "${schema}"`); await client.query(`SET search_path TO "${schema}"`);
-    for (const file of ["0000_phase2_okrs.sql", "0001_accountability_chart.sql", "0002_qbos_scorecard.sql", "0003_editable_six_by_six.sql", "0004_master_calendar.sql", "0005_event_key_results.sql", "0006_systems_overview.sql", "0007_purpose_calendar_programs.sql"]) {
+    await client.query(`CREATE SCHEMA "${schema}"`); await client.query(`SET search_path TO "${schema}",public`);
+    for (const file of readdirSync(new URL("../../../lib/db/drizzle/",import.meta.url)).filter(n=>/^\d+.*\.sql$/.test(n)).sort()) {
       const sql = await readFile(new URL(`../../../lib/db/drizzle/${file}`, import.meta.url), "utf8");
       await client.query(sql.replaceAll('"public".', `"${schema}".`));
     }
@@ -36,6 +37,31 @@ before(async () => {
   ]).returning();
 });
 after(async () => { await pool.query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`); await pool.end(); });
+test("planning notes have one real date, preserve their type on edits, and share the read-only calendar feed", async () => {
+  const note = { ...base, kind: "planning_note", title: "Fast Pitch applications open", startDate: "2027-04-05", endDate: "2027-04-05",
+    dateStatus: "confirmed", locationStatus: "not_applicable", location: "", audience: [], notes: "Publish application instructions." };
+  await assert.rejects(saveCalendarEvent(staff, note), status(403));
+  await assert.rejects(saveCalendarEvent(admin, { ...note, startDate: null, endDate: null }), status(400));
+  await assert.rejects(saveCalendarEvent(admin, { ...note, endDate: "2027-04-06" }), status(400));
+  const created = await saveCalendarEvent(admin, note);
+  const visible = GetMasterCalendarResponse.parse(await getMasterCalendar(staff)).events.find(e => e.id === created.id)!;
+  assert.equal(visible.kind, "planning_note"); assert.equal(visible.canEdit, false);
+  assert.equal(visible.notes, note.notes);
+  // Older callers omitting kind must not silently turn a note into an event.
+  await saveCalendarEvent(admin, { ...note, kind: undefined, title: "Applications released", expectedVersion: 1 }, created.id);
+  assert.equal((await getMasterCalendar(admin)).events.find(e => e.id === created.id)?.kind, "planning_note");
+  await assert.rejects(saveCalendarEvent(admin, { ...note, expectedVersion: 1 }, created.id), status(409));
+  const feed = await createCalendarSubscription(staff);
+  const key = new URL(feed.path, "https://example.com").searchParams.get("key");
+  const ics = await getCalendarFeed(key);
+  assert.match(ics, /SUMMARY:\[Planning note\] Applications released/);
+  assert.match(ics, /DTSTART;VALUE=DATE:20270405/);
+  assert.match(ics, /TRANSP:TRANSPARENT/);
+  await assert.rejects(deleteCalendarEvent(staff, created.id, {expectedVersion:2}), status(403));
+  await deleteCalendarEvent(admin, created.id, {expectedVersion:2});
+  assert.equal((await getMasterCalendar(staff)).events.some(e=>e.id===created.id), false);
+  assert.match(await getCalendarFeed(key), /SUMMARY:Cancelled planning note/);
+});
 test("admin-managed events validate dates, ownership, timing and safe URLs", async () => {
   await assert.rejects(saveCalendarEvent(staff, base), status(403));
   await assert.rejects(saveCalendarEvent(admin, { ...base, endDate: "2027-05-01" }), status(400));

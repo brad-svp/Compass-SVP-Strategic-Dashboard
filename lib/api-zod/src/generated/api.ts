@@ -912,6 +912,7 @@ export const getMasterCalendarResponseEventsItemOneExpectedVersionMin = 0;
 
 export const GetMasterCalendarResponse = zod.object({
   "events": zod.array(zod.object({
+  "kind": zod.enum(['event', 'planning_note']).optional(),
   "title": zod.string().min(1).max(getMasterCalendarResponseEventsItemOneTitleMax),
   "program": zod.string().max(getMasterCalendarResponseEventsItemOneProgramMax),
   "planningYear": zod.number().int().min(getMasterCalendarResponseEventsItemOnePlanningYearMin).max(getMasterCalendarResponseEventsItemOnePlanningYearMax),
@@ -987,6 +988,7 @@ export const createCalendarEventBodyExpectedVersionMin = 0;
 
 
 export const CreateCalendarEventBody = zod.object({
+  "kind": zod.enum(['event', 'planning_note']).optional(),
   "title": zod.string().min(1).max(createCalendarEventBodyTitleMax),
   "program": zod.string().max(createCalendarEventBodyProgramMax),
   "planningYear": zod.number().int().min(createCalendarEventBodyPlanningYearMin).max(createCalendarEventBodyPlanningYearMax),
@@ -1042,6 +1044,7 @@ export const updateCalendarEventBodyExpectedVersionMin = 0;
 
 
 export const UpdateCalendarEventBody = zod.object({
+  "kind": zod.enum(['event', 'planning_note']).optional(),
   "title": zod.string().min(1).max(updateCalendarEventBodyTitleMax),
   "program": zod.string().max(updateCalendarEventBodyProgramMax),
   "planningYear": zod.number().int().min(updateCalendarEventBodyPlanningYearMin).max(updateCalendarEventBodyPlanningYearMax),
