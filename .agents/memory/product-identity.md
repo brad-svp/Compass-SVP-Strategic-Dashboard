@@ -11,7 +11,13 @@ The user approved **True North** after reviewing three compass identity directio
 
 **Why:** The user selected “True North (recommended)” in the direction-selection form.
 
-**How to apply:** Use SVP Compass in new user-facing product material, including the organizational brain and Claude connection. Keep future brand work consistent with the approved True North direction. Do not treat this as a request to replace the SVP Sacramento organization's corporate identity.
+**How to apply:** Use SVP Compass in new user-facing product material, including the organizational brain and Claude connection. Keep the navy, blue and cream identity. Do not treat this as a request to replace the SVP Sacramento organization's corporate identity.
+
+The primary app logo should use the supplied SVP corporate wordmark with a bolder **Compass** beside it, rather than the compass symbol beside the full name.
+
+**Why:** On 2026-11-16 the user supplied the SVP mark and asked to make the logo “more bold” and “use this SVP with the word Compass next to it.” This supersedes the earlier compass-first primary lockup.
+
+**How to apply:** Preserve the supplied SVP letterforms and proportions; keep the main lockup legible on both the dark sidebar and light mobile header. The compass symbol may remain as a compact icon.
 
 The home experience should feel intended for internal staff rather than a public marketing audience, with more emphasis on SVP's mission and authentic community photos from its photo library.
 

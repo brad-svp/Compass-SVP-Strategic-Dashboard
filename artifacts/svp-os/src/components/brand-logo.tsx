@@ -19,15 +19,26 @@ export function LogoMark({ className, light = false }: { className?: string; lig
 export function BrandLockup({ light = false, className }: { light?: boolean; className?: string }) {
   return (
     <div className={cn('flex min-w-0 items-center gap-2.5', className)} aria-label="SVP Compass, Sacramento" role="img">
-      <LogoMark light={light} />
-      <div className="min-w-0 leading-none" aria-hidden="true">
-        <div className={cn('font-display truncate text-lg font-semibold', light ? 'text-[#F6F3EC]' : 'text-[#0A2540]')}>
-          SVP Compass
-        </div>
-        <div className={cn('mt-1 text-[10px] font-semibold uppercase tracking-[0.18em]', light ? 'text-[#8FC6E4]' : 'text-[#006AB6]')}>
-          Sacramento
-        </div>
-      </div>
+      <img
+        src={`${import.meta.env.BASE_URL}brand/${light ? 'svp-mark-cream' : 'svp-mark-blue'}.png`}
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        className="h-8 w-auto shrink-0 select-none"
+      />
+      <span
+        aria-hidden="true"
+        className={cn('h-7 w-px shrink-0', light ? 'bg-[#F6F3EC]/30' : 'bg-[#0A2540]/20')}
+      />
+      <span
+        aria-hidden="true"
+        className={cn(
+          'font-display truncate text-[22px] font-bold leading-none tracking-[-0.02em]',
+          light ? 'text-[#F6F3EC]' : 'text-[#0A2540]',
+        )}
+      >
+        Compass
+      </span>
     </div>
   );
 }
