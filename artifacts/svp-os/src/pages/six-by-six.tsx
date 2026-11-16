@@ -82,11 +82,17 @@ function Board({ foundation, ws }: { foundation: Foundation; ws: SixWorkspace })
                 onCopyItem={p.id === actual?.id && p.startDate.slice(0, 10) <= today && today <= p.endDate.slice(0, 10) ? (item, slot) => {
                   const destination = sorted[actualIdx + 1];
                   const moment = destination?.moments.find(m => m.position === slot.position);
-                  if (!destination || !moment) return;
+                   if (!destination || !moment || ws.items.some(i => i.momentId === moment.id && i.ownerId === item.ownerId)) return;
                   setItemT({ item: null, momentId: moment.id, ownerId: item.ownerId, momentLabel: priorityLabel(moment.position),
                     periodName: destination.name, nonce: Date.now(), copyFrom: { title: item.title, description: item.description } });
                 } : undefined}
-                copyDisabledReason={p.id === actual?.id && !sorted[actualIdx + 1]?.moments.length ? 'An admin needs to create the next 6x6 period first.' : undefined}
+                copyDisabledReason={(item, slot) => {
+                  const destination = sorted[actualIdx + 1];
+                  const moment = destination?.moments.find(m => m.position === slot.position);
+                  if (!moment) return 'An admin needs to create the next 6x6 period first.';
+                  if (ws.items.some(i => i.momentId === moment.id && i.ownerId === item.ownerId)) return 'This priority box in the next 6x6 already has an item. Edit it in the next period instead.';
+                  return undefined;
+                }}
                 onOpenItem={(item: SixItem) => setItemT({ item, momentId: item.momentId, ownerId: item.ownerId, momentLabel: momentLabel(p, item.momentId), periodName: p.name, nonce: 0 })}
                 onAddItem={(m) => setItemT({ item: null, momentId: m.id, ownerId: person.id, momentLabel: priorityLabel(m.position), periodName: p.name, nonce: 0 })} />
             ))}

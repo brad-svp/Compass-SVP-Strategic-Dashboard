@@ -7,6 +7,12 @@ QBOs are organization-wide quarterly objectives/results. Each quarter may have a
 
 6x6 priorities are independent per person, not a shared set of company moments with teammate assignments. **All roles can view everyone's plans.** Staff can edit their own items only; administrators can edit all. Every user can switch between My, All and a multi-selected teammate view, saved to their account across sessions.
 
+A person's 6x6 has six priority boxes, each holding at most one priority—not multiple items in the same box.
+
+**Why:** The user explicitly clarified that only one priority belongs in each box.
+
+**How to apply:** Preserve this limit when creating, assigning or carrying priorities forward; never overwrite or discard existing priorities to make room.
+
 The home dashboard shows the current period automatically, without date filters; users browse other periods within the dedicated sections. Its primary content is **My 6x6 only**, followed by QBOs, with the next 90 days of events and mission content last. Home has one full-width "View all 6x6 priorities" link, not teammate selection controls. My/All/custom saved viewing choices belong on the full 6x6 page. Do not add the removed "Who carries" / "Recent check-ins" summary row back to home.
 
 The calendar timeline opens at today and must allow scrolling backward and forward across year boundaries, rather than silently limiting the timeline to the current year.

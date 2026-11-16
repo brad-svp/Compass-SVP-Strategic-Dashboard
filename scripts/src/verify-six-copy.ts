@@ -16,9 +16,9 @@ try {
   }));
   const source = {
     id: "copy-source", periodId: periods[1].id, momentId: periods[1].moments[2].id, ownerId: "svp-dev-staff",
-    title: "Carry this priority forward", description: "Keep the original details", status: "done", version: 1, canEdit: true, updatedAt: new Date().toISOString(),
+    title: "Carry this priority forward", description: "Keep the original details. ".repeat(6), status: "done", version: 1, canEdit: true, updatedAt: new Date().toISOString(),
   };
-  const items = [source, { ...source, id: "past-source", periodId: periods[0].id, momentId: periods[0].moments[2].id }, { ...source, id: "future-source", periodId: periods[2].id, momentId: periods[2].moments[2].id }];
+  const items = [source, { ...source, id: "past-source", periodId: periods[0].id, momentId: periods[0].moments[2].id }, { ...source, id: "future-source", periodId: periods[2].id, momentId: periods[2].moments[1].id }];
   let created: Record<string, unknown> | null = null;
   const page = await context.newPage();
   await page.route("**/api/svp/six-by-six", route => route.fulfill({ json: { periods, items } }));
@@ -28,6 +28,11 @@ try {
     await route.fulfill({ status: 201, json: { id: "created-copy" } });
   });
   await page.goto(origin + "/six-by-six");
+  const plan = page.getByTestId(`plan-${periods[1].id}-svp-dev-staff`);
+  assert.equal(await plan.getByTestId("button-add-priority-3").count(), 0);
+  assert.equal(await plan.getByTestId("button-add-priority-1").count(), 1);
+  assert.equal(await page.getByTestId(`text-item-detail-${source.id}`).innerText(), source.description.trim().slice(0, 100) + "…");
+  assert.ok((await page.getByTestId("button-item-copy-source").getAttribute("title"))?.includes(source.description.trim()));
   const copy = page.getByTestId("button-copy-item-copy-source");
   await copy.click();
   assert.equal(await page.getByTestId("input-item-title").inputValue(), source.title);
@@ -41,9 +46,12 @@ try {
   assert.equal(await page.getByTestId("button-copy-item-past-source").count(), 0);
   assert.equal(await page.getByTestId("button-copy-item-future-source").count(), 0);
   assert.match(await page.getByTestId("button-item-copy-source").innerText(), /Carry this priority forward/);
+  items[2] = { ...items[2], momentId: periods[2].moments[2].id };
+  await page.reload();
+  assert.equal(await page.getByTestId("button-copy-item-copy-source").isDisabled(), true);
   // Read-only teammate item must never expose a carry-forward action to staff.
   items[0] = { ...source, ownerId: "svp-dev-admin", canEdit: false };
   await page.reload();
   assert.equal(await page.getByTestId("button-copy-item-copy-source").count(), 0);
-  console.log("PASS current-only copy, next-period/same-priority payload, planned reset, original unchanged and staff ownership gate (intercepted UI fixtures)");
+  console.log("PASS one priority per box, first 100 detail characters, full hover text, occupied destination protection, current-only copy and staff ownership gate (intercepted UI fixtures)");
 } finally { await browser.close(); }

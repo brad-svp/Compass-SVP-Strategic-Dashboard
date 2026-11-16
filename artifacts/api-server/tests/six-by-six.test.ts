@@ -70,9 +70,9 @@ test("staff create their own items and all periods allow editing, including old/
   await assert.rejects(saveSixItem(other, item()), status(403));
   await assert.rejects(saveSixItem(owner, { ...item(), momentId: "missing" }), status(404));
   ({ id: itemId } = await saveSixItem(owner, item()));
-  await saveSixItem(owner, item("Second item in same cell"));
+  await assert.rejects(saveSixItem(owner, item("Second item in same cell")), status(409));
   const ws = GetSixBySixResponse.parse(await getSixBySix(owner));
-  assert.equal(ws.items.length, 2);
+  assert.equal(ws.items.length, 1);
   assert.equal(ws.items[0].periodId, pastId);
   assert.equal(ws.items[0].canEdit, true);
   assert.equal((await getSixBySix(other)).items[0].canEdit, false);
@@ -106,6 +106,21 @@ test("removal confirms version, enforces owner, retains audit history and hides 
   assert.equal(audits.at(-1)?.action, "remove");
   assert.ok(audits.at(-1)?.before);
   await assert.rejects(deleteSixItem(admin, itemId, { expectedVersion: existing.version + 1 }), status(404));
+});
+test("one priority per person and box survives concurrent creates, reassignment and deletion", async () => {
+  const ws = await getSixBySix(admin);
+  const slot = ws.periods.find(p => p.id === currentId)!.moments[1].id;
+  const data = { ...item(), momentId: slot };
+  const results = await Promise.allSettled([saveSixItem(owner, data), saveSixItem(owner, data)]);
+  assert.equal(results.filter(r => r.status === "fulfilled").length, 1);
+  assert.ok(status(409)((results.find(r => r.status === "rejected") as PromiseRejectedResult).reason));
+  const saved = (results.find(r => r.status === "fulfilled") as PromiseFulfilledResult<{ id: string }>).value;
+  await saveSixItem(other, { ...data, ownerId: other.id });
+  const { momentId: _, ...fields } = data;
+  await assert.rejects(saveSixItem(admin, { ...fields, ownerId: other.id, expectedVersion: 1 }, saved.id), status(409));
+  await saveSixItem(owner, { ...fields, title: "Edited priority", expectedVersion: 1 }, saved.id);
+  await deleteSixItem(owner, saved.id, { expectedVersion: 2 });
+  await saveSixItem(owner, data);
 });
 test("inactive owners retain visible history and stale admin/staff snapshots cannot write", async () => {
   await db.update(usersTable).set({ active: false }).where(eq(usersTable.id, owner.id));

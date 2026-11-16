@@ -114,6 +114,13 @@ export async function saveSixItem(actor: StaffActor, raw: unknown, id?: string) 
     await assignOwner(tx, actor, ownerId, before?.ownerId);
     const momentId = before?.momentId ?? (parsed as z.infer<typeof itemInput>).momentId;
     await getMoment(tx, momentId);
+    if (!before || before.ownerId !== ownerId) {
+      // actorNow holds a transaction-scoped lock, including concurrent creates.
+      const occupied = await tx.select({ id: items.id }).from(items).where(and(
+        eq(items.momentId, momentId), eq(items.ownerId, ownerId), isNull(items.deletedAt),
+      ));
+      if (occupied.length) throw new AppError(409, "This priority box already has an item. Edit the existing priority instead.");
+    }
     const entityId = id ?? randomUUID();
     const data = { ownerId, title, description, status };
     const [after] = id
