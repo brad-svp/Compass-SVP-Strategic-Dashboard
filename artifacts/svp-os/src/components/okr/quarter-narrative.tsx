@@ -5,7 +5,8 @@ import {
   getGetQuarterNarrativeQueryKey, getQuarterNarrative, useGetQuarterNarrative, useSaveQuarterNarrative, type QuarterNarrative,
 } from '@workspace/api-client-react';
 import { BrowserDialog } from '@/components/browser-dialog';
-import { Btn, FormError, inputCls } from '@/components/six-by-six/form-kit';
+import { Btn, FormError } from '@/components/six-by-six/form-kit';
+import { RichTextDisplay, RichTextEditor } from '@/components/rich-text-editor';
 import { useToast } from '@/hooks/use-toast';
 import { errorMessage, errorStatus, fmtDate } from '@/lib/format';
 import type { Quarter } from '@/lib/qbo';
@@ -56,12 +57,12 @@ export function QuarterNarrativePanel({ cycleId, quarter, cycleName, compact = f
               </button>
             )}
           </div>
-          <p className={cn('whitespace-pre-wrap leading-relaxed text-[#1E3349]', compact ? 'line-clamp-4 text-[13px]' : 'text-[14.5px]')} data-testid="text-quarter-narrative">{n.narrative}</p>
+          <RichTextDisplay value={n.narrative} className={cn('text-[#1E3349]', compact ? 'line-clamp-4 text-[13px]' : 'text-[14.5px]')} testId="text-quarter-narrative" />
           {n.updatedAt && !compact && <div className="mt-2 text-[11px] text-muted-foreground" data-testid="text-quarter-narrative-updated">Updated {fmtDate(n.updatedAt)}</div>}
         </section>
       )}
       <BrowserDialog open={!!editing} onOpenChange={(o) => { if (!o) setEditing(null); }} testId="dialog-quarter-narrative"
-        title={`${quarter} narrative`} description="Plain text shown to everyone above this quarter's QBOs. Leave empty to clear it.">
+        title={`${quarter} narrative`} description="Set the quarter's direction with headings, emphasis and lists. Shown to everyone above this quarter's QBOs.">
         {editing && <NarrativeForm key={editing.nonce} cycleId={cycleId} quarter={quarter} initial={editing}
           onClose={() => setEditing(null)} onReload={(latest, draft) => setEditing({ version: latest.version, draft, nonce: editing.nonce + 1 })} />}
       </BrowserDialog>
@@ -99,7 +100,7 @@ function NarrativeForm({ cycleId, quarter, initial, onClose, onReload }: {
       } else setError(errorMessage(e));
     }
   }
-  const submit = (e: FormEvent) => { e.preventDefault(); if (!conflict) persist(draft); };
+  const submit = (e: FormEvent) => { e.preventDefault(); if (!conflict && draft.length <= MAX) persist(draft); };
 
   async function reload() {
     setReloading(true);
@@ -114,16 +115,19 @@ function NarrativeForm({ cycleId, quarter, initial, onClose, onReload }: {
       {conflict && (
         <div role="alert" className="space-y-2 rounded-lg border border-[#ECA519]/50 bg-[#ECA519]/10 px-3 py-2.5 text-sm text-[#6B4600]" data-testid="notice-narrative-conflict">
           <p>Someone saved a newer version. Your draft is kept below. Load the latest version number to save your draft over it.</p>
-          {conflict.narrative && <p className="max-h-28 overflow-y-auto whitespace-pre-wrap rounded-md bg-card/70 px-2 py-1.5 text-[12.5px] text-[#3A4E63]" data-testid="text-narrative-latest">{conflict.narrative}</p>}
+          {conflict.narrative && <RichTextDisplay value={conflict.narrative} className="max-h-28 overflow-y-auto rounded-md bg-card/70 px-2 py-1.5 text-[12.5px] text-[#3A4E63]" testId="text-narrative-latest" />}
           <button type="button" onClick={reload} disabled={reloading} className="inline-flex items-center gap-1.5 rounded-md bg-[#0A2540] px-3 py-1.5 text-[13px] font-semibold text-[#FBFAF6] disabled:opacity-50" data-testid="button-narrative-reload">
             <RotateCw className="h-3.5 w-3.5" /> {reloading ? 'Loading' : 'Keep my draft, load latest'}
           </button>
         </div>
       )}
       <div className="space-y-1.5">
-        <textarea className={`${inputCls} min-h-[180px] leading-relaxed`} value={draft} maxLength={MAX} autoFocus onChange={(e) => setDraft(e.target.value)}
-          placeholder={`What matters most in ${quarter}, and why.`} aria-label={`${quarter} narrative`} data-testid="input-quarter-narrative" />
-        <div className="flex justify-end font-mono text-[11px] text-muted-foreground" data-testid="text-narrative-count">{draft.length.toLocaleString()} / {MAX.toLocaleString()}</div>
+        <RichTextEditor initialValue={initial.draft} onChange={setDraft} label={`${quarter} narrative`} testId="input-quarter-narrative" />
+        <div className="flex flex-wrap justify-between gap-2 text-[11px] text-muted-foreground">
+          <span>Formatting counts toward the limit.</span>
+          <span className={cn('font-mono', draft.length > MAX && 'text-destructive')} data-testid="text-narrative-count">{draft.length.toLocaleString()} / {MAX.toLocaleString()}</span>
+        </div>
+        {draft.length > MAX && <p role="alert" className="text-sm text-destructive">Shorten the narrative before saving.</p>}
       </div>
       <FormError message={error} />
       {confirmClear ? (
@@ -141,7 +145,7 @@ function NarrativeForm({ cycleId, quarter, initial, onClose, onReload }: {
           ) : <span />}
           <div className="flex gap-2">
             <Btn tone="ghost" type="button" onClick={onClose}>Cancel</Btn>
-            <Btn type="submit" disabled={busy || !!conflict} data-testid="button-save-narrative">{busy ? 'Saving' : 'Save'}</Btn>
+            <Btn type="submit" disabled={busy || !!conflict || draft.length > MAX} data-testid="button-save-narrative">{busy ? 'Saving' : 'Save'}</Btn>
           </div>
         </div>
       )}

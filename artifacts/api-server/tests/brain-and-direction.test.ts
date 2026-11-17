@@ -256,6 +256,22 @@ test("MCP protocol discovery, PKCE exchange, initialization and scoped live read
     const initialized=await call("initialize",{protocolVersion:"2025-03-26",capabilities:{},clientInfo:{name:"Test",version:"1"}});
     assert.equal(initialized.result.serverInfo.name,"svp-compass");
     const tools=await call("tools/list");assert.ok(tools.result.tools.some((t:any)=>t.name==="read_operations"));
+    const operatingTool=tools.result.tools.find((t:any)=>t.name==="read_operations");
+    assert.equal(operatingTool.annotations.readOnlyHint,true);
+    for(const domain of ["qbos","key_results","six_periods","six_slots","six_items","accountability","calendar","scorecard_measurements","quarter_narratives"]) {
+      assert.ok(operatingTool.inputSchema.properties.domain.enum.includes(domain));
+      const response=await call("tools/call",{name:"read_operations",arguments:{domain,limit:2}});
+      assert.equal(response.result.isError,undefined,domain);
+      const data=JSON.parse(response.result.content[0].text);
+      assert.equal(data.domain,domain);
+      assert.ok(Array.isArray(data.records));
+    }
+    const catalog=await call("tools/call",{name:"data_catalog",arguments:{}});
+    assert.match(JSON.parse(catalog.result.content[0].text).relationships.accountability,/responsibilities/);
+    const brief=await call("tools/call",{name:"operating_brief",arguments:{}});
+    assert.ok(JSON.parse(brief.result.content[0].text).sources.some((source:any)=>source.domain==="accountability"));
+    const audit=await call("tools/call",{name:"read_operations",arguments:{domain:"audit"}});
+    assert.equal(audit.result.isError,true);
     assert.ok(!tools.result.tools.some((t:any)=>t.name==="contribute_knowledge"));
     const read=await call("tools/call",{name:"read_operations",arguments:{domain:"six_items",limit:1}});
     assert.equal(read.result.isError,undefined);

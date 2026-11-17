@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 
 const layers: HTMLElement[] = [];
 let previousOverflow = '';
-const focusable = 'button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])';
+const focusable = 'button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[contenteditable="true"],[tabindex]:not([tabindex="-1"])';
 
 /** A single popup layer; no competing native/Radix focus scopes or inert state. */
 export function ModalSurface({ open, onClose, children, className, labelledBy, describedBy, testId }: {
@@ -59,6 +59,10 @@ export function ModalSurface({ open, onClose, children, className, labelledBy, d
           // Repair only an unfocused, editable text control, in the trusted
           // gesture itself (important for iOS keyboard activation).
           const field = event.target;
+          const editor = field instanceof HTMLElement ? field.closest<HTMLElement>('[contenteditable="true"]') : null;
+          if (layers.at(-1) === ref.current && editor && ref.current?.contains(editor) && !editor.contains(editor.ownerDocument.activeElement)) {
+            editor.focus({ preventScroll: true });
+          }
           if (layers.at(-1) === ref.current && (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) &&
             !field.disabled && !field.readOnly && field.ownerDocument.activeElement !== field &&
             (field instanceof HTMLTextAreaElement || ['text', 'email', 'search', 'url', 'tel', 'number', 'password'].includes(field.type))) {

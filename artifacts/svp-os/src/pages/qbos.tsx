@@ -26,8 +26,17 @@ function QbosBody({ foundation }: { foundation: Foundation }) {
   const ownerId = sp.get('owner');
   const legacyView = sp.get('view') === 'legacy' || !!ownerId;
   const requestedCycle = sp.get('cycle');
-  const cycleId = foundation.cycles.some((c) => c.id === requestedCycle) ? requestedCycle! : pickCurrentCycle(foundation.cycles)?.id ?? '';
-  const cycle = foundation.cycles.find((c) => c.id === cycleId);
+  const defaultCycle = foundation.cycles.find(c => c.id === requestedCycle) ?? pickCurrentCycle(foundation.cycles);
+  const calendarYear = Number(new Intl.DateTimeFormat('en', { year: 'numeric', timeZone: 'America/Los_Angeles' }).format(new Date()));
+  const requestedYear = sp.get('year');
+  const year = requestedYear && /^\d{4}$/.test(requestedYear) ? Number(requestedYear) : Number(defaultCycle?.startDate.slice(0, 4) ?? calendarYear);
+  const cyclesInYear = foundation.cycles.filter(c => Number(c.startDate.slice(0, 4)) === year).sort((a, b) => b.startDate.localeCompare(a.startDate));
+  const cycle = cyclesInYear.find(c => c.id === requestedCycle) ?? pickCurrentCycle(cyclesInYear);
+  const cycleId = cycle?.id ?? '';
+  const years = [...new Set([
+    ...Array.from({ length: 7 }, (_, i) => calendarYear + 1 - i),
+    ...foundation.cycles.map(c => Number(c.startDate.slice(0, 4))), year,
+  ])].sort((a, b) => b - a);
   const rq = sp.get('q');
   const quarter = isQuarter(rq) ? rq : currentQuarter(cycle);
   const [newOpen, setNewOpen] = useState(false);
@@ -35,8 +44,8 @@ function QbosBody({ foundation }: { foundation: Foundation }) {
 
   const ws = q.data;
   const inCycle = useMemo(() => (ws ? ws.objectives.filter((o) => o.cycleId === cycleId) : []), [ws, cycleId]);
-  const nav = (p: { cycle?: string; q?: string; view?: string; owner?: string | null }) =>
-    setLocation(qboHref({ cycle: cycleId, q: quarter, ...p }));
+  const nav = (p: { cycle?: string; year?: string; q?: string; view?: string; owner?: string | null }) =>
+    setLocation(qboHref({ cycle: cycleId, year: String(year), q: quarter, ...p }));
 
   if (q.isLoading) return <PageSkeleton />;
   if (q.isError || !ws) return <ErrorPanel message={errorMessage(q.error)} onRetry={() => q.refetch()} />;
@@ -52,22 +61,27 @@ function QbosBody({ foundation }: { foundation: Foundation }) {
 
   return (
     <>
-      <PageHeader eyebrow={cycle ? `${cycle.name} · ${legacyView ? 'legacy objectives' : `${quarter} QBOs`}` : 'QBOs'}
+      <PageHeader eyebrow={`${cycle?.name ?? year} · ${legacyView ? 'legacy objectives' : `${quarter} QBOs`}`}
         title={legacyView ? 'Legacy objectives.' : 'This quarter, together.'}
         actions={<>
-          {foundation.cycles.length > 1 && (
+          {cyclesInYear.length > 1 && (
             <NativeSelect value={cycleId} onChange={(e) => nav({ cycle: e.target.value, view: legacyView ? 'legacy' : undefined, owner: ownerId })} wrapClassName="w-40" aria-label="Cycle" data-testid="select-cycle">
-              {foundation.cycles.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {cyclesInYear.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </NativeSelect>
           )}
-          {isAdmin && !legacyView && <Button onClick={() => setNewOpen(true)} className="bg-[#0A2540] text-white" data-testid="button-new-qbo"><Plus className="mr-1.5 h-4 w-4" />QBO</Button>}
+          {isAdmin && cycle && !legacyView && <Button onClick={() => setNewOpen(true)} className="bg-[#0A2540] text-white" data-testid="button-new-qbo"><Plus className="mr-1.5 h-4 w-4" />QBO</Button>}
         </>}>
         {legacyView
           ? 'Annual and individual objectives from before QBOs. Kept intact with their key results, check-ins and comments; edits are still allowed.'
           : 'Organization-wide objectives for the quarter, each with one accountable owner and measurable key results.'}
       </PageHeader>
 
-      <div className="-mx-4 mb-6 overflow-x-auto px-4 md:mx-0 md:px-0">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <NativeSelect value={String(year)} onChange={e => nav({ year: e.target.value, cycle: undefined, view: legacyView ? 'legacy' : undefined, owner: ownerId })}
+          wrapClassName="w-36 shrink-0" aria-label="Year" data-testid="select-qbo-year">
+          {years.map(y => <option key={y} value={String(y)}>{y}</option>)}
+        </NativeSelect>
+        <div className="-mx-4 min-w-0 flex-1 overflow-x-auto px-4 md:mx-0 md:px-0">
         <div className="flex min-w-max items-center gap-2" role="tablist">
           {QUARTERS.map((qq) => {
             const n = qbos.filter((o) => o.timeScope === qq).length;
@@ -85,6 +99,7 @@ function QbosBody({ foundation }: { foundation: Foundation }) {
             Legacy <span className="ml-1 font-mono text-[11px] font-normal text-muted-foreground">{legacy.length}</span>
           </button>
         </div>
+        </div>
       </div>
 
       {!legacyView && <QuarterNarrativePanel cycleId={cycleId} quarter={quarter} cycleName={cycle?.name} className="rise mb-4" />}
@@ -92,12 +107,12 @@ function QbosBody({ foundation }: { foundation: Foundation }) {
       {!legacyView ? (
         inQuarter.length === 0 ? (
           <Panel className="rise flex flex-col items-start gap-4 border-dashed border-[#1D8BC4]/40 bg-[#1D8BC4]/[0.04] py-10">
-            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#1D8BC4]">{cycle?.name ?? 'This cycle'} · {quarter}</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#1D8BC4]">{cycle?.name ?? year} · {quarter}</div>
             <p className="font-display text-2xl text-[#0A2540] md:text-3xl" data-testid="text-empty-qbos">No QBOs for {quarter} yet.</p>
             <p className="max-w-lg text-[14px] text-muted-foreground">
-              {isAdmin ? 'Three to seven organization-wide objectives keep a six-person team pointed the same way.' : 'An admin sets the QBOs for each quarter. Legacy objectives are still available in the legacy view.'}
+              {!cycle ? `No planning cycle has been set up for ${year}. An admin can add one under Admin → Cycles.` : isAdmin ? 'Three to seven organization-wide objectives keep a six-person team pointed the same way.' : 'An admin sets the QBOs for each quarter. Legacy objectives are still available in the legacy view.'}
             </p>
-            {isAdmin && <Button onClick={() => setNewOpen(true)} className="bg-[#0A2540] text-white" data-testid="button-empty-new-qbo"><Plus className="mr-1.5 h-4 w-4" />Add a {quarter} QBO</Button>}
+            {isAdmin && cycle && <Button onClick={() => setNewOpen(true)} className="bg-[#0A2540] text-white" data-testid="button-empty-new-qbo"><Plus className="mr-1.5 h-4 w-4" />Add a {quarter} QBO</Button>}
           </Panel>
         ) : (
           <div className="space-y-3">{inQuarter.map((o, i) => <ObjectiveRow key={o.id} o={o} ctx={ctx} siblings={inQuarter} index={i} />)}</div>

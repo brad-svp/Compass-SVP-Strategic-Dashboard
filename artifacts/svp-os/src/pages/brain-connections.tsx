@@ -33,6 +33,12 @@ export default function BrainConnectionsPage() {
       <PageHeader eyebrow="Organizational Brain" title="Connect Claude.">
         Let your own Claude read and contribute to the Brain as you. Each connection is personal, scoped and revocable.
       </PageHeader>
+      <section className="mb-5 rounded-xl border border-[#1D8BC4]/25 bg-[#1D8BC4]/[0.05] p-5" data-testid="panel-claude-operating-access">
+        <h2 className="font-display text-xl text-[#0A2540]">Your SVP workspace in Claude</h2>
+        <p className="mt-2 text-sm leading-relaxed text-[#3A4E63]">With your personal authorization, Claude can read live QBOs and key results, quarterly direction, everyone's 6x6 plans, the accountability chart and responsibilities, Master Calendar, scorecards, systems, and mission, vision and values.</p>
+        <p className="mt-2 text-sm font-semibold text-[#0A2540]">Operating records are read-only. Saving knowledge to the Brain is a separate permission; new contributions remain Unreviewed.</p>
+        <p className="mt-3 text-xs text-muted-foreground">Try: “Summarize my current 6x6 and our quarterly QBOs” or “Who owns Fast Pitch, and what are their responsibilities?”</p>
+      </section>
       {q.isLoading ? <div className="space-y-3" data-testid="loading-brain-connections"><Skeleton className="h-40 rounded-xl bg-[#0A2540]/6" /><Skeleton className="h-28 rounded-xl bg-[#0A2540]/6" /></div>
         : q.isError || !q.data ? <ErrorPanel message={errorMessage(q.error)} onRetry={() => q.refetch()} />
         : (() => {

@@ -22,9 +22,10 @@ export function currentQuarter(cycle?: Cycle, now = new Date()): Quarter {
   return QUARTERS[Math.floor(now.getUTCMonth() / 3)];
 }
 
-export function qboHref(params: { cycle?: string; q?: string; view?: string; owner?: string | null }) {
+export function qboHref(params: { cycle?: string; year?: string; q?: string; view?: string; owner?: string | null }) {
   const sp = new URLSearchParams();
   if (params.cycle) sp.set('cycle', params.cycle);
+  if (params.year) sp.set('year', params.year);
   if (params.q) sp.set('q', params.q);
   if (params.view) sp.set('view', params.view);
   if (params.owner) sp.set('owner', params.owner);

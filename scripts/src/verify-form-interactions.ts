@@ -50,7 +50,7 @@ try {
         await opener.click();
         const modal = app.getByRole("dialog").last();
         await modal.waitFor();
-        const fields = modal.locator('input:not([type="hidden"]):not([type="number"]):not([type="date"]):not([type="checkbox"]),textarea');
+        const fields = modal.locator('input:not([type="hidden"]):not([type="number"]):not([type="date"]):not([type="checkbox"]),textarea,[contenteditable="true"]');
         for (let i = 0; i < await fields.count(); i++) {
           const field = fields.nth(i);
           if (!await field.isVisible() || !await field.isEditable()) continue;
@@ -65,7 +65,7 @@ try {
           assert.ok(await field.evaluate(e => e.ownerDocument.activeElement === e), "Cancelled native focus is repaired");
           await field.press("ControlOrMeta+A");
           await field.pressSequentially("Keyboard interaction check");
-          assert.equal(await field.inputValue(), "Keyboard interaction check", form.path);
+          assert.equal(await field.getAttribute("contenteditable") === "true" ? await field.innerText() : await field.inputValue(), "Keyboard interaction check", form.path);
           assert.ok(await field.evaluate(e => e.ownerDocument.activeElement === e), "Pointer click retains field focus");
         }
         const selector = modal.locator('button[aria-haspopup="listbox"]').first();
@@ -84,7 +84,7 @@ try {
           assert.equal(await selector.getAttribute("aria-expanded"), "false");
           await fields.first().click();
           await fields.first().pressSequentially(" after dropdown");
-          assert.match(await fields.first().inputValue(), /after dropdown/);
+          assert.match(await fields.first().getAttribute("contenteditable") === "true" ? await fields.first().innerText() : await fields.first().inputValue(), /after dropdown/);
         }
         await modal.getByRole("button", { name: "Close", exact: true }).last().focus();
         await page.keyboard.press("Tab");
